@@ -31,7 +31,6 @@ app.config["PLUGINS"] = {
     in pkgutil.iter_modules(superform.plugins.__path__, superform.plugins.__name__ + ".")
 }
 
-
 @app.route('/')
 def index():
     user = User.query.get(session.get("user_id", "")) if session.get("logged_in", False) else None

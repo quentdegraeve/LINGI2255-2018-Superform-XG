@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block title %}Edition{% endblock %}
+{% block content %}
+    <h1>Edition</h1>
+    <div>
+        <div>
+            <h2>Title</h2>
+            <textarea class="form-control">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium eius officiis veritatis voluptates. Aliquam consequatur dicta distinctio eos eum expedita fugit, libero maxime minima nisi pariatur rerum sint voluptas? Explicabo!</textarea>
+        </div>
+        <div>Published: False</div>
+    </div>
+    <div>
+        <div class="form-group">
+             <label>
+                 On which channel do you want to apply changes ?
+             </label>
+             <div class="form-check">
+                <label class="form-check-label">
+                    <input type="checkbox" class="form-check-input checkbox">
+                    Twitter account
+                </label>
+            </div>
+             <div class="form-check">
+                <label class="form-check-label">
+                    <input type="checkbox" class="form-check-input checkbox">
+                    Mail account
+                </label>
+            </div>
+            <button type="button" class="btn btn-primary">Choose</button>
+         </div>
+    </div>
+{% endblock %}

@@ -59,6 +59,11 @@ def new_post():
         create_a_post(request.form)
         return redirect(url_for('index'))
 
+@posts_page.route('/edit', methods=['GET'])
+@login_required()
+def edit_post():
+    return render_template('edit.html')
+
 
 @posts_page.route('/publish', methods=['POST'])
 @login_required()
