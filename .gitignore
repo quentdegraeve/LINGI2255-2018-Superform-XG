@@ -1,4 +1,5 @@
-/venv/*
+superform/venv/
+superform/superform/superform.db
 .idea
 /__pycache__/*
 /superform/superform/config.json
