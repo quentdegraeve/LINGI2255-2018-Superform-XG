@@ -1,6 +1,7 @@
 from flask import Flask, render_template, session
 import pkgutil
 import importlib
+from flask import request
 
 import superform.plugins
 from superform.publishings import pub_page
@@ -10,6 +11,8 @@ from superform.authorizations import authorizations_page
 from superform.channels import channels_page
 from superform.posts import posts_page
 from superform.users import get_moderate_channels_for_user, is_moderator
+
+from superform.plugins.linkedin import setAccessToken
 
 app = Flask(__name__)
 app.config.from_json("config.json")
@@ -34,6 +37,12 @@ app.config["PLUGINS"] = {
 
 @app.route('/')
 def index():
+
+    code = request.args.get('code')
+
+    if code != None:
+        setAccessToken(code)
+
     user = User.query.get(session.get("user_id", "")) if session.get("logged_in", False) else None
     posts=[]
     flattened_list_pubs =[]
@@ -45,6 +54,7 @@ def index():
         flattened_list_pubs = [y for x in pubs_per_chan for y in x]
 
     return render_template("index.html", user=user,posts=posts,publishings = flattened_list_pubs)
+
 
 @app.errorhandler(403)
 def forbidden(error):
