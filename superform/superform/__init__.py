@@ -1,4 +1,4 @@
-from flask import Flask, render_template, session
+from flask import Flask, render_template, session, redirect
 import pkgutil
 import importlib
 from flask import request
@@ -37,12 +37,6 @@ app.config["PLUGINS"] = {
 
 @app.route('/')
 def index():
-
-    code = request.args.get('code')
-
-    if code != None:
-        setAccessToken(code)
-
     user = User.query.get(session.get("user_id", "")) if session.get("logged_in", False) else None
     posts=[]
     flattened_list_pubs =[]
@@ -55,6 +49,13 @@ def index():
 
     return render_template("index.html", user=user,posts=posts,publishings = flattened_list_pubs)
 
+
+@app.route('/linkedin/verify')
+def linkedin_verify_authorization():
+    code = request.args.get('code')
+    if code != None:
+        setAccessToken(code)
+    return redirect('/')
 
 @app.errorhandler(403)
 def forbidden(error):

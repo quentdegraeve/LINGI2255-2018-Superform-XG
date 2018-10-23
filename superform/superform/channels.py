@@ -13,8 +13,9 @@ channels_page = Blueprint('channels', __name__)
 @login_required(admin_required=True)
 def channel_list():
 
-    authaurization_url = authenticate()
-    return redirect(authaurization_url)
+    authorization_url = authenticate("Test2") #donnerNomChannel
+    if authorization_url != None:
+        return redirect(authorization_url)
 
 
 

@@ -1,9 +1,10 @@
 from linkedin import linkedin
+from superform import utils
 
 
 API_KEY = '861s90686z5fuz'
 API_SECRET = 'xHDD886NZNkWVuN4'
-RETURN_URL = 'http://localhost:5000'
+RETURN_URL = 'http://localhost:5000/linkedin/verify'
 
 authentication = linkedin.LinkedInAuthentication(
     API_KEY,
@@ -14,13 +15,17 @@ authentication = linkedin.LinkedInAuthentication(
 
 application = None
 
-def authenticate():
-    # Optionally one can send custom "state" value that will be returned from OAuth server
-    # It can be used to track your user state or something else (it's up to you)
-    # Be aware that this value is sent to OAuth server AS IS - make sure to encode or hash it
-    # authorization.state = 'your_encoded_message'
-    return authentication.authorization_url  # open this url on your browser
-
+def authenticate(channel_name):
+    previous_token = Linkedin.get_token(Linkedin, "Test2")
+    print("previoustoken ", str(previous_token))
+    if previous_token == None or previous_token.expires_in <= 0:
+        # Optionally one can send custom "state" value that will be returned from OAuth server
+        # It can be used to track your user state or something else (it's up to you)
+        # Be aware that this value is sent to OAuth server AS IS - make sure to encode or hash it
+        # authorization.state = 'your_encoded_message'
+        return authentication.authorization_url  # open this url on your browser
+    else:
+        initialiseLinkendinApp(previous_token.access_token)
 
 def setAccessToken(code):
     authentication.authorization_code = code
@@ -31,6 +36,7 @@ def setAccessToken(code):
     print("Access Token:", result.access_token)
     print("Expires in (seconds):", result.expires_in)
     initialiseLinkendinApp(result.access_token)
+    Linkedin.put_token(Linkedin, "Test2", result)
 
 def initialiseLinkendinApp(token):
     application = linkedin.LinkedInApplication(token=token)
@@ -61,11 +67,11 @@ def run(publishing,channel_config):
     #application = linkedin.LinkedInApplication(token.access_token)
     print("enum" + str(linkedin.PERMISSIONS.enums.values()))
     #print("Dans run linkedin", token)
-    return;
+    return
 
 
 class Linkedin:
-    tokens = {};
+    tokens = {}
 
     def get_token(self, channel):
         if channel in self.tokens:
