@@ -36,6 +36,6 @@ def setAccessToken(code):
     initialiseLinkendinApp(result.access_token)
 
 def initialiseLinkendinApp(token):
-    application = linkedin.LinkedInApplication(token='token')
-    application.submit_share('Posting from the API using Python', 'A title for your share', None,
-                             'https://www.linkedin.com', None,'anyone')
+    application = linkedin.LinkedInApplication(token=token)
+    application.submit_share(comment='Test python comment', title='Test python title', submitted_url=None,
+                             submitted_image_url=None, description="Test python description",visibility_code='anyone')

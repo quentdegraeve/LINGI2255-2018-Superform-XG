@@ -9,6 +9,6 @@ setup(
         'python3-saml',
         'sqlalchemy',
         'flask-sqlalchemy',
-        'flask_oauthlib'
+        'python3-linkedin'
     ],
 )

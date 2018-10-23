@@ -10,14 +10,15 @@ channels_page = Blueprint('channels', __name__)
 
 
 @channels_page.route("/channels", methods=['GET', 'POST'])
-@login_required(admin_required=False)
+@login_required(admin_required=True)
 def channel_list():
 
-    authaurization_url  =authenticate()
+    authaurization_url = authenticate()
     return redirect(authaurization_url)
 
 
 
+    #linkedin.run(None,{})
     if request.method == "POST":
         action = request.form.get('@action', '')
         if action == "new":
