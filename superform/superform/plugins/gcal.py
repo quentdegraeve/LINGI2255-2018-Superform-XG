@@ -15,9 +15,6 @@ def run(gcal_publishing,channel_config):
     json_data = json.loads(channel_config)
     token = json_data['token']
 
-    """Shows basic usage of the Google Calendar API.
-        Prints the start and name of the next 10 events on the user's calendar.
-        """
     credentials = None
     try:
         credentials = client.Credentials.new_from_json(token)
