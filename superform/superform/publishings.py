@@ -31,4 +31,3 @@ def moderate_publishing(id,idc):
         plugin.run(pub,c_conf)
 
         return redirect(url_for('index'))
-
