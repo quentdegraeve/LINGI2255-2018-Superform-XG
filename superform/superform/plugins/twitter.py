@@ -1,13 +1,16 @@
 import json
-import twitter
+import os
+
+import requests
+import tweepy
 
 FIELDS_UNAVAILABLE = ['Title']
-CONFIG_FIELDS = ['consumer_key', 'consumer_secret', 'access_token_key', 'access_token_secret']
+CONFIG_FIELDS = ["consumer_key", "consumer_secret", "access_token_key", "access_token_secret"]
 
 
 def run(publishing, channel_config):
 
-    # To do : Error management
+     #To do : Error management
 
     json_data = json.loads(channel_config)
 
@@ -16,16 +19,39 @@ def run(publishing, channel_config):
             print('Missing : {0}'.format(field))
             return
 
-    api = twitter.Api(consumer_key=json_data.get('consumer_key'),
-                      consumer_secret=json_data.get('consumer_secret'),
-                      access_token_key=json_data.get('access_token_key'),
-                      access_token_secret=json_data.get('access_token_secret'))
+    cfg = {
+        "consumer_key": str(json_data['consumer_key']),
+        "consumer_secret": str(json_data['consumer_secret']),
+        "access_token": str(json_data['access_token_key']),
+        "access_token_secret": str(json_data['access_token_secret'])
+    }
+    api = get_api(cfg)
+    tweet = publishing.description
+    image_url = None
+    if image_url is None:
+        try:
+            api.update_status(status=tweet)
+        except tweepy.TweepError as e:
+            print(e.reason)
+    else:
+        filename = 'img.jpg'
+        request = requests.get(image_url, stream=True)
+        if request.status_code == 200:
+            with open(filename, 'wb') as image:
+                for req in request:
+                    image.write(req)
 
-    description = publishing.description
+            api.update_with_media(filename, status=tweet)
+            os.remove(filename)
+        else:
+            print("Cant load the image")
 
-    try:
-        status = api.PostUpdate(description)
-        print(status)
-        print(status)
-    except:
-        print("Error during the authentification")
+
+
+def get_api(cfg):
+    auth = tweepy.OAuthHandler(cfg['consumer_key'], cfg['consumer_secret'])
+    auth.set_access_token(cfg['access_token'], cfg['access_token_secret'])
+    return tweepy.API(auth)
+
+
+
