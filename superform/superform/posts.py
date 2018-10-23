@@ -62,7 +62,23 @@ def new_post():
 @posts_page.route('/edit', methods=['GET'])
 @login_required()
 def edit_post():
-    return render_template('edit.html')
+    edit_id = 1
+    post = db.session.query(Post).filter(Post.id == edit_id).first()
+    publishing = db.session.query(Publishing).filter(Publishing.post_id==post.id).all()
+    user_id = session.get("user_id", "") if session.get("logged_in", False) else -1
+    list_of_channels = channels_available_for_user(user_id)
+    for elem in list_of_channels:
+        m = elem.module
+        clas = get_instance_from_module_path(m)
+        unaivalable_fields = ','.join(clas.FIELDS_UNAVAILABLE)
+        setattr(elem, "unavailablefields", unaivalable_fields)
+
+    if request.method == "GET":
+        print(publishing)
+        return render_template('edit.html', l_chan=list_of_channels, l_publishing=publishing)
+    else:
+        create_a_post(request.form)
+        return redirect(url_for('index'))
 
 
 @posts_page.route('/publish', methods=['POST'])
