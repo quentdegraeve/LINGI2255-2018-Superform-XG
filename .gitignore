@@ -1,6 +1,7 @@
 superform/venv/
+superform/superform/superform.db
 .idea
-/__pycache__/
+/__pycache__/*
 /superform/superform/config.json
 .cache/*
 .pytest_cache/*
