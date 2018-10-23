@@ -1,5 +1,4 @@
-# Created by .ignore support plugin (hsz.mobi)
-/venv/
+/venv/*
 .idea
 /__pycache__/
 /superform/superform/config.json
