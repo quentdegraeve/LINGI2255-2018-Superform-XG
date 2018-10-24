@@ -1,6 +1,7 @@
 from linkedin import linkedin
 from superform import utils
 
+FIELDS_UNAVAILABLE = []
 
 CONFIG_FIELDS = ["profile_email"]
 
