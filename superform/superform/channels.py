@@ -24,12 +24,6 @@ def channel_list():
                 db.session.add(channel)
                 db.session.commit()
 
-                print(module)
-                if module == "linkedin":
-                    authorization_url = authenticate(name)  # channel's name
-                    if authorization_url != "alreadyAuthenticated":
-                        return redirect(authorization_url)
-
         elif action == "delete":
             channel_id = request.form.get("id")
             channel = Channel.query.get(channel_id)

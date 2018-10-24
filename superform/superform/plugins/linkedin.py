@@ -1,9 +1,11 @@
 from linkedin import linkedin
 from superform import utils
+from flask import redirect
+import json
 
 FIELDS_UNAVAILABLE = []
 
-CONFIG_FIELDS = ["profile_email"]
+CONFIG_FIELDS = ["profile_email", "channel_name"]
 
 API_KEY = '861s90686z5fuz'
 API_SECRET = 'xHDD886NZNkWVuN4'
@@ -17,17 +19,24 @@ authentication = linkedin.LinkedInAuthentication(
 )
 
 
-def authenticate(channel_name):
+def authenticate(channel_name, publishing_id):
     previous_token = LinkedinTokens.get_token(LinkedinTokens, channel_name)
     print("previoustoken ", str(previous_token))
-    if previous_token == None or previous_token.expires_in <= 0:
-        authentication.state = channel_name
+    print("channel ",channel_name)
+
+    if previous_token is None or previous_token.expires_in <= 0:
+        conf = dict()
+        conf["channel_name"] = channel_name
+        conf["publishing_id"] = publishing_id
+
+        authentication.state = json.dumps(conf)
+        print("authorization_url", authentication.authorization_url)
         return authentication.authorization_url  # open this url on your browser
     else:
-        return "alreadyAuthenticated"
+        return 'AlreadyAuthenticated'
 
 
-def setAccessToken(channel_name, code):
+def set_access_token(channel_name, code):
     authentication.authorization_code = code
 
     print(authentication.authorization_code)
@@ -37,48 +46,24 @@ def setAccessToken(channel_name, code):
     print("Expires in (seconds):", result.expires_in)
     LinkedinTokens.put_token(LinkedinTokens, channel_name, result)
 
-    application = linkedin.LinkedInApplication(token=result.access_token)
-    profile_email = application.get_profile(selectors=['email-address']);
-    print(profile_email.get("emailAddress"))
-    return profile_email.get("emailAddress")
 
+def share_post(channel_name,comment,submitted_url,submitted_image_url,visibility_code):
+    token = LinkedinTokens.get_token(LinkedinTokens, channel_name)
+    print(' share_post token ', token)
+    application = linkedin.LinkedInApplication(token=token.access_token)
 
-
-def Share_post(channel_name,comment,title,submitted_url,submitted_image_url,description,visibility_code):
-
-    token = LinkedinTokens.get_token(LinkedinTokens, channel_name);
-
-    application = linkedin.LinkedInApplication(token=token)
-
-    application.submit_share(comment=comment, title=title, submitted_url=submitted_url,
-                             submitted_image_url=submitted_image_url, description=description,visibility_code=visibility_code)
-
-#Client_id =861s90686z5fuz
-#Client_secret=xHDD886NZNkWVuN4
+    application.submit_share(comment=comment, title="Sharing from Superform", submitted_url=submitted_url,
+                             submitted_image_url=submitted_image_url, description="This is a sharing from Superform",visibility_code=visibility_code)
 
 
 def run(publishing,channel_config):
-    """
-    authentication = linkedin.LinkedInDeveloperAuthentication(
-        "861s90686z5fuz", #CONSUMER_KEY
-        "xHDD886NZNkWVuN4", #CONSUMER_SECRET
-        "test, "#USER_TOKEN
-        "pass?", #USER_SECRET
-        "return url?", #RETURN_URL
-        linkedin.PERMISSIONS.enums.values()
-    )
-    """
-    previous_token = LinkedinTokens.get_token(LinkedinTokens, "Test2")
-    print("previoustoken ", str(previous_token))
-    print("utils ", utils.get_config("LinkedinSection", "authorization_code"))
-    if previous_token == None or previous_token.expires_in <= 0:
-        setAccessToken(utils.get_config("LinkedinSection", "authorization_code"))
-        #authentication.authorization_code = utils.get_config("LinkedinSection", "authorization_code")
-    #application = linkedin.LinkedInApplication(token.access_token)
-    print("enum" + str(linkedin.PERMISSIONS.enums.values()))
-    #print("Dans run linkedin", token)
-    return
-
+    print("publishing Linkedin", publishing)
+    print("channel-conf", type(channel_config), channel_config)
+    conf = json.loads(channel_config)
+    print("conf run", conf, type(conf))
+    channel_name = conf['channel_name']
+    authenticate(channel_name, (publishing.post_id, publishing.channel_id))
+    share_post(channel_name, publishing.description, publishing.link_url, publishing.image_url, "anyone")
 
 
 class LinkedinTokens:
