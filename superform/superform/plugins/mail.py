@@ -5,7 +5,7 @@ from smtplib import SMTPException
 from flask import current_app
 import json
 
-FIELDS_UNAVAILABLE = ['Title','Description']
+FIELDS_UNAVAILABLE = ['Url']
 
 CONFIG_FIELDS = ["sender","receiver"]
 
