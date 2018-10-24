@@ -2,6 +2,8 @@ from linkedin import linkedin
 from superform import utils
 
 
+CONFIG_FIELDS = ["profile_email"]
+
 API_KEY = '861s90686z5fuz'
 API_SECRET = 'xHDD886NZNkWVuN4'
 RETURN_URL = 'http://localhost:5000/linkedin/verify'
@@ -13,21 +15,18 @@ authentication = linkedin.LinkedInAuthentication(
     ['r_basicprofile', 'r_emailaddress', 'w_share', 'rw_company_admin']
 )
 
-application = None
 
 def authenticate(channel_name):
-    previous_token = Linkedin.get_token(Linkedin, "Test2")
+    previous_token = LinkedinTokens.get_token(LinkedinTokens, channel_name)
     print("previoustoken ", str(previous_token))
     if previous_token == None or previous_token.expires_in <= 0:
-        # Optionally one can send custom "state" value that will be returned from OAuth server
-        # It can be used to track your user state or something else (it's up to you)
-        # Be aware that this value is sent to OAuth server AS IS - make sure to encode or hash it
-        # authorization.state = 'your_encoded_message'
+        authentication.state = channel_name
         return authentication.authorization_url  # open this url on your browser
     else:
-        initialiseLinkendinApp(previous_token.access_token)
+        return "alreadyAuthenticated"
 
-def setAccessToken(code):
+
+def setAccessToken(channel_name, code):
     authentication.authorization_code = code
 
     print(authentication.authorization_code)
@@ -35,13 +34,23 @@ def setAccessToken(code):
 
     print("Access Token:", result.access_token)
     print("Expires in (seconds):", result.expires_in)
-    initialiseLinkendinApp(result.access_token)
-    Linkedin.put_token(Linkedin, "Test2", result)
+    LinkedinTokens.put_token(LinkedinTokens, channel_name, result)
 
-def initialiseLinkendinApp(token):
+    application = linkedin.LinkedInApplication(token=result.access_token)
+    profile_email = application.get_profile(selectors=['email-address']);
+    print(profile_email.get("emailAddress"))
+    return profile_email.get("emailAddress")
+
+
+
+def Share_post(channel_name,comment,title,submitted_url,submitted_image_url,description,visibility_code):
+
+    token = LinkedinTokens.get_token(LinkedinTokens, channel_name);
+
     application = linkedin.LinkedInApplication(token=token)
-    application.submit_share(comment='Test python comment', title='Test python title', submitted_url=None,
-                             submitted_image_url=None, description="Test python description",visibility_code='anyone')
+
+    application.submit_share(comment=comment, title=title, submitted_url=submitted_url,
+                             submitted_image_url=submitted_image_url, description=description,visibility_code=visibility_code)
 
 #Client_id =861s90686z5fuz
 #Client_secret=xHDD886NZNkWVuN4
@@ -58,7 +67,7 @@ def run(publishing,channel_config):
         linkedin.PERMISSIONS.enums.values()
     )
     """
-    previous_token = Linkedin.get_token(Linkedin, "Test2")
+    previous_token = LinkedinTokens.get_token(LinkedinTokens, "Test2")
     print("previoustoken ", str(previous_token))
     print("utils ", utils.get_config("LinkedinSection", "authorization_code"))
     if previous_token == None or previous_token.expires_in <= 0:
@@ -70,7 +79,8 @@ def run(publishing,channel_config):
     return
 
 
-class Linkedin:
+
+class LinkedinTokens:
     tokens = {}
 
     def get_token(self, channel):

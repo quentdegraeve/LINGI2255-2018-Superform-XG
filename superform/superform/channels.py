@@ -13,12 +13,6 @@ channels_page = Blueprint('channels', __name__)
 @login_required(admin_required=True)
 def channel_list():
 
-    authorization_url = authenticate("Test2") #donnerNomChannel
-    if authorization_url != None:
-        return redirect(authorization_url)
-
-
-
     #linkedin.run(None,{})
     if request.method == "POST":
         action = request.form.get('@action', '')
@@ -29,6 +23,13 @@ def channel_list():
                 channel = Channel(name=name, module=get_module_full_name(module), config="{}")
                 db.session.add(channel)
                 db.session.commit()
+
+                print(module)
+                if module == "linkedin":
+                    authorization_url = authenticate(name)  # channel's name
+                    if authorization_url != "alreadyAuthenticated":
+                        return redirect(authorization_url)
+
         elif action == "delete":
             channel_id = request.form.get("id")
             channel = Channel.query.get(channel_id)
