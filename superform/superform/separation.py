@@ -38,30 +38,43 @@ else:
             # cut between words
         else:
             if (count+len(s)+1) < limit:   # tweet assez petit ? +1 ?
-                for (i, l) in zip(url_index, url_len):
-                    if (i <= count <= i+l) or (i <= count+len(s) <= i+l):  # url in this part
-                        if limit-count < l+i-index:  # pas assez place pour url
-                            tweets += [temp]
-                            if text[index] == ' ':
-                                temp = text[index + 1: index + len(s) + 1]
-                                count = len(s)
-                            else:
-                                temp = text[index: index + len(s) + 1]
-                                count = len(s) + 1
-                            nbTweet += 1
+                if not url_index: #ok
+                    temp += text[index: index + len(s) + 1]
+                    count += len(s) + 1
+                    index += len(s) + 1
+                else:
+                    for (i, l) in zip(url_index, url_len):
+                        if (i <= index <= i + l) or (i <= index + len(s) + 1 <= i + l):  # url in this part
+                            if limit - count < l + i - index:  # no room in this tweet to put entire url
+                                temp += text[index: i]
+                                tweets += [temp]
+                                nbTweet += 1
+                                index += len(s) + 1
+                                temp = text[i: index]
+                                count = index-i
 
-                temp += text[index: index+len(s)+1]
-                count += len(s)+1
+                            else:
+                                temp += text[index: index + len(s) + 1]
+                                count += len(s) + 1
+                                index += len(s) + 1
+                        else:  # url not in this part
+                            temp += text[index: index + len(s) + 1]
+                            count += len(s) + 1
+                            index += len(s) + 1
+
             else:                          # tweet trop grand
                 tweets += [temp]
                 if text[index] == ' ':
                     temp = text[index+1: index+len(s)+1]
                     count = len(s)
+                    index += len(s) + 1
                 else:
                     temp = text[index: index+len(s)+1]
                     count = len(s)+1
+                    index += len(s) + 1
                 nbTweet += 1
-        index += len(s) + 1
+    tweets += [temp]
+
 
 if not len(tweets) == 1:
     for i in range(0, len(tweets)):
@@ -73,6 +86,7 @@ print()
 print("size of tweets: ")
 for i in range(0, len(tweets)):
     print(len(tweets[i]))
+
 
 
 
