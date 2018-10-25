@@ -7,6 +7,5 @@
 .pytest_cache/*
 /superform/.cache/*
 /superform/.pytest_cache/*
-/superform/superform/superform.db
-/superform/superform/__pycache__/
-/superform/superform/plugins/__pycache__/
+/superform/superform.db
+/superform/template/layout.html

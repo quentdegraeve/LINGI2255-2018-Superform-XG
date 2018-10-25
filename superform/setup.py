@@ -6,9 +6,6 @@ setup(
     include_package_data=True,
     install_requires=[
         'flask',
-        'python3-saml',
-        'sqlalchemy',
-        'flask-sqlalchemy',
-        'python-twitter'
+        'python3-saml', 'sqlalchemy','flask-sqlalchemy', 'python-twitter'
     ],
 )

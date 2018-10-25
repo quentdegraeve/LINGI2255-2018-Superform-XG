@@ -26,29 +26,36 @@
                                     <label for="titlepost">Title</label><br>
                                     <input type="text" name="titlepost" id="titlepost" class="form-control">
                                 </div>
+
                                 <div class="form-group">
                                     <label for="descriptionpost">Description</label><br>
                                     <textarea class="form-control" rows="5" id="descriptionpost" name="descriptionpost" onkeyup="myFunction()" ></textarea>
-                                     <div style="text-align:right">
-                                       Numbers of Characters : <output type="text" id="fname" onkeyup="myFunction() "> 0</output>
+
+                                    <div style="text-align:right">
+                                       Numbers of Characters : <output type="text" id="fname" onkeyup="myFunction() "> </output>
                                     </div>
                                     <div style="text-align:right">
                                          <output type="text" id="popup"  > </output>
                                     </div>
-                                     <script>
+
+                                    <script>
                                     function myFunction() {
                                         var x = document.getElementById("descriptionpost");
                                         var y = document.getElementById("fname");
                                         y.value = x.value.length;
-                                         var b = document.getElementById("popup");
-                                         if(y.value > 20){
+
+                                        var b = document.getElementById("popup");
+
+                                        if(y.value > 20){
                                            b.value = "Warning : you message will be split in several part (only for Twitter)"
                                         }
                                         else{
                                             b.value =""
                                         }
-                                     }
+
+                                    }
                                     </script>
+
 
                                 </div>
                                 <div class="form-group">
@@ -131,13 +138,13 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="{{ chan.name }}_datefrompost">Publication Date</label><br>
-                                            <input id="{{ chan.name }}_datefrompost" name="{{ chan.name }}_datefrompost" type="date" class="form-control" required>
+                                            <input id="{{ chan.name }}_datefrompost" name="{{ chan.name }}_datefrompost" type="date" class="form-control">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="{{ chan.name }}_dateuntilpost">Publication Until</label><br>
-                                            <input id="{{ chan.name }}_dateuntilpost" name="{{ chan.name }}_dateuntilpost" type="date" class="form-control" required>
+                                            <input id="{{ chan.name }}_dateuntilpost" name="{{ chan.name }}_dateuntilpost" type="date" class="form-control">
                                         </div>
                                     </div>
                                 </div>
@@ -241,6 +248,7 @@
                     return this.id.match(/.*descriptionpost/);
                 })
                 .val(text);
+
         });
         $('#linkurlpost').one("change",function(event){
             text = ($(this).val());
