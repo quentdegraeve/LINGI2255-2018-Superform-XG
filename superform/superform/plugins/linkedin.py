@@ -47,12 +47,14 @@ def set_access_token(channel_name, code):
     LinkedinTokens.put_token(LinkedinTokens, channel_name, result.access_token, (datetime.now() +timedelta(seconds=result.expires_in)))
 
 
-def share_post(channel_name,comment,submitted_url,submitted_image_url,visibility_code):
+def share_post(channel_name, comment, title, submitted_url,submitted_image_url,visibility_code):
     token = LinkedinTokens.get_token(LinkedinTokens, channel_name)
     print(' share_post token ', token)
     application = linkedin.LinkedInApplication(token=token.access_token)
-
-    application.submit_share(comment=comment, title="Sharing from Superform", submitted_url=submitted_url,
+    print('submitted_url', submitted_url)
+    if submitted_url is '':
+        submitted_url = None
+    application.submit_share(comment=comment, title=title, submitted_url=submitted_url,
                              submitted_image_url=submitted_image_url, description="This is a sharing from Superform",visibility_code=visibility_code)
 
 
@@ -63,7 +65,7 @@ def run(publishing,channel_config):
     print("conf run", conf, type(conf))
     channel_name = conf['channel_name']
     authenticate(channel_name, (publishing.post_id, publishing.channel_id))
-    share_post(channel_name, publishing.description, publishing.link_url, publishing.image_url, "anyone")
+    share_post(channel_name, publishing.description, publishing.title, publishing.link_url, publishing.image_url, "anyone")
 
 
 class LinkedinTokens:
