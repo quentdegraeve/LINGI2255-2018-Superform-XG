@@ -28,7 +28,28 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="descriptionpost">Description</label><br>
-                                    <textarea class="form-control" rows="5" id="descriptionpost" name="descriptionpost"></textarea>
+                                    <textarea class="form-control" rows="5" id="descriptionpost" name="descriptionpost" onkeyup="myFunction()" ></textarea>
+                                     <div style="text-align:right">
+                                       Numbers of Characters : <output type="text" id="fname" onkeyup="myFunction() "> 0</output>
+                                    </div>
+                                    <div style="text-align:right">
+                                         <output type="text" id="popup"  > </output>
+                                    </div>
+                                     <script>
+                                    function myFunction() {
+                                        var x = document.getElementById("descriptionpost");
+                                        var y = document.getElementById("fname");
+                                        y.value = x.value.length;
+                                         var b = document.getElementById("popup");
+                                         if(y.value > 20){
+                                           b.value = "Warning : you message will be split in several part (only for Twitter)"
+                                        }
+                                        else{
+                                            b.value =""
+                                        }
+                                     }
+                                    </script>
+
                                 </div>
                                 <div class="form-group">
                                     <label for="linkurlpost">Link</label><br>
