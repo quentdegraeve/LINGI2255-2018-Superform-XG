@@ -73,14 +73,9 @@ def tweet_split(text, separators):
         for i in range(0, len(tweets)):
             tweets[i] = str(i+1) + '/' + str(len(tweets)) + ' ' + tweets[i]
 
-    """
-    for i in range(0, len(tweets)):
-        print(tweets[i])
-    print()
-    print("size of tweets: ")
-    for i in range(0, len(tweets)):
-        print(len(tweets[i]))
-    """
+    return tweets
+
+
 
 
 
