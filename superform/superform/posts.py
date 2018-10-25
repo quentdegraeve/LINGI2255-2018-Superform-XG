@@ -59,10 +59,10 @@ def new_post():
         create_a_post(request.form)
         return redirect(url_for('index'))
 
-@posts_page.route('/edit', methods=['GET'])
+@posts_page.route('/edit/<int:edit_id>', methods=['GET','POST'])
 @login_required()
-def edit_post():
-    edit_id = 1
+def edit_post(edit_id):
+    #edit_id = 1
     post = db.session.query(Post).filter(Post.id == edit_id).first()
     publishing = db.session.query(Publishing).filter(Publishing.post_id==post.id).all()
     user_id = session.get("user_id", "") if session.get("logged_in", False) else -1
