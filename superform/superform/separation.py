@@ -40,7 +40,7 @@ def tweet_split(text, separators):
                     else:
                         for (i, l) in zip(url_index, url_len):
                             if (i <= index <= i + l) or (i <= index + len(s) + 1 <= i + l):  # url in this part
-                                if limit - count < l + i - index:  # no room in this tweet to put entire url
+                                if limit - count <= l + i - index + 1:  # no room in this tweet to put entire url
                                     temp += text[index: i]
                                     tweets += [temp]
                                     nbTweet += 1
