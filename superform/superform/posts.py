@@ -114,7 +114,7 @@ def pre_validate_post(channel,post):
     else: return -1
 
 def linkedin_validation(post):
-    if len(post.title) > 200 : return 0;
-    if len(post.description) > 256: return 0;
+    if len(post.title) > 200 or len(post.title) == 0: return 0;
+    if len(post.description) > 256 or len(post.description) == 0: return 0;
     return 1;
 
