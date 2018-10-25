@@ -26,9 +26,37 @@
                                     <label for="titlepost">Title</label><br>
                                     <input type="text" name="titlepost" id="titlepost" class="form-control">
                                 </div>
+
                                 <div class="form-group">
                                     <label for="descriptionpost">Description</label><br>
-                                    <textarea class="form-control" rows="5" id="descriptionpost" name="descriptionpost"></textarea>
+                                    <textarea class="form-control" rows="5" id="descriptionpost" name="descriptionpost" onkeyup="myFunction()" ></textarea>
+
+                                    <div style="text-align:right">
+                                       Numbers of Characters : <output type="text" id="fname" onkeyup="myFunction() "> </output>
+                                    </div>
+                                    <div style="text-align:right">
+                                         <output type="text" id="popup"  > </output>
+                                    </div>
+
+                                    <script>
+                                    function myFunction() {
+                                        var x = document.getElementById("descriptionpost");
+                                        var y = document.getElementById("fname");
+                                        y.value = x.value.length;
+
+                                        var b = document.getElementById("popup");
+
+                                        if(y.value > 20){
+                                           b.value = "Warning : you message will be split in several part (only for Twitter)"
+                                        }
+                                        else{
+                                            b.value =""
+                                        }
+
+                                    }
+                                    </script>
+
+
                                 </div>
                                 <div class="form-group">
                                     <label for="linkurlpost">Link</label><br>
@@ -220,6 +248,7 @@
                     return this.id.match(/.*descriptionpost/);
                 })
                 .val(text);
+
         });
         $('#linkurlpost').one("change",function(event){
             text = ($(this).val());
