@@ -104,6 +104,35 @@
                                     <input type="text" name="{{ chan.name }}_linkurlpost" id="{{ chan.name }}_linkurlpost" class="form-control">
                                 </div>
                                 {% if chan.module == "superform.plugins.gcal" %}
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                            <label for="{{ chan.name }}_datedebut">Starting date</label><br>
+                                            <input id="{{ chan.name }}_datedebut" name="{{ chan.name }}_datedebut" type="date" class="form-control">
+                                        </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="{{ chan.name }}_heuredebut">Starting time</label><br>
+                                                <input type="time" name="{{ chan.name }}_heuredebut" id="{{ chan.name }}_heuredebut"  class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="{{ chan.name }}_datefin">Ending date</label><br>
+                                                <input type="date" name="{{ chan.name }}_datefin" id="{{ chan.name }}_datefin" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="{{ chan.name }}_heurefin">Ending time</label><br>
+                                                <input type="time" name="{{ chan.name }}_heurefin" id="{{ chan.name }}_heurefin" type="time" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="form-group">
                                         <label for="{{ chan.name }}_location">Location</label><br>
                                         <input type="text" name="{{ chan.name }}_location" id="{{ chan.name }}_location" class="form-control">
