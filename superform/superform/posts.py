@@ -90,7 +90,6 @@ def publish_from_new_post():
                     error = "error in post :", p.id ," title or description length not valid"
                     flash(error, "danger")
                     return  redirect(url_for('index'))
-                else: share_post(c.name, "test", p.title, p.link_url, p.image_url, p.description, "anyone")
 
     print("submitted")
     db.session.commit()
@@ -115,7 +114,7 @@ def pre_validate_post(channel,post):
     else: return -1
 
 def linkedin_validation(post):
-    if len(post.title) > 200 : return 0;
+    if len(post.title) > 2 : return 0;
     if len(post.description) > 256: return 0;
     return 1;
 
