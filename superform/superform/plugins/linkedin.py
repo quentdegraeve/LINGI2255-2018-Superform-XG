@@ -1,7 +1,8 @@
 from linkedin import linkedin
-from superform import utils
-from flask import redirect
+from superform import utils, Channel
+from datetime import datetime, timedelta
 import json
+from superform.utils import get_module_full_name
 
 FIELDS_UNAVAILABLE = []
 
@@ -20,11 +21,10 @@ authentication = linkedin.LinkedInAuthentication(
 
 
 def authenticate(channel_name, publishing_id):
-    previous_token = LinkedinTokens.get_token(LinkedinTokens, channel_name)
-    print("previoustoken ", str(previous_token))
-    print("channel ",channel_name)
 
-    if previous_token is None or previous_token.expires_in <= 0:
+    previous_token = LinkedinTokens.get_token(LinkedinTokens, channel_name)
+
+    if previous_token.__getitem__(0) or (datetime.now() > previous_token.__getitem__(1)) :
         conf = dict()
         conf["channel_name"] = channel_name
         conf["publishing_id"] = publishing_id
@@ -44,7 +44,7 @@ def set_access_token(channel_name, code):
 
     print("Access Token:", result.access_token)
     print("Expires in (seconds):", result.expires_in)
-    LinkedinTokens.put_token(LinkedinTokens, channel_name, result)
+    LinkedinTokens.put_token(LinkedinTokens, channel_name, result.access_token, (datetime.now() +timedelta(seconds=result.expires_in)))
 
 
 def share_post(channel_name,comment,submitted_url,submitted_image_url,visibility_code):
@@ -70,9 +70,15 @@ class LinkedinTokens:
     tokens = {}
 
     def get_token(self, channel):
-        if channel in self.tokens:
-            return self.tokens[channel]
-        return None
+        channels = Channel.query.all()
 
-    def put_token(self, channel, token):
-        self.tokens[channel] = token
+        if channel in channels:
+                return (channel.linkedin_access_token, channel.linkendin_token_expiration_date)
+
+        return (None, None)
+
+    def put_token(self, channel_name, token,expiration_date):
+        c = Channel.query.filter_by(name=channel_name, module=get_module_full_name("linkedin")).first()
+        c.linkedin_access_token = token
+        c.linkedin_token_expiration_date = expiration_date
+

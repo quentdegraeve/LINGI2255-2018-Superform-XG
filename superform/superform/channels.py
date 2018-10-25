@@ -1,6 +1,5 @@
 from flask import Blueprint, current_app, url_for, request, make_response, redirect, session, render_template
 
-from superform.plugins.linkedin import authenticate
 
 from superform.utils import login_required, get_instance_from_module_path, get_modules_names, get_module_full_name
 from superform.models import db, Channel
