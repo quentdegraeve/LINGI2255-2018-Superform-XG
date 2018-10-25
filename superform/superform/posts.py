@@ -4,7 +4,7 @@ from superform.users import channels_available_for_user
 from superform.utils import login_required, datetime_converter, str_converter, get_instance_from_module_path
 from superform.models import db, Post, Publishing, Channel
 
-from superform.plugins.linkedin import Share_post
+from superform.plugins.linkedin import share_post
 
 posts_page = Blueprint('posts', __name__)
 
@@ -28,8 +28,6 @@ def create_a_publishing(post, chn, form):
     chan = str(chn.name)
     validate = pre_validate_post(chn,post)
     if validate == -1 or validate == 0 :
-        print("validate:")
-        print(validate)
         return validate
     print(post.id)
     print(chn.id)
@@ -92,7 +90,7 @@ def publish_from_new_post():
                     error = "error in post :", p.id ," title or description length not valid"
                     flash(error, "danger")
                     return  redirect(url_for('index'))
-                else: Share_post(c.name, "test", p.title, p.link_url, p.image_url, p.description, "anyone")
+                else: share_post(c.name, "test", p.title, p.link_url, p.image_url, p.description, "anyone")
 
     print("submitted")
     db.session.commit()
