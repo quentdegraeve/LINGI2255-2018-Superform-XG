@@ -69,6 +69,34 @@ class Publishing(db.Model):
         return db.session.query(Post).get(self.post_id).user_id
 
 
+class PubGCal(db.Model):
+    post_id = db.Column(db.Integer, db.ForeignKey("post.id"), nullable=False)
+    channel_id = db.Column(db.Integer, db.ForeignKey("channel.id"), nullable=False)
+    state = db.Column(db.Integer, nullable=False, default=-1)
+    title = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text)
+    link_url = db.Column(db.Text)
+    image_url = db.Column(db.Text)
+    date_from = db.Column(db.DateTime)
+    date_until = db.Column(db.DateTime)
+    date_start = db.Column(db.DateTime, nullable=False)
+    date_end = db.Column(db.DateTime, nullable=False)
+    location = db.Column(db.Text)
+    color_id = db.Column(db.Text)
+    hour_start = db.Column(db.DateTime)
+    hour_end = db.Column(db.DateTime)
+    guests = db.Column(db.Text)
+    visibility = db.Column(db.Text)
+
+    __table_args__ = (db.PrimaryKeyConstraint('post_id', 'channel_id'),)
+
+
+    def __repr__(self):
+        return '<Publishing {} {}>'.format(repr(self.post_id), repr(self.channel_id))
+
+    def get_author(self):
+        return db.session.query(Post).get(self.post_id).user_id
+
 class Channel(db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
     name = db.Column(db.Text, nullable=False)
