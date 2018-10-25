@@ -11,8 +11,10 @@ def moderate_publishing(id,idc):
     pub.date_from = str_converter(pub.date_from)
     pub.date_until = str_converter(pub.date_until)
     if request.method=="GET":
+        print('get moderate_publishing')
         return render_template('moderate_post.html', pub=pub)
     else:
+        print('post moderate_publishing')
         pub.title = request.form.get('titlepost')
         pub.description = request.form.get('descrpost')
         pub.link_url = request.form.get('linkurlpost')
@@ -28,6 +30,12 @@ def moderate_publishing(id,idc):
         c_conf = c.config
         from importlib import import_module
         plugin = import_module(plugin_name)
+        if plugin_name == "superform.plugins.linkedin":
+            url = plugin.authenticate(c.name, (id, idc))
+            if url != "AlreadyAuthenticated":
+                print("url", url)
+                return redirect(url)
+        print('publishing publishings.py', pub)
         plugin.run(pub,c_conf)
 
         return redirect(url_for('index'))
