@@ -1,29 +1,49 @@
-from linkedin import linkedin
+from superform.plugins import linkedin
+import os
+import tempfile
 
+from datetime import datetime, timedelta
+
+import pytest
+
+from superform.models import Authorization, Channel
+from superform import app, db, Post, User
+from superform.utils import datetime_converter, str_converter, get_module_full_name
+from superform.users import  is_moderator, get_moderate_channels_for_user,channels_available_for_user
 
 API_KEY = '861s90686z5fuz'
 API_SECRET = 'xHDD886NZNkWVuN4'
 RETURN_URL = 'http://localhost:5000'
 
+@pytest.fixture
+def client():
+    app.app_context().push()
+    db_fd, app.config['DATABASE'] = tempfile.mkstemp()
+    app.config['TESTING'] = True
+    client = app.test_client()
 
-def testAuthentification():
+    with app.app_context():
+        db.create_all()
 
-    authentication = linkedin.LinkedInAuthentication(
-        API_KEY,
-        API_SECRET,
-        RETURN_URL,
-        ['r_basicprofile', 'r_emailaddress', 'w_share', 'rw_company_admin']
-    )
+    yield client
 
-    # Optionally one can send custom "state" value that will be returned from OAuth server
-    # It can be used to track your user state or something else (it's up to you)
-    # Be aware that this value is sent to OAuth server AS IS - make sure to encode or hash it
-    # authorization.state = 'your_encoded_message'
+    os.close(db_fd)
+    os.unlink(app.config['DATABASE'])
 
-    print(authentication.authorization_url)  # open this url on your browser
+def test_authenticate(client):
+    false_post_id = -1
+    false_channel_id = -1
+    url = linkedin.authenticate("name_test", (false_post_id, false_channel_id))
+    assert url != 'AlreadyAuthenticated'
 
-    authentication.authorization_code = 'AQQzhS4qza4ycMCjNoSSch4RTtMqk3nS1tTK9I7CeYeD8AX5qAZx4yPO__rH_dHygNIgmaffd1S-oXtdyAWlJpOdw8StL1gA64Gtp0DPJDRRNak7FznBpBKNumxp2KGx9G6PXKQLs535nT1ZLUsoDjmaEMuJXsqGt5rv4LZJ7wk8cgy3UOCcWuKNSO2tAA&state=0b3762e79ca305a75ee3d44a098a58a6'
-    result = authentication.get_access_token()
-
-    print("Access Token:", result.access_token)
-    print("Expires in (seconds):", result.expires_in)
+def test_authenticate2(client):
+    linkedin_access_token = "test_token"
+    linkedin_token_expiration_date = datetime.now() +timedelta(seconds=60)
+    channel_name = "channel_test"
+    c_test = Channel(id=1, name=channel_name, module=get_module_full_name("linkedin"), config="{}", linkedin_access_token=linkedin_access_token, linkedin_token_expiration_date=linkedin_token_expiration_date)
+    db.session.add(c_test)
+    linkedin.LinkedinTokens.put_token(linkedin.LinkedinTokens, "channel_test", linkedin_access_token, linkedin_token_expiration_date)
+    false_post_id = -1
+    false_channel_id = -1
+    url = linkedin.authenticate(channel_name, (false_post_id, false_channel_id))
+    assert url == 'AlreadyAuthenticated'
