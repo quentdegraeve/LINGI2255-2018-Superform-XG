@@ -155,18 +155,3 @@ def tweet_split(text, separators):
 
     return tweets
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

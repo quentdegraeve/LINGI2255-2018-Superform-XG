@@ -27,6 +27,7 @@ def client():
     os.close(db_fd)
     os.unlink(app.config['DATABASE'])
 
+
 def test_send_tweet_bad_config(client):
     name = "unittest_twitter"
     module = "superform.plugins.twitter"
@@ -45,4 +46,32 @@ def test_send_tweet_bad_config(client):
     db.session.query(Channel).filter(Channel.name == name).delete()
     db.session.commit()
     assert 'Missing' in output
-    #we only test how the plugin handle bad config as this doesn't send real tweet
+
+
+def test_tweet_split_no_split():
+    string_input = 'hello \t world! \n have a nice day.'
+    string_output = twitter.tweet_split(string_input,(',', '!', '?', ':', ';'))
+    assert string_input == string_output[0]
+
+
+def test_tweet_split_3_split():
+    string_input = 'Repudiandae quam vel voluptatum voluptates. Rerum quas ut vel ipsum assumenda aut ab. Nam incidunt similique iure fugit animi quia eum sint. Eos voluptatem assumenda nemo repellendus non et nemo. Aliquam ut amet maiores repudiandae vel rerum distinctio. Quasi totam consequatur unde impedit quia dolor. Quia itaque aut aut. Eligendi qui praesentium error. Quis qui corrupti corporis ullam ad pariatur autem magni. Vitae accusantium maiores blanditiis quaerat eum qui. Reiciendis et quis molestias et. Aut dolorem esse praesentium sunt. Quo molestiae est deserunt et sint voluptas. Ullam et pariatur voluptatem sint consequatur sapiente maiores voluptatem. Porro optio rerum natus sed voluptas.'
+    string_output = twitter.tweet_split(string_input,(',', '!', '?', ':', ';'))
+    assert string_output[0] == '1/3 Repudiandae quam vel voluptatum voluptates. Rerum quas ut vel ipsum assumenda aut ab. Nam incidunt similique iure fugit animi quia eum sint. Eos voluptatem assumenda nemo repellendus non et nemo. Aliquam ut amet maiores repudiandae vel rerum distinctio.'
+    assert string_output[1] == '2/3 Quasi totam consequatur unde impedit quia dolor. Quia itaque aut aut. Eligendi qui praesentium error. Quis qui corrupti corporis ullam ad pariatur autem magni. Vitae accusantium maiores blanditiis quaerat eum qui. Reiciendis et quis molestias et.'
+    assert string_output[2] == '3/3 Aut dolorem esse praesentium sunt. Quo molestiae est deserunt et sint voluptas. Ullam et pariatur voluptatem sint consequatur sapiente maiores voluptatem. Porro optio rerum natus sed voluptas.'
+
+
+def test_tweet_split_http_url_split():
+    string_input = 'Repudiandae quam vel voluptatum voluptates. Rerum quas ut vel ipsum assumenda aut ab. Nam incidunt similique iure fugit animi quia eum sint. Eos voluptatem assumenda nemo repellendus non et nemo. Aliquam ut amet maiores repudiandae vel rerum distinctio. https://moodleucl.uclouvain.be/course/view.php?id=7599 Aut dolorem esse praesentium sunt. Quo molestiae est deserunt et sint voluptas. Ullam et pariatur voluptatem sint consequatur sapiente maiores voluptatem. Porro optio rerum natus sed voluptas.'
+    string_output = twitter.tweet_split(string_input, (',', '!', '?', ':', ';'))
+    assert string_output[0] == '1/2 Repudiandae quam vel voluptatum voluptates. Rerum quas ut vel ipsum assumenda aut ab. Nam incidunt similique iure fugit animi quia eum sint. Eos voluptatem assumenda nemo repellendus non et nemo. Aliquam ut amet maiores repudiandae vel rerum distinctio. '
+    assert string_output[1] == '2/2 https://moodleucl.uclouvain.be/course/view.php?id=7599 Aut dolorem esse praesentium sunt. Quo molestiae est deserunt et sint voluptas. Ullam et pariatur voluptatem sint consequatur sapiente maiores voluptatem. Porro optio rerum natus sed voluptas.'
+
+
+def test_tweet_split_www_url_split():
+    string_input = 'Repudiandae quam vel voluptatum voluptates. Rerum quas ut vel ipsum assumenda aut ab. Nam incidunt similique iure fugit animi quia eum sint. Eos voluptatem assumenda nemo repellendus non et nemo. Aliquam ut amet maiores repudiandae vel rerum distinctio. www.xkcd.com Aut dolorem esse praesentium sunt. Quo molestiae est deserunt et sint voluptas. Ullam et pariatur voluptatem sint consequatur sapiente maiores voluptatem. Porro optio rerum natus sed voluptas.'
+    string_output = twitter.tweet_split(string_input, (',', '!', '?', ':', ';'))
+    assert string_output[0] == '1/2 Repudiandae quam vel voluptatum voluptates. Rerum quas ut vel ipsum assumenda aut ab. Nam incidunt similique iure fugit animi quia eum sint. Eos voluptatem assumenda nemo repellendus non et nemo. Aliquam ut amet maiores repudiandae vel rerum distinctio. '
+    assert string_output[1] == '2/2 www.xkcd.com Aut dolorem esse praesentium sunt. Quo molestiae est deserunt et sint voluptas. Ullam et pariatur voluptatem sint consequatur sapiente maiores voluptatem. Porro optio rerum natus sed voluptas.'
+
