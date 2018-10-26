@@ -58,7 +58,6 @@ def new_post():
         create_a_post(request.form)
         return redirect(url_for('index'))
 
-
 @posts_page.route('/edit/<int:post_id>', methods=['GET'])
 @login_required()
 def edit_post(post_id):
