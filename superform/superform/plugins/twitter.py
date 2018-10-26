@@ -12,13 +12,13 @@ CONFIG_FIELDS = ["consumer_key", "consumer_secret", "access_token_key", "access_
 
 def run(publishing, channel_config):
 
-     #To do : Error management
+    # To do : Error management
 
     json_data = json.loads(channel_config)
 
     for field in CONFIG_FIELDS:
         if json_data.get(field) is None:
-            print('Missing : {0}'.format(field))
+            print("Missing : {0}".format(field))
             return
 
     cfg = {
@@ -30,8 +30,8 @@ def run(publishing, channel_config):
     api = get_api(cfg)
     tweets = tweet_split(publishing.description, (',', '!', '?', ':', ';'))
 
-    image_url = None
-    if image_url is None:
+    image_url = publishing.image_url
+    if image_url is '':
         try:
             for tweet in tweets:
                 api.update_status(status=tweet)
@@ -45,8 +45,8 @@ def run(publishing, channel_config):
                 for req in request:
                     image.write(req)
 
-            for i in range(0,len(tweets)-1):
-                if i==0:
+            for i in range(len(tweets)):
+                if i == 0:
                     api.update_with_media(filename, status=tweets[i])
                 else:
                     api.update_status(status=tweets[i])

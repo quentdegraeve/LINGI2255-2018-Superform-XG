@@ -23,6 +23,9 @@ def client():
     os.close(db_fd)
     os.unlink(app.config['DATABASE'])
 
+def test_run_twitter(client):
+    # Is there a way to test a send twitter function?
+    assert True == True
 
 def test_send_tweet(client):
     # Is there a way to test a send tweet function?

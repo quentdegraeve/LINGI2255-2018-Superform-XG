@@ -51,7 +51,7 @@
                                         <tr>
                                             <td>
                                                 <input type="hidden" name="channel_id{{ loop.index }}" value="{{ channel.id }}">
-                                                <input class="form-control" type="text" placeholder="Username" name="username{{ loop.index }}">
+                                                <input class="form-control js-search-user" type="text" placeholder="Username" name="username{{ loop.index }}" data-trigger="focus" data-toggle="popover" data-placement="bottom" data-content="no result" autocomplete="off">
                                             </td>
                                             <td>
                                                 <select class="form-control" id="sel1" name="permission{{ loop.index }}">
@@ -77,6 +77,24 @@
 {% endblock %}
 {% block scripts %}
     <script>
+
+        var address = "http://localhost:5000/api/search";
+
+        function searchUser(input) {
+            var value = input.val()
+            if (value.length == 0) {
+                input.attr("data-content", "no result");
+                input.data('bs.popover').show();
+            } else {
+                $.getJSON(address, {
+                    "name": value
+                },function(json) {
+                    input.attr("data-content", json["names"]);
+                    input.data('bs.popover').show();
+                });
+            }
+        }
+
         $('.collapse').on('show.bs.collapse hide.bs.collapse', function () {
             $(this).parent().find('i').toggleClass('fa-chevron-right').toggleClass('fa-chevron-down');
         });
@@ -85,19 +103,27 @@
            $(e).parent().parent().remove();
         }
 
-        $('.add').on('click',function(){
+        $('.add').on('click',function() {
            var nbinput = ($('input').length)/2;
-           var chanid = $(this).data("channelid")
-           $(this).parent().parent().parent().append('<tr><td><input type="hidden" name="channel_id'+nbinput+'" value="'+chanid+'"><input class="form-control" type="text" placeholder="Username" name="username'+nbinput+'"></td><td><select class="form-control" id="sel1"name="permission'+nbinput+'">\n' +
+           var chanid = $(this).data("channelid");
+           var parent = $(this).parent().parent().parent();
+           parent.append('<tr><td><input type="hidden" name="channel_id'+nbinput+'" value="'+chanid+'"><input class="form-control js-search-user" data-trigger="focus" data-toggle="popover" data-placement="bottom" data-content="no result" autocomplete="off" type="text" placeholder="Username" name="username'+nbinput+'"></td><td><select class="form-control" id="sel1"name="permission'+nbinput+'">\n' +
                '{% for permission in permissions %}\n'+
                    '<option value="{{ permission.value }}">{{ permission }}</option>\n'
                    +
                    '{% endfor %}\n' +
                '</select></td><td><button class="remove btn btn-warning" onclick="remove(this)">Remove</button></td></tr>');
+
+           parent.find(".js-search-user").last().on("change keyup paste", function() {
+               searchUser($(this))
+           });
+           $('[data-toggle="popover"]').popover();
         });
 
+        $(".js-search-user").on("change keyup paste", function() {
+            searchUser($(this))
+        });
 
-
-
+        $('[data-toggle="popover"]').popover();
     </script>
 {% endblock %}
