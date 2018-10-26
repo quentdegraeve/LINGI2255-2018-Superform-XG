@@ -5,6 +5,7 @@ import re
 import requests
 import tweepy
 
+
 FIELDS_UNAVAILABLE = ['Title']
 CONFIG_FIELDS = ["consumer_key", "consumer_secret", "access_token_key", "access_token_secret"]
 
@@ -153,19 +154,4 @@ def tweet_split(text, separators):
             tweets[i] = str(i + 1) + '/' + str(len(tweets)) + ' ' + tweets[i]
 
     return tweets
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -161,6 +161,7 @@
                         disabled>Save & Publish
                 </button>
                 <button class="btn btn-outline-primary" type="reset">Abort</button>
+
             </div>
 
         </form>
@@ -173,7 +174,6 @@
 
 {% block scripts %}
     <script>
-
         // This manage if a channel is selected or not:
         //  it hides/shows a tab for a channel
         //  it adds an information bullet to unavailable fields for each channel
@@ -207,6 +207,7 @@
                     $("label[for='" + nameC + "_" + $('#' + split[i].toLowerCase() + 'post').attr('id') + "'] > a").remove();
                 }
                 $('#li_' + nameC).hide();
+
             }
         });
         // From here, I copy a field ONCE from general to all the equivalent fields of each channel
@@ -265,7 +266,6 @@
                 })
                 .val(text);
         });
-
 
     </script>
 
