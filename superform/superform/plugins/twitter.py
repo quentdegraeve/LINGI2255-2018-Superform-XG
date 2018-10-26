@@ -4,7 +4,9 @@ import os
 import requests
 import tweepy
 
-FIELDS_UNAVAILABLE = ["Title"]
+from separation import tweet_split
+
+FIELDS_UNAVAILABLE = ['Title']
 CONFIG_FIELDS = ["consumer_key", "consumer_secret", "access_token_key", "access_token_secret"]
 
 
@@ -26,11 +28,13 @@ def run(publishing, channel_config):
         "access_token_secret": str(json_data['access_token_secret'])
     }
     api = get_api(cfg)
-    tweet = publishing.description
+    tweets = tweet_split(publishing.description, (',', '!', '?', ':', ';'))
+
     image_url = None
     if image_url is None:
         try:
-            api.update_status(status=tweet)
+            for tweet in tweets:
+                api.update_status(status=tweet)
         except tweepy.TweepError as e:
             print(e.reason)
     else:
@@ -41,7 +45,11 @@ def run(publishing, channel_config):
                 for req in request:
                     image.write(req)
 
-            api.update_with_media(filename, status=tweet)
+            for i in range(0,len(tweets)-1):
+                if i==0:
+                    api.update_with_media(filename, status=tweets[i])
+                else:
+                    api.update_status(status=tweets[i])
             os.remove(filename)
         else:
             print("Cant load the image")
