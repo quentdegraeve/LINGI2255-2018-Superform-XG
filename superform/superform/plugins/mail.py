@@ -7,6 +7,7 @@ import json
 
 FIELDS_UNAVAILABLE = ["Url"]
 
+
 CONFIG_FIELDS = ["sender","receiver"]
 
 def run(publishing,channel_config):

@@ -5,11 +5,6 @@ import tempfile
 
 import pytest
 
-import sys
-sys.path.append('/home/fran/Documents/inge_civil/Q7/2255(Software)/Superform/superform/venv/lib/python3.6/site-packages')
-sys.path.append('/home/fran/Documents/inge_civil/Q7/2255(Software)/Superform/superform')
-#import pdb; pdb.set_trace()
-
 from superform.models import Authorization, Channel
 from superform import app, db, Post, User
 from superform.utils import datetime_converter, str_converter, get_module_full_name

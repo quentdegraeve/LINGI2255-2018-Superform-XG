@@ -4,7 +4,7 @@ import os
 import requests
 import tweepy
 
-from separation import tweet_split
+from superform.separation import tweet_split
 
 FIELDS_UNAVAILABLE = ['Title']
 CONFIG_FIELDS = ["consumer_key", "consumer_secret", "access_token_key", "access_token_secret"]
