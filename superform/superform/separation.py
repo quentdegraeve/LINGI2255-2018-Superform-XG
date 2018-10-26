@@ -48,9 +48,18 @@ def tweet_split(text, separators):
                                     temp = text[i: index]  # start of a new tweet
                                     count = index-i
                                 else:
-                                    temp += text[index: index + len(s) + 1]
-                                    count += len(s) + 1
-                                    index += len(s) + 1
+                                    if len(s) > limit - count:
+                                        temp += text[index: i]
+                                        count += i-index
+                                        tweets += [temp]
+                                        nbTweet += 1
+                                        temp = text[i+1: len(s) + 1]
+                                        index += len(s) + 1
+                                        count = index - i
+                                    else:
+                                        temp += text[index: index + len(s) + 1]
+                                        count += len(s) + 1
+                                        index += len(s) + 1
                             else:  # url not in this part
                                 temp += text[index: index + len(s) + 1]
                                 count += len(s) + 1
@@ -73,6 +82,15 @@ def tweet_split(text, separators):
         for i in range(0, len(tweets)):
             tweets[i] = str(i+1) + '/' + str(len(tweets)) + ' ' + tweets[i]
 
+
+    for i in range(0, len(tweets)):
+        print(tweets[i])
+    print()
+    print("size of tweets: ")
+    for i in range(0, len(tweets)):
+        print(len(tweets[i]))
+
+    tweets = []
     return tweets
 
 
