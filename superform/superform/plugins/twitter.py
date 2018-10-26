@@ -30,8 +30,8 @@ def run(publishing, channel_config):
     api = get_api(cfg)
     tweets = tweet_split(publishing.description, (',', '!', '?', ':', ';'))
 
-    image_url = None
-    if image_url is None:
+    image_url = publishing.image_url
+    if image_url is '':
         try:
             for tweet in tweets:
                 api.update_status(status=tweet)
@@ -45,8 +45,8 @@ def run(publishing, channel_config):
                 for req in request:
                     image.write(req)
 
-            for i in range(0,len(tweets)-1):
-                if i==0:
+            for i in range(len(tweets)):
+                if i == 0:
                     api.update_with_media(filename, status=tweets[i])
                 else:
                     api.update_status(status=tweets[i])
