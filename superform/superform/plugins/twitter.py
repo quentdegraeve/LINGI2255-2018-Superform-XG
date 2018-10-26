@@ -4,19 +4,19 @@ import os
 import requests
 import tweepy
 
-FIELDS_UNAVAILABLE = ['Title']
+FIELDS_UNAVAILABLE = ["Title"]
 CONFIG_FIELDS = ["consumer_key", "consumer_secret", "access_token_key", "access_token_secret"]
 
 
 def run(publishing, channel_config):
 
-     #To do : Error management
+    # To do : Error management
 
     json_data = json.loads(channel_config)
 
     for field in CONFIG_FIELDS:
         if json_data.get(field) is None:
-            print('Missing : {0}'.format(field))
+            print("Missing : {0}".format(field))
             return
 
     cfg = {

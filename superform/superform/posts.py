@@ -1,5 +1,4 @@
 from flask import Blueprint, url_for, request, redirect, session, render_template
-
 from superform.users import channels_available_for_user
 from superform.utils import login_required, datetime_converter, str_converter, get_instance_from_module_path
 from superform.models import db, Post, Publishing, Channel
@@ -59,13 +58,28 @@ def new_post():
         create_a_post(request.form)
         return redirect(url_for('index'))
 
-@posts_page.route('/edit', methods=['GET'])
+
+@posts_page.route('/edit/<int:post_id>', methods=['GET'])
 @login_required()
-def edit_post():
-    edit_id = 1
-    post = db.session.query(Post).filter(Post.id == edit_id).first()
-    publishing = db.session.query(Publishing).filter(Publishing.post_id==post.id).all()
+def edit_post(post_id):
+
     user_id = session.get("user_id", "") if session.get("logged_in", False) else -1
+
+    if user_id == -1:
+        return redirect(url_for('index'))
+
+    post = db.session.query(Post).filter(
+        Post.id == post_id,
+        Post.user_id == user_id
+    ).first()
+
+    if post is None:
+        return redirect(url_for('index'))
+
+    publishing = db.session.query(Publishing).filter(
+        Publishing.post_id == post.id
+    ).all()
+
     list_of_channels = channels_available_for_user(user_id)
     for elem in list_of_channels:
         m = elem.module
@@ -74,8 +88,7 @@ def edit_post():
         setattr(elem, "unavailablefields", unaivalable_fields)
 
     if request.method == "GET":
-        print(publishing)
-        return render_template('edit.html', l_chan=list_of_channels, l_publishing=publishing)
+        return render_template('edit.html', post=post, publishing=publishing, l_chan=list_of_channels)
     else:
         create_a_post(request.form)
         return redirect(url_for('index'))
