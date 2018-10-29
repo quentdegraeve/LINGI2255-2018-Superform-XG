@@ -46,7 +46,7 @@ def create_a_publishing(post, chn, form):
         visibility = form.get(chan + '_visibility')
         # availability = form.get(chan + '_availability')
 
-        pub = PubGCal(post_id=post.id, channel_id=chan, state=1, title=title_post, description=descr_post,
+        pub = PubGCal(post_id=post.id, channel_id=chan, state=0, title=title_post, description=descr_post,
                       link_url=link_post, image_url=image_post,
                       date_from=date_from, date_until=date_until, date_start=date_start, date_end=date_end,
                       location=location, color_id=color_id, hour_start=hour_start, hour_end=hour_end,
