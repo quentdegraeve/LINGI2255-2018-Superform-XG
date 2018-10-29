@@ -83,10 +83,11 @@ class PubGCal(db.Model):
     date_end = db.Column(db.DateTime, nullable=False)
     location = db.Column(db.Text)
     color_id = db.Column(db.Text)
-    hour_start = db.Column(db.DateTime)
-    hour_end = db.Column(db.DateTime)
+    hour_start = db.Column(db.Text)
+    hour_end = db.Column(db.Text)
     guests = db.Column(db.Text)
     visibility = db.Column(db.Text)
+    #availability = db.Column(db.Text)
 
     __table_args__ = (db.PrimaryKeyConstraint('post_id', 'channel_id'),)
 

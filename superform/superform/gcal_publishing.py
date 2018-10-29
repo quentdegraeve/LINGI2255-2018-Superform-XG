@@ -1,13 +1,13 @@
 from flask import Blueprint, url_for, request, redirect, render_template, session
 
 from superform.utils import login_required, datetime_converter, str_converter
-from superform.models import db, Publishing, Channel
+from superform.models import db, Publishing, Channel, PubGCal
 
 pub_page = Blueprint('publishings', __name__)
 @pub_page.route('/moderate/<int:id>/<string:idc>',methods=["GET","POST"])
 @login_required()
 def moderate_publishing(id,idc):
-    pub = db.session.query(GcalPublishing).filter(GcalPublishing.post_id==id,Publishing.channel_id==idc).first()
+    pub = db.session.query(PubGCal).filter(PubGCal.post_id==id,PubGCal.channel_id==idc).first()
     pub.date_from = str_converter(pub.date_from)
     pub.date_until = str_converter(pub.date_until)
     if request.method=="GET":
