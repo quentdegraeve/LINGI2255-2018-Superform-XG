@@ -64,7 +64,35 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="imagepost">Image</label><br>
-                                    <input type="text" name="imagepost" id="imagepost" class="form-control">
+                                    <div class="input-group">
+                                        <input type="text" name="imagepost" id="imagepost" class="form-control">
+                                        <button id="js-open-preview" type="button" class="btn btn-primary">
+                                            Preview
+                                        </button>
+                                    </div>
+
+
+                                    <!-- Modal -->
+
+                                    <div class="modal fade" id="previewModal" tabindex="-1" role="dialog" aria-labelledby="previewModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="exampleModalLabel">Image preview</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body"></div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6">
@@ -192,6 +220,72 @@
 
 {% block scripts %}
     <script>
+
+        var pattern = /(?:https?:\/{2})?(?:w{3}\.)?(?:\w+\.)+(com|fr|be|io|gov|net|tv|uk)(?:\/[^\s]+)?/g;
+
+        $("#js-open-preview").click(function() {
+
+            var url = $("#imagepost").val();
+            var preview = $("#previewModal");
+            var container = preview.find(".modal-body");
+
+            if (url.match(pattern)) {
+
+                if (!url.match(/^http[s]?:\/{2}/i)) {
+                    url = "http://" + url;
+                }
+
+                console.log(url);
+                var image = preview.find("img");
+
+                if (image.length === 1) {
+                    if (image.attr("src") === url) {
+                        preview.modal("toggle");
+                        return;
+                    }
+                    image.attr("src", url);
+                } else {
+                    image = $("<img>");
+                    image.attr("src", url);
+                    image.addClass("img-fluid");
+                }
+
+                var loader = $("<div>");
+                loader.text("Loading...");
+
+                container.empty();
+                container.append(loader);
+                preview.modal("toggle");
+
+                image.on("load", function() {
+                    container.empty();
+                    container.append(image);
+                });
+
+                image.on("error", function() {
+
+                    var message = $("<div>");
+                    message.addClass("alert");
+                    message.addClass("alert-danger");
+                    message.text("Could not load the given image :(");
+
+                    container.empty();
+                    container.append(message);
+                });
+
+            } else {
+
+                var message = $("<div>");
+                message.addClass("alert");
+                message.addClass("alert-danger");
+                message.text("Please, enter a valid url for the image");
+
+                container.empty();
+                container.append(message);
+                preview.modal("toggle");
+            }
+        });
+
         // This manage if a channel is selected or not:
         //  it hides/shows a tab for a channel
         //  it adds an information bullet to unavailable fields for each channel

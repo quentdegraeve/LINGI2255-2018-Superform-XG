@@ -77,35 +77,66 @@
 {% endblock %}
 {% block scripts %}
     <script>
-
         var address = "http://localhost:5000/api/search";
 
         function searchUser(input) {
+
             var value = input.val()
-            if (value.length == 0) {
+
+            if (value.length === 0) {
                 input.attr("data-content", "Enter a username");
                 input.data("bs.popover").show();
-            } else {
-                $.getJSON(address, {
-                    "name": value
-                }, function(json) {
-
-                    if (typeof json["names"] === 'undefined') {
-                        return;
-                    }
-
-                    var div = document.createElement("div");
-                    for (var k = 0; k < json["names"].length; k++) {
-                        var a = document.createElement("a");
-                        a.href = "#";
-                        a.innerText = json["names"][k];
-                        div.appendChild(a)
-                    }
-
-                    input.attr("data-content", div.outerHTML);
-                    input.data("bs.popover").show();
-                });
+                return;
             }
+
+            $.getJSON(address, {
+                "name": value
+            }, function(json) {
+
+                if (typeof json["names"] === 'undefined') {
+                    input.attr("data-content", "Error");
+                    input.data("bs.popover").show();
+                    return;
+                }
+                if (json["names"].length === 0) {
+                    input.attr("data-content", "No results");
+                    input.data("bs.popover").show();
+                    return;
+                }
+
+                var div = document.createElement("div");
+                for (var k = 0; k < json["names"].length; k++) {
+                    var a = document.createElement("a");
+                    a.href = "#";
+                    a.innerText = json["names"][k];
+                    div.appendChild(a)
+                }
+
+                input.attr("data-content", div.outerHTML);
+                input.data("bs.popover").show();
+            });
+        }
+
+        function addPopoverEvents(input) {
+            var tip = input.data("bs.popover").tip;
+            tip.querySelectorAll("a").forEach(function(link) {
+                link.addEventListener("click", function(e) {
+                    e.preventDefault();
+                    input.val(this.innerText);
+                });
+            });
+        }
+
+        function addPopover(input) {
+            input.popover({
+                html: true
+            });
+            input.on("keyup", function() {
+                searchUser($(this));
+            });
+            input.on('shown.bs.popover', function() {
+                addPopoverEvents($(this));
+            });
         }
 
         $('.collapse').on('show.bs.collapse hide.bs.collapse', function () {
@@ -127,34 +158,12 @@
                    '{% endfor %}\n' +
                '</select></td><td><button class="remove btn btn-warning" onclick="remove(this)">Remove</button></td></tr>');
 
-           parent.find(".js-search-user").last().on("change keyup paste", function() {
-               searchUser($(this))
-           });
-           $('[data-toggle="popover"]').popover({
-                html: true,
-                content: function() {
-                    var id = $(this).attr("id");
-                    return "Hello world"
-                }
-           });
+           addPopover(parent.find(".js-search-user").last());
         });
 
-        $(".js-search-user").on("keyup", function() {
-            searchUser($(this))
-        });
 
-        $('[data-toggle="popover"]').popover({
-            html: true
-        });
-
-        $('[data-toggle="popover"]').on('shown.bs.popover', function() {
-            var input = $(this);
-            var tip = $(this).data("bs.popover").tip;
-            tip.querySelectorAll("a").forEach(function(link) {
-                link.addEventListener("click", function() {
-                    input.val(this.innerText);
-                });
-            });
+        $(".js-search-user").each(function() {
+            addPopover($(this));
         });
 
     </script>
