@@ -39,7 +39,7 @@ def create_a_publishing(post, chn, form):
         date_end = datetime_converter(form.get(chan + '_datefin')) if datetime_converter(
             form.get(chan + '_datefin')) is not None else post.date_until
         hour_start = form.get(chan + '_heuredebut') if form.get(chan + '_heuredebut') is not None else '00:00'
-        hour_end = form.get(chan + 'heurefin') if form.get(chan + 'heurefin') is not None else '00:00'
+        hour_end = form.get(chan + '_heurefin') if form.get(chan + '_heurefin') is not None else '00:00'
         location = form.get(chan + '_location')
         color_id = form.get(chan + '_color')
         guests = form.get(chan + '_guests')
