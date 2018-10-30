@@ -29,12 +29,10 @@ def run(publishing, channel_config):
     }
     api = get_api(cfg)
     link_url = publishing.link_url
-    print(link_url)
     text = publishing.description
     if link_url is not '':
         text = text + ' '
         text = text + link_url
-    print(text)
     tweets = tweet_split(text, (',', '!', '?', ':', ';', '\n'))
 
     image_url = publishing.image_url
@@ -79,7 +77,7 @@ def tweet_split(text, separators):
     else:
         limit -= 4
 
-        urls = re.findall(r'((?:http[s]?://)?(?:w{3}\.)?(?:\w+\.)+(?:com|fr|be|io|gov|net|tv|uk)(?:/[^\s]+)?)', text)
+        urls = re.findall(r'((?:http[s]?://)?(?:w{3}\.)?(?:\w+\.)+(?:com|fr|be|io|gov|net|tv|uk|ch)(?:/[^\s]+)?)', text)
         url_index = []
         url_len = []
         for url in urls:
@@ -96,8 +94,12 @@ def tweet_split(text, separators):
         temp = ""  # tweet temporaire
         for s in sentences:
             if (len(s) + 1) > limit:
-                print("sentence longer than limit")
-                # cut between words
+                if separators == ' ':
+                    print("Split between characters")
+                    return [text[i:i+280] for i in range(0, len(text), 280)]
+                else:
+                    print("Split between words")
+                    return tweet_split(text, ' ')
             else:
                 if not url_index:  # si pas d'url
                     if (count + len(s) + 1) < limit:  # tweet small enough
