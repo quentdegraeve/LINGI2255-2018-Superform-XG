@@ -74,7 +74,7 @@ def tweet_split(text, separators):
     else:
         limit -= 4
 
-        urls = re.findall('(?:http[s]?://)?(?:w{3}\.)?(?:\w+\.)+(com|fr|be|io|gov|net|tv|uk)(?:/[^\s]+)?', text)
+        urls = re.findall(r'((?:http[s]?://)?(?:w{3}\.)?(?:\w+\.)+(?:com|fr|be|io|gov|net|tv|uk)(?:/[^\s]+)?)', text)
         url_index = []
         url_len = []
         for url in urls:

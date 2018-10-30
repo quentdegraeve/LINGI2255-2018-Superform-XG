@@ -72,6 +72,6 @@ def test_tweet_split_http_url_split():
 def test_tweet_split_www_url_split():
     string_input = 'Repudiandae quam vel voluptatum voluptates. Rerum quas ut vel ipsum assumenda aut ab. Nam incidunt similique iure fugit animi quia eum sint. Eos voluptatem assumenda nemo repellendus non et nemo. Aliquam ut amet maiores repudiandae vel rerum distinctio. www.xkcd.com Aut dolorem esse praesentium sunt. Quo molestiae est deserunt et sint voluptas. Ullam et pariatur voluptatem sint consequatur sapiente maiores voluptatem. Porro optio rerum natus sed voluptas.'
     string_output = twitter.tweet_split(string_input, (',', '!', '?', ':', ';'))
-    assert string_output[0] == '1/2 Repudiandae quam vel voluptatum voluptates. Rerum quas ut vel ipsum assumenda aut ab. Nam incidunt similique iure fugit animi quia eum sint. Eos voluptatem assumenda nemo repellendus non et nemo. Aliquam ut amet maiores repudiandae vel rerum distinctio. '
-    assert string_output[1] == '2/2 www.xkcd.com Aut dolorem esse praesentium sunt. Quo molestiae est deserunt et sint voluptas. Ullam et pariatur voluptatem sint consequatur sapiente maiores voluptatem. Porro optio rerum natus sed voluptas.'
+    assert string_output[0] == '1/2 Repudiandae quam vel voluptatum voluptates. Rerum quas ut vel ipsum assumenda aut ab. Nam incidunt similique iure fugit animi quia eum sint. Eos voluptatem assumenda nemo repellendus non et nemo. Aliquam ut amet maiores repudiandae vel rerum distinctio. www.xkcd.com'
+    assert string_output[1] == '2/2 Aut dolorem esse praesentium sunt. Quo molestiae est deserunt et sint voluptas. Ullam et pariatur voluptatem sint consequatur sapiente maiores voluptatem. Porro optio rerum natus sed voluptas.'
 
