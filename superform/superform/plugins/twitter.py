@@ -28,7 +28,14 @@ def run(publishing, channel_config):
         "access_token_secret": str(json_data['access_token_secret'])
     }
     api = get_api(cfg)
-    tweets = tweet_split(publishing.description, (',', '!', '?', ':', ';'))
+    link_url = publishing.link_url
+    print(link_url)
+    text = publishing.description
+    if link_url is not '':
+        text = text + ' '
+        text = text + link_url
+    print(text)
+    tweets = tweet_split(text, (',', '!', '?', ':', ';', '\n'))
 
     image_url = publishing.image_url
     if image_url is '':
@@ -47,10 +54,8 @@ def run(publishing, channel_config):
 
             i = len(tweets)-1
             while i > 0:
-                print(tweets[i])
                 api.update_status(status=tweets[i])
                 i -= 1
-            print(tweets[0])
             api.update_with_media(filename, status=tweets[0])
             os.remove(filename)
         else:
