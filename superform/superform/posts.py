@@ -1,7 +1,8 @@
-from flask import Blueprint, url_for, request, redirect, session, render_template
+from flask import Blueprint, url_for, request, redirect, session, render_template, flash
 from superform.users import channels_available_for_user
 from superform.utils import login_required, datetime_converter, str_converter, get_instance_from_module_path
 from superform.models import db, Post, Publishing, Channel
+from superform.plugins.linkedin import share_post
 
 posts_page = Blueprint('posts', __name__)
 
@@ -23,6 +24,11 @@ def create_a_post(form):
 
 def create_a_publishing(post, chn, form):
     chan = str(chn.name)
+    validate = pre_validate_post(chn, post)
+    if validate == -1 or validate == 0:
+        return validate
+    print(post.id)
+    print(chn.id)
     title_post = form.get(chan + '_titlepost') if (form.get(chan + '_titlepost') is not None) else post.title
     descr_post = form.get(chan + '_descriptionpost') if form.get(
         chan + '_descriptionpost') is not None else post.description
@@ -32,7 +38,7 @@ def create_a_publishing(post, chn, form):
         form.get(chan + '_datefrompost')) is not None else post.date_from
     date_until = datetime_converter(form.get(chan + '_dateuntilpost')) if datetime_converter(
         form.get(chan + '_dateuntilpost')) is not None else post.date_until
-    pub = Publishing(post_id=post.id, channel_id=chan, state=0, title=title_post, description=descr_post,
+    pub = Publishing(post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
                      link_url=link_post, image_url=image_post,
                      date_from=date_from, date_until=date_until)
 
@@ -57,6 +63,63 @@ def new_post():
     else:
         create_a_post(request.form)
         return redirect(url_for('index'))
+
+
+@posts_page.route('/publish', methods=['POST'])
+@login_required()
+def publish_from_new_post():
+    # First create the post
+    p = create_a_post(request.form)
+    # then treat the publish part
+    if request.method == "POST":
+        for elem in request.form:
+            if elem.startswith("chan_option_"):
+                def substr(elem):
+                    import re
+                    return re.sub('^chan\_option\_', '', elem)
+
+                c = Channel.query.get(substr(elem))
+                # for each selected channel options
+                # create the publication
+                pub = create_a_publishing(p, c, request.form)
+                if pub == -1:
+                    flash("no module selected", "danger")
+                    return redirect(url_for('index'))
+                elif pub == 0:
+                    error = "error in post :", p.id, " title or description length not valid"
+                    flash(error, "danger")
+                    return redirect(url_for('index'))
+
+    print("submitted")
+    db.session.commit()
+    return redirect(url_for('index'))
+
+
+@posts_page.route('/records')
+@login_required()
+def records():
+    posts = db.session.query(Post).filter(Post.user_id == session.get("user_id", ""))
+    records = [(p) for p in posts if p.is_a_record()]
+    return render_template('records.html', records=records)
+
+
+def pre_validate_post(channel, post):
+    if (channel.module == "superform.plugins.linkedin"):
+        toReturn = linkedin_validation(post)
+        return toReturn
+
+    elif (channel.module == "superform.plugins.mail"):
+        return 1
+
+    else:
+        return -1
+
+
+def linkedin_validation(post):
+    if len(post.title) > 200 or len(post.title) == 0: return 0;
+    if len(post.description) > 256 or len(post.description) == 0: return 0;
+    return 1;
+
 
 @posts_page.route('/edit/<int:post_id>', methods=['GET'])
 @login_required()
@@ -91,33 +154,3 @@ def edit_post(post_id):
     else:
         create_a_post(request.form)
         return redirect(url_for('index'))
-
-
-@posts_page.route('/publish', methods=['POST'])
-@login_required()
-def publish_from_new_post():
-    # First create the post
-    p = create_a_post(request.form)
-    # then treat the publish part
-    if request.method == "POST":
-        for elem in request.form:
-            if elem.startswith("chan_option_"):
-                def substr(elem):
-                    import re
-                    return re.sub('^chan\_option\_', '', elem)
-
-                c = Channel.query.get(substr(elem))
-                # for each selected channel options
-                # create the publication
-                pub = create_a_publishing(p, c, request.form)
-
-    db.session.commit()
-    return redirect(url_for('index'))
-
-
-@posts_page.route('/records')
-@login_required()
-def records():
-    posts = db.session.query(Post).filter(Post.user_id == session.get("user_id", ""))
-    records = [(p) for p in posts if p.is_a_record()]
-    return render_template('records.html', records=records)

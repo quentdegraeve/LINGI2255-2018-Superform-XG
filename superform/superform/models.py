@@ -74,9 +74,11 @@ class Channel(db.Model):
     name = db.Column(db.Text, nullable=False)
     module = db.Column(db.String(100), nullable=False)
     config = db.Column(db.Text, nullable=False)
+    linkedin_access_token = db.Column(db.Text)
+    linkedin_token_expiration_date = db.Column(db.DateTime)
 
     publishings = db.relationship("Publishing", backref="channel", lazy=True)
-    authorizations = db.relationship("Authorization", backref="channel", lazy=True)
+    authorizations = db.relationship("Authorization", cascade="all, delete", backref="channel", lazy=True)
 
     __table_args__ = ({"sqlite_autoincrement": True},)
 

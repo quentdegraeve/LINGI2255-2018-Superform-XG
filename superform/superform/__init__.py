@@ -1,16 +1,22 @@
-from flask import Flask, render_template, session
+from flask import Flask, render_template, session,url_for, redirect
 import pkgutil
 import importlib
+from flask import request
 
 import superform.plugins
 from superform.publishings import pub_page
-from superform.models import db, User, Post, Publishing
+from superform.models import db, User, Post,Publishing,Channel
 from superform.authentication import authentication_page
 from superform.authorizations import authorizations_page
 from superform.channels import channels_page
 from superform.posts import posts_page
-from superform.users import get_moderate_channels_for_user, is_moderator, user_page
 from superform.api import api_page
+from superform.users import get_moderate_channels_for_user, is_moderator
+from superform.utils import get_module_full_name
+
+from superform.plugins import linkedin
+
+import json
 
 app = Flask(__name__)
 app.config.from_json("config.json")
@@ -42,12 +48,42 @@ def index():
         setattr(user, 'is_mod', is_moderator(user))
         posts = db.session.query(Post).filter(Post.user_id == session.get("user_id", ""))
         chans = get_moderate_channels_for_user(user)
-        pubs_per_chan = (
-        db.session.query(Publishing).filter((Publishing.channel_id == c.name) & (Publishing.state == 0)) for c in chans)
+        pubs_per_chan = (db.session.query(Publishing).filter((Publishing.channel_id == c.id) & (Publishing.state == 0)) for c in chans)
         flattened_list_pubs = [y for x in pubs_per_chan for y in x]
 
     return render_template("index.html", user=user, posts=posts, publishings=flattened_list_pubs)
 
+
+
+@app.route('/linkedin/verify')
+def linkedin_verify_authorization():
+    code = request.args.get('code')
+    conf_publishing = json.loads(request.args.get('state'))
+    channel_name = conf_publishing['channel_name']
+    publishing_id = conf_publishing['publishing_id']
+    post_id = publishing_id.__getitem__(0)
+    channel_id = publishing_id.__getitem__(1)
+    print("code", code)
+    print("post id, channel id", post_id, channel_id)
+    if code is not None:
+        linkedin.set_access_token(channel_name,code)
+
+        channel = Channel.query.filter_by(name=channel_name,module=get_module_full_name("linkedin")).first()
+        print(channel)
+        #add the configuration to the channel
+        conf = dict()
+        conf["profile_email"] = ""
+        conf["channel_name"] = channel_name
+
+        channel.config = json.dumps(conf)
+        db.session.commit()
+
+
+    #normally should redirect to the channel page or to the page that publish a post
+    publishing = Publishing.query.filter_by(post_id=post_id, channel_id=channel_id).first()
+    print("init publishing", publishing)
+    linkedin.run(publishing, channel.config)
+    return redirect(url_for('index'))
 
 @app.errorhandler(403)
 def forbidden(error):

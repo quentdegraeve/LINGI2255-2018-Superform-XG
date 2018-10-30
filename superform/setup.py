@@ -9,6 +9,7 @@ setup(
         'python3-saml',
         'sqlalchemy',
         'flask-sqlalchemy',
-        'tweepy'
+        'tweepy',
+        'python3-linkedin'
     ],
 )

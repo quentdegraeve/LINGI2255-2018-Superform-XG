@@ -3,6 +3,15 @@
 {% block content %}
     <h1>Index</h1>
     {% if session.logged_in %}
+        {% with messages = get_flashed_messages() %}
+         {% if messages %}
+             <ul class=flashes >
+              {% for message in messages %}
+                  <li><font color="red"><strong>{{ message }}</strong></font></li>
+               {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
         <div class="row">
             <div class="col-md-12">
                 {% if user.is_mod %}
@@ -37,7 +46,7 @@
                         </tbody>
                     </table>
                 {% endif %}
-                <h2>All my posts</h2>
+                 <h2>All my posts</h2>
                 <table class="table table-bordered">
                     <thead>
                     <tr>
