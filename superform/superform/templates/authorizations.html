@@ -77,7 +77,7 @@
 {% endblock %}
 {% block scripts %}
     <script>
-        var address = "http://localhost:5000/api/search";
+        var address = "{{ url_for('api.search')}}";
 
         function searchUser(input) {
 
