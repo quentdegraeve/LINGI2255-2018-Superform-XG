@@ -14,8 +14,8 @@ def moderate_publishing(id,idc):
         pub.date_end = str_converter(pub.date_end)
     else:
         pub = db.session.query(Publishing).filter(Publishing.post_id==id,Publishing.channel_id==idc).first()
-    pub.date_from = str_converter(pub.date_from)
-    pub.date_until = str_converter(pub.date_until)
+        pub.date_from = str_converter(pub.date_from)
+        pub.date_until = str_converter(pub.date_until)
     if request.method=="GET":
         return render_template('moderate_post.html', pub=pub, channel=chn)
     else:
@@ -23,8 +23,6 @@ def moderate_publishing(id,idc):
         pub.description = request.form.get('descrpost')
         pub.link_url = request.form.get('linkurlpost')
         pub.image_url = request.form.get('imagepost')
-        pub.date_from = datetime_converter(request.form.get('datefrompost'))
-        pub.date_until = datetime_converter(request.form.get('dateuntilpost'))
         if chn.module == 'superform.plugins.gcal':
             pub.date_start = datetime_converter(request.form.get('datedebut'))
             pub.hour_start = request.form.get('heuredebut')
@@ -34,6 +32,9 @@ def moderate_publishing(id,idc):
             pub.color = request.form.get('color')
             pub.visibility = request.form.get('visibility')
             pub.availability = request.form.get('availability')
+        else:
+            pub.date_from = datetime_converter(request.form.get('datefrompost'))
+            pub.date_until = datetime_converter(request.form.get('dateuntilpost'))
         #state is shared & validated
         pub.state = 1
         db.session.commit()

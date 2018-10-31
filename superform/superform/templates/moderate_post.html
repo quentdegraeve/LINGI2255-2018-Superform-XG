@@ -72,6 +72,7 @@
                         <label for="imagepost">Image</label><br>
                         <input type="file" name="imagepost" id="imagepost" class="form-control" value="{{ pub.image_url }}">
                     </div>
+                    {% if channel.module != "superform.plugins.gcal" %}
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -86,6 +87,7 @@
                             </div>
                         </div>
                     </div>
+                    {% endif %}
                 </div>
             </div>
             <button class="btn btn-success">Publish</button>
