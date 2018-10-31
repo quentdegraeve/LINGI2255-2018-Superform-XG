@@ -1,7 +1,7 @@
 from flask import Blueprint, url_for, request, redirect, render_template, session
 
 from superform.utils import login_required, datetime_converter, str_converter
-from superform.models import db, Publishing, Channel, PubGCal
+from superform.models import db, Channel, PubGCal
 
 pub_page = Blueprint('publishings', __name__)
 @pub_page.route('/moderate/<int:id>/<string:idc>',methods=["GET","POST"])
@@ -37,6 +37,6 @@ def moderate_publishing(id,idc):
         c_conf = c.config
         from importlib import import_module
         plugin = import_module(plugin_name)
-        plugin.run(pub,c_conf)
+        plugin.run(pub, c_conf)
 
         return redirect(url_for('index'))
