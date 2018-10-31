@@ -55,7 +55,7 @@ def configure_channel(id):
     for field in config_fields:
         if cfield > 0:
             str_conf += ","
-        str_conf += "\"" + field + "\" : \"" + request.form.get(field) + "\""
+        str_conf += "\'" + field + "\' : \'" + request.form.get(field) + "\'"
         cfield += 1
     str_conf += "}"
     c.config = str_conf
