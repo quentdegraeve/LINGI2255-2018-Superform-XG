@@ -53,6 +53,11 @@ def index():
     return render_template("index.html", user=user,posts=posts,publishings = flattened_list_pubs)
 
 
+@app.route('/error_keepass')
+def error_keepass():
+    return render_template('error_keepass.html')
+
+
 @app.route('/linkedin/verify')
 def linkedin_verify_authorization():
     code = request.args.get('code')

@@ -6,10 +6,9 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from superform.models import Authorization, Channel
-from superform import app, db, Post, User, posts
-from superform.utils import datetime_converter, str_converter, get_module_full_name
-from superform.users import  is_moderator, get_moderate_channels_for_user,channels_available_for_user
+from superform.models import Channel
+from superform import app, db, Post, posts
+from superform.utils import get_module_full_name
 
 API_KEY = '861s90686z5fuz'
 API_SECRET = 'xHDD886NZNkWVuN4'
@@ -64,9 +63,8 @@ def test_authenticate2(client):
     linkedin_access_token = "test_token"
     linkedin_token_expiration_date = datetime.now() + timedelta(seconds=60)
     channel_name = "channel_test"
-    c_test = Channel(id=1, name=channel_name, module=get_module_full_name("linkedin"), config="{}",
-                     linkedin_access_token=linkedin_access_token,
-                     linkedin_token_expiration_date=linkedin_token_expiration_date)
+    c_test = Channel(name=channel_name, module=get_module_full_name("linkedin"), config="{}", linkedin_access_token=linkedin_access_token, linkedin_token_expiration_date=linkedin_token_expiration_date)
+
     db.session.add(c_test)
     linkedin.LinkedinTokens.put_token(linkedin.LinkedinTokens, "channel_test", linkedin_access_token,
                                       linkedin_token_expiration_date)

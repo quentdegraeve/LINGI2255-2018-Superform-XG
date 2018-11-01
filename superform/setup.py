@@ -9,6 +9,8 @@ setup(
         'python3-saml',
         'sqlalchemy',
         'flask-sqlalchemy',
-        'python3-linkedin'
+        'python3-linkedin',
+        'pykeepass',
+        'linkedin'
     ],
 )

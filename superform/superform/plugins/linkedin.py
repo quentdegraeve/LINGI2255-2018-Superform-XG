@@ -1,15 +1,23 @@
-from linkedin import linkedin
-from superform import db, Channel
-from datetime import datetime, timedelta
 import json
+import time
+import platform
+import os
+import sys
+from datetime import datetime, timedelta
+from flask import redirect, url_for
+from linkedin import linkedin
+from selenium import webdriver, common
+
+from superform.models import db, Channel
 from superform.utils import get_module_full_name
+from suputils import keepass
 
 FIELDS_UNAVAILABLE = []
 
 CONFIG_FIELDS = ["profile_email", "channel_name"]
 
-API_KEY = '861s90686z5fuz'
-API_SECRET = 'xHDD886NZNkWVuN4'
+API_KEY = keepass.get_password_from_keepass('superform_key')
+API_SECRET = keepass.get_password_from_keepass('superform_secret')
 RETURN_URL = 'http://localhost:5000/linkedin/verify'
 
 authentication = linkedin.LinkedInAuthentication(
@@ -60,6 +68,40 @@ def share_post(channel_name, comment, title, submitted_url,submitted_image_url,v
 
     application.submit_share(comment=comment, title=title, submitted_url=submitted_url,
                              submitted_image_url=submitted_image_url, description="This is a sharing from Superform",visibility_code=visibility_code)
+
+
+def auto_auth(url, channel_id):
+    if keepass.set_entry_from_keepass(str(channel_id)) is 0:
+        return redirect(url_for('error_keepass'))
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+
+    options = webdriver.ChromeOptions()
+    options.add_argument('headless')
+
+    chrome = 'chromedriver'
+    if platform.system() == 'Windows':
+        chrome += '.exe'
+
+    try:
+        driver = webdriver.Chrome(dir_path + '\chrome\\' + chrome, chrome_options=options)
+    except common.exceptions.WebDriverException:
+        sys.exit('Can not find a valid chrome driver. it should be named cheromedriver on linux or cheromedriver.exe '
+                 'on windows and it should be located in the plugins/chrome folder see this page for download : '
+                 'https://sites.google.com/a/chromium.org/chromedriver/downloads')
+
+    driver.get(url)
+    username = driver.find_element_by_name("session_key")
+    password = driver.find_element_by_name("session_password")
+
+    username.send_keys(keepass.KeepassEntry.username)
+    password.send_keys(keepass.KeepassEntry.password)
+
+    driver.find_element_by_name("signin").click()
+
+    while 'linkedin' in driver.current_url:
+        time.sleep(.50)
+    driver.close()
+    return redirect(url_for('index'))
 
 
 def run(publishing,channel_config):
