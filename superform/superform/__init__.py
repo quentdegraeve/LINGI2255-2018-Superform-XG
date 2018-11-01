@@ -63,24 +63,14 @@ def linkedin_verify_authorization():
     channel_id = publishing_id.__getitem__(1)
     print("code", code)
     print("post id, channel id", post_id, channel_id)
-    if code is not None:
-        linkedin.set_access_token(channel_name,code)
-
-        channel = Channel.query.filter_by(name=channel_name,module=get_module_full_name("linkedin")).first()
-        print(channel)
-        #add the configuration to the channel
-        conf = dict()
-        conf["profile_email"] = ""
-        conf["channel_name"] = channel_name
-
-        channel.config = json.dumps(conf)
-        db.session.commit()
-
-
+    channel_config = {}
+    if code:
+        channel_config = linkedin.set_access_token(channel_name,code)
+    print("channel_config", channel_config)
     #normally should redirect to the channel page or to the page that publish a post
     publishing = Publishing.query.filter_by(post_id=post_id, channel_id=channel_id).first()
     print("init publishing", publishing)
-    linkedin.run(publishing, channel.config)
+    linkedin.run(publishing, channel_config)
     return redirect(url_for('index'))
 
 @app.errorhandler(403)
