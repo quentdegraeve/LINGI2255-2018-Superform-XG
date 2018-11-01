@@ -12,8 +12,8 @@ CONFIG_FIELDS = ["profile_email", "channel_name", "linkedin_access_token", "link
 RETURN_URL = 'http://localhost:5000/linkedin/verify'
 
 authentication = linkedin.LinkedInAuthentication(
-    get_config("LinkedinSection", "API_KEY"),
-    get_config("LinkedinSection", "API_SECRET"),
+    "861s90686z5fuz", #"API_KEY":
+    "xHDD886NZNkWVuN4", #"API_SECRET":
     RETURN_URL,
     ['r_basicprofile', 'r_emailaddress', 'w_share', 'rw_company_admin']
 )
