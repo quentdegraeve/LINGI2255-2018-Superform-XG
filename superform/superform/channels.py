@@ -38,10 +38,12 @@ def channel_list():
             name = request.form.get('name')
             username = request.form.get('username')
             password = request.form.get('password')
-            channel.name = name
-            keepass.set_entry_from_data(str(channel.id), username, password)
-            keepass.modify_entry_in_group(get_modules_names([channel.module])[0], channel.id)
-            db.session.commit()
+            if name is not '':
+                channel.name = name
+                db.session.commit()
+            if username is not '' or password is not '':
+                keepass.set_entry_from_data(str(channel.id), username, password)
+                keepass.modify_entry_in_group(get_modules_names([channel.module])[0], channel.id)
 
     channels = Channel.query.all()
     return render_template("channels.html", channels=channels,

@@ -37,6 +37,11 @@ def delete_entry(title):
 
 
 def modify_entry_in_group(group, title):
+    entry_kp = kp.find_entries(title=title, first=True)
+    if KeepassEntry.password == '':
+        KeepassEntry.password = entry_kp.password
+    if KeepassEntry.username == '':
+        KeepassEntry.username = entry_kp.username
     delete_entry(title)
     add_entry_in_group(group)
 
