@@ -1,6 +1,8 @@
 import json
 import requests
 
+TYPE = "ictv"
+ICON_NAME = "fas fa-tv"
 FIELDS_UNAVAILABLE = ["Title", "Description"]
 CONFIG_FIELDS = ["api_url", "api_token"]
 

@@ -6,7 +6,9 @@ import requests
 import tweepy
 
 
-FIELDS_UNAVAILABLE = ['Title']
+TYPE = "twitter"
+ICON_NAME = "fab fa-twitter"
+FIELDS_UNAVAILABLE = ["Title"]
 CONFIG_FIELDS = ["consumer_key", "consumer_secret", "access_token_key", "access_token_secret"]
 
 
@@ -66,6 +68,10 @@ def get_api(cfg):
     return tweepy.API(auth)
 
 
+def get_urls(text):
+    return re.findall(r'((?:http[s]?:/{2})?(?:w{3}\.)?(?:\w+\.)+(?:com|fr|be|io|gov|net|tv|uk|ch|de|nl|lu)(?:/[^\s]+)?)', text)
+
+
 def tweet_split(text, separators):
     my_str = text
 
@@ -76,8 +82,7 @@ def tweet_split(text, separators):
         tweets += [text]
     else:
         limit -= 4
-
-        urls = re.findall(r'((?:http[s]?://)?(?:w{3}\.)?(?:\w+\.)+(?:com|fr|be|io|gov|net|tv|uk|ch)(?:/[^\s]+)?)', text)
+        urls = get_urls(text)
         url_index = []
         url_len = []
         for url in urls:

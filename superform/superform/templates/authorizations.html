@@ -31,9 +31,7 @@
                                         {% for authorization in channel.authorizations %}
                                             {% set is_session_user = authorization.user_id == session["user_id"] %}
                                             <tr>
-                                                <td>
-                                                    {{ authorization.user_id }}
-                                                </td>
+                                                <td>{{ authorization.user_id }}</td>
                                                 <td>
                                                     <select class="form-control" id="sel1" name="permission_edit#{{ authorization.user_id }}#{{ channel.id }}" {{ 'disabled' if is_session_user else '' }}>
                                                         {% for permission in permissions %}
@@ -109,6 +107,7 @@
                     var a = document.createElement("a");
                     a.href = "#";
                     a.innerText = json["names"][k];
+                    a.style.display = "block";
                     div.appendChild(a)
                 }
 

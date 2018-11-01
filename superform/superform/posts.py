@@ -51,6 +51,8 @@ def new_post():
         clas = get_instance_from_module_path(m)
         unaivalable_fields = ','.join(clas.FIELDS_UNAVAILABLE)
         setattr(elem, "unavailablefields", unaivalable_fields)
+        setattr(elem, "type", clas.TYPE)
+        setattr(elem, "icon", clas.ICON_NAME)
 
     if request.method == "GET":
         return render_template('new.html', l_chan=list_of_channels)
@@ -85,6 +87,20 @@ def edit_post(post_id):
         clas = get_instance_from_module_path(m)
         unaivalable_fields = ','.join(clas.FIELDS_UNAVAILABLE)
         setattr(elem, "unavailablefields", unaivalable_fields)
+
+    # 'channel'
+    # 'channel_id'
+    # 'date_from'
+    # 'date_until'
+    # 'description'
+    # 'get_author'
+    # 'image_url'
+    # 'link_url'
+    # 'metadata'
+    # 'post'
+    # 'post_id'
+    # 'state'
+    # 'title'
 
     if request.method == "GET":
         return render_template('edit.html', post=post, publishing=publishing, l_chan=list_of_channels)

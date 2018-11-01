@@ -5,9 +5,9 @@ from smtplib import SMTPException
 from flask import current_app
 import json
 
+TYPE = "mail"
+ICON_NAME = "fas fa-envelope"
 FIELDS_UNAVAILABLE = ["Url"]
-
-
 CONFIG_FIELDS = ["sender","receiver"]
 
 def run(publishing,channel_config):
