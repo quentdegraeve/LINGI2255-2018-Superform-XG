@@ -30,11 +30,15 @@ def moderate_publishing(id,idc):
         c_conf = c.config
         from importlib import import_module
         plugin = import_module(plugin_name)
-        if plugin_name == "superform.plugins.linkedin":
-            url = plugin.authenticate(c.name, (id, idc))
-            if url != "AlreadyAuthenticated":
-                print("url", url)
-                return redirect(url)
+
+        #every plugin should implement the autheticate method that redirect to the plugin authentication process
+        #if it is required or necessary (no token available or expired)!
+
+        url = plugin.authenticate(c.name, (id, idc))
+        if url != "AlreadyAuthenticated":
+            print("url", url)
+            return redirect(url)
+
         print('publishing publishings.py', pub)
         plugin.run(pub,c_conf)
 

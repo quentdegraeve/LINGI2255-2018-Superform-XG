@@ -4,7 +4,7 @@ from superform.users import channels_available_for_user
 from superform.utils import login_required, datetime_converter, str_converter, get_instance_from_module_path
 from superform.models import db, Post, Publishing, Channel
 
-from superform.plugins.linkedin import share_post
+from importlib import import_module
 
 posts_page = Blueprint('posts', __name__)
 
@@ -103,18 +103,10 @@ def records():
     records = [(p) for p in posts if p.is_a_record()]
     return render_template('records.html', records=records)
 
+
 def pre_validate_post(channel,post):
-    if( channel.module == "superform.plugins.linkedin" ):
-        toReturn = linkedin_validation(post)
-        return toReturn
+    plugin = import_module(channel.module)
+    return plugin.post_pre_validation(post)
 
-    elif(channel.module == "superform.plugins.mail"):
-        return 1
 
-    else: return -1
-
-def linkedin_validation(post):
-    if len(post.title) > 200 or len(post.title) == 0: return 0;
-    if len(post.description) > 256 or len(post.description) == 0: return 0;
-    return 1;
 

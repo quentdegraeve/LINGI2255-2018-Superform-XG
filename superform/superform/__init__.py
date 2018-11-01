@@ -40,6 +40,7 @@ app.config["PLUGINS"] = {
 
 @app.route('/')
 def index():
+    app.config.from_envvar("LINKEDIN_API_KEY")
     user = User.query.get(session.get("user_id", "")) if session.get("logged_in", False) else None
     posts=[]
     flattened_list_pubs =[]

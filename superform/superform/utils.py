@@ -44,10 +44,3 @@ def static_var(varname, value):
         setattr(func, varname, value)
         return func
     return decorate
-
-@static_var("configs",None)
-def get_config(option, id):
-    if get_config.configs == None:
-        get_config.configs = configparser.ConfigParser()
-        get_config.configs.read('./superform/ConfigFile.properties')
-    return get_config.configs.get(option, id)

@@ -1,8 +1,9 @@
 from linkedin import linkedin
 from superform import db, Channel
 from datetime import datetime, timedelta
+from flask import current_app
 import json
-from superform.utils import get_module_full_name, get_config
+from superform.utils import get_module_full_name
 
 FIELDS_UNAVAILABLE = []
 
@@ -77,6 +78,12 @@ def run(publishing,channel_config):
     channel_name = channel_config['channel_name']
     authenticate(channel_name, (publishing.post_id, publishing.channel_id))
     share_post(channel_name, publishing.description, publishing.title, publishing.link_url, publishing.image_url, "anyone")
+
+
+def post_pre_validation(post):
+    if len(post.title) > 200 or len(post.title) == 0: return 0;
+    if len(post.description) > 256 or len(post.description) == 0: return 0;
+    return 1;
 
 
 class LinkedinTokens:
