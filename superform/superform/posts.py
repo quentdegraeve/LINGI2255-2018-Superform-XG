@@ -84,6 +84,7 @@ def new_post():
 @login_required()
 def publish_from_new_post():
     # First create the post
+    print(request.form)
     p = create_a_post(request.form)
     # then treat the publish part
     if request.method == "POST":
