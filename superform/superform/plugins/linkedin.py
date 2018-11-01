@@ -96,6 +96,10 @@ class LinkedinTokens:
             print("put token", channel.config)
             conf = json.loads(channel.config)
             date_string = conf.get("linkedin_token_expiration_date")
+
+            if not date_string :
+                return (None, None)
+
             date_expiration = datetime.strptime(date_string, '%Y-%m-%d %H:%M:%S.%f')
             print("date_expiration", conf.get("linkedin_access_token"), date_expiration)
             return (conf.get("linkedin_access_token"), date_expiration)
