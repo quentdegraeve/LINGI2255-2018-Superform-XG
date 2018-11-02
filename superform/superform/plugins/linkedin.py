@@ -53,8 +53,6 @@ def set_access_token(channel_name, code):
 
     print("Access Token:", result.access_token)
     print("Expires in (seconds):", result.expires_in)
-    LinkedinTokens.put_token(LinkedinTokens, channel_name, result.access_token, (datetime.now() +timedelta(seconds=result.expires_in)))
-
     #Add
     #channel = Channel.query.filter_by(name=channel_name, module=get_module_full_name("linkedin")).first()
     # add the configuration to the channel
