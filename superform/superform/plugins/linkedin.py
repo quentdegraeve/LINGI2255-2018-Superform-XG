@@ -83,7 +83,11 @@ def auto_auth(url, channel_id):
         chrome += '.exe'
 
     try:
-        driver = webdriver.Chrome(dir_path + '\chrome\\' + chrome, chrome_options=options)
+        if platform.system() == 'Windows':
+            driver = webdriver.Chrome(dir_path + '\chrome\\' + chrome, chrome_options=options)
+        else:
+            driver = webdriver.Chrome(dir_path + '/chrome/' + chrome, chrome_options=options)
+
     except common.exceptions.WebDriverException:
         sys.exit('Can not find a valid chrome driver. it should be named cheromedriver on linux or cheromedriver.exe '
                  'on windows and it should be located in the plugins/chrome folder see this page for download : '
