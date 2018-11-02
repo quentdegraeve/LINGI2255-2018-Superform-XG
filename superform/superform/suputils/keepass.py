@@ -1,16 +1,19 @@
 import os
 import sys
+import platform
 from flask import has_request_context
 from pykeepass import PyKeePass
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 try:
-    kp = PyKeePass(dir_path + '\Superform.kdbx', keyfile=dir_path + '\\NewKey.key')
-except ImportError:
-    sys.exit('Please create a Keepass database named Superform in the subutils folder')
-except FileNotFoundError:
-    sys.exit('Please create a Keepass database named Superform in the subutils folder')
+    if platform.system() == 'Windows':
+        kp = PyKeePass(dir_path + '\Superform.kdbx', keyfile=dir_path + '\\NewKey.key')
+    else:
+        kp = PyKeePass(dir_path + '/Superform.kdbx', keyfile=dir_path + '/NewKey.key')
+
+except ImportError or FileNotFoundError:
+    sys.exit('Please create a Keepass database named Superform with a key file named NewKey.key in the subutils folder')
 
 
 def set_entry_from_data(title, username=None, password=None, url=None, notes=None):
