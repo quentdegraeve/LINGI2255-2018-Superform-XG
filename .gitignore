@@ -7,3 +7,4 @@ superform/superform/superform.db
 .pytest_cache/*
 /superform/.cache/*
 /superform/.pytest_cache/*
+.DS_Store
