@@ -3,7 +3,7 @@ from functools import wraps
 from flask import render_template, session, current_app
 
 from superform.models import Authorization, Channel
-
+import configparser
 
 def login_required(admin_required=False):
     def decorator(f):
@@ -38,3 +38,9 @@ def get_module_full_name(module_name):
     for m in current_app.config["PLUGINS"].keys():
         if(m.split('.')[2] == module_name):
             return m
+
+def static_var(varname, value):
+    def decorate(func):
+        setattr(func, varname, value)
+        return func
+    return decorate

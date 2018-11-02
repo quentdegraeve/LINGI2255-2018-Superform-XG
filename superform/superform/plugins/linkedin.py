@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from flask import redirect, url_for
 from linkedin import linkedin
 from selenium import webdriver, common
+from datetime import datetime, timedelta
 
 from superform.models import db, Channel
 from superform.utils import get_module_full_name
@@ -14,7 +15,7 @@ from superform.suputils import keepass
 
 FIELDS_UNAVAILABLE = []
 
-CONFIG_FIELDS = ["profile_email", "channel_name"]
+CONFIG_FIELDS = ["profile_email", "channel_name", "linkedin_access_token", "linkedin_token_expiration_date"]
 
 API_KEY = keepass.get_password_from_keepass('superform_key')
 API_SECRET = keepass.get_password_from_keepass('superform_secret')
@@ -54,11 +55,22 @@ def set_access_token(channel_name, code):
     print("Expires in (seconds):", result.expires_in)
     LinkedinTokens.put_token(LinkedinTokens, channel_name, result.access_token, (datetime.now() +timedelta(seconds=result.expires_in)))
 
+    #Add
+    #channel = Channel.query.filter_by(name=channel_name, module=get_module_full_name("linkedin")).first()
+    # add the configuration to the channel
+    conf = dict()
+    conf["profile_email"] = "" #Do api call to have the profile email
+    conf["channel_name"] = channel_name
+    conf["linkedin_access_token"] = result.access_token
+    conf["linkedin_token_expiration_date"] = (datetime.now() +timedelta(seconds=result.expires_in)).__str__()
+
+    LinkedinTokens.put_token(LinkedinTokens, channel_name, conf)
+    return conf
 
 def share_post(channel_name, comment, title, submitted_url,submitted_image_url,visibility_code):
 
     token = LinkedinTokens.get_token(LinkedinTokens, channel_name).__getitem__(0)
-    print(' share_post token ', token)
+    print('share_post token ', token)
     application = linkedin.LinkedInApplication(token=token)
     print('submitted_url', submitted_url)
     if submitted_url is '':
@@ -111,29 +123,40 @@ def auto_auth(url, channel_id):
 def run(publishing,channel_config):
     print("publishing Linkedin", publishing)
     print("channel-conf", type(channel_config), channel_config)
-    conf = json.loads(channel_config)
-    print("conf run", conf, type(conf))
-    channel_name = conf['channel_name']
+    print("conf run", channel_config, type(channel_config))
+    channel_name = channel_config['channel_name']
     authenticate(channel_name, (publishing.post_id, publishing.channel_id))
     share_post(channel_name, publishing.description, publishing.title, publishing.link_url, publishing.image_url, "anyone")
 
 
+def post_pre_validation(post):
+    if len(post.title) > 200 or len(post.title) == 0: return 0;
+    if len(post.description) > 256 or len(post.description) == 0: return 0;
+    return 1;
+
+
 class LinkedinTokens:
-    tokens = {}
 
     def get_token(self, channel_name):
 
         channel = Channel.query.filter_by(name=channel_name, module=get_module_full_name("linkedin")).first()
 
-        if channel :
-            return (channel.linkedin_access_token, channel.linkedin_token_expiration_date)
+        if channel and channel.config:
+            print("put token", channel.config)
+            conf = json.loads(channel.config)
+            date_string = conf.get("linkedin_token_expiration_date")
+
+            if not date_string :
+                return (None, None)
+
+            date_expiration = datetime.strptime(date_string, '%Y-%m-%d %H:%M:%S.%f')
+            print("date_expiration", conf.get("linkedin_access_token"), date_expiration)
+            return (conf.get("linkedin_access_token"), date_expiration)
 
         return (None, None)
 
-    def put_token(self, channel_name, token,expiration_date):
-
+    def put_token(self, channel_name, config_json):
         c = Channel.query.filter_by(name=channel_name, module=get_module_full_name("linkedin")).first()
-        c.linkedin_access_token = token
-        c.linkedin_token_expiration_date = expiration_date
+        c.config = json.dumps(config_json)
+        print("put token", config_json)
         db.session.commit()
-
