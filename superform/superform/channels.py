@@ -30,8 +30,8 @@ def channel_list():
             channel = Channel.query.get(channel_id)
             if channel:
                 db.session.delete(channel)
-                keepass.delete_entry(channel_id)
                 db.session.commit()
+                keepass.delete_entry(channel_id)
         elif action == "edit":
             channel_id = request.form.get("id")
             channel = Channel.query.get(channel_id)
