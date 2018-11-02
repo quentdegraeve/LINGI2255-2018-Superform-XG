@@ -10,7 +10,7 @@ from selenium import webdriver, common
 
 from superform.models import db, Channel
 from superform.utils import get_module_full_name
-from suputils import keepass
+from superform.suputils import keepass
 
 FIELDS_UNAVAILABLE = []
 
