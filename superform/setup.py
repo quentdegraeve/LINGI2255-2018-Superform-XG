@@ -10,6 +10,9 @@ setup(
         'sqlalchemy',
         'flask-sqlalchemy',
         'tweepy',
-        'python3-linkedin'
+        'python3-linkedin',
+        'googleapiclient',
+        'httplib2',
+        'oauth2client'
     ],
 )

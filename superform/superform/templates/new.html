@@ -146,6 +146,7 @@
                     <div class="col-md-8">
                         <div class="row">
                             <div class="col-md-12">
+
                                 <div class="form-group">
                                     <label for="{{ chan.name }}_titlepost">Title</label><br>
                                     <input type="text" name="{{ chan.name }}_titlepost" id="{{ chan.name }}_titlepost" class="form-control">
@@ -158,10 +159,80 @@
                                     <label for="{{ chan.name }}_linkurlpost">Link</label><br>
                                     <input type="text" name="{{ chan.name }}_linkurlpost" id="{{ chan.name }}_linkurlpost" class="form-control">
                                 </div>
+                                {% if chan.module == "superform.plugins.gcal" %}
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                            <label for="{{ chan.name }}_datedebut">Starting date</label><br>
+                                            <input id="{{ chan.name }}_datedebut" name="{{ chan.name }}_datedebut" type="date" class="form-control">
+                                        </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="{{ chan.name }}_heuredebut">Starting time</label><br>
+                                                <input type="time" name="{{ chan.name }}_heuredebut" id="{{ chan.name }}_heuredebut"  class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="{{ chan.name }}_datefin">Ending date</label><br>
+                                                <input type="date" name="{{ chan.name }}_datefin" id="{{ chan.name }}_datefin" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="{{ chan.name }}_heurefin">Ending time</label><br>
+                                                <input type="time" name="{{ chan.name }}_heurefin" id="{{ chan.name }}_heurefin" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="{{ chan.name }}_location">Location</label><br>
+                                        <input type="text" name="{{ chan.name }}_location" id="{{ chan.name }}_location" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="{{ chan.name }}_color">Color</label><br>
+                                        <select name="{{ chan.name }}_color" id="{{ chan.name }}_color" class="form-control">
+                                            <option value="1">Lavender</option>
+                                            <option value="2">Sage</option>
+                                            <option value="3">Grape</option>
+                                            <option value="4">Flamingo</option>
+                                            <option value="5">Banana</option>
+                                            <option value="6">Tangerine</option>
+                                            <option value="7">Peacock</option>
+                                            <option value="8">Graphite</option>
+                                            <option value="9">Blueberry</option>
+                                            <option value="10">Basil</option>
+                                            <option value="11">Tomato</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="{{ chan.name }}_visibility">Visibility</label><br>
+                                        <select name="{{ chan.name }}_visibility" id="{{ chan.name }}_visibility" class="form-control">
+                                            <option value="true">Public</option>
+                                            <option value="false">Private</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="{{ chan.name }}_availability">Availability</label><br>
+                                        <select name="{{ chan.name }}_availability" id="{{ chan.name }}_availability" class="form-control">
+                                            <option value="true">Free</option>
+                                            <option value="false">Busy</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="{{ chan.name }}_guests">Guests emails (split them with a comma)</label><br>
+                                        <input type="text" name="{{ chan.name }}_guests" id="{{ chan.name }}_guests" class="form-control">
+                                    </div>
+                                {% endif %}
                                 <div class="form-group">
                                     <label for="{{ chan.name }}_imagepost">Image</label><br>
                                     <input type="text" name="{{ chan.name }}_imagepost" id="{{ chan.name }}_imagepost" class="form-control">
                                 </div>
+                                {% if chan.module != "superform.plugins.gcal" %}
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
@@ -176,6 +247,7 @@
                                         </div>
                                     </div>
                                 </div>
+                            {% endif %}
 
                             </div>
                         </div>
@@ -220,72 +292,6 @@
 
 {% block scripts %}
     <script>
-
-        var pattern = /(?:https?:\/{2})?(?:w{3}\.)?(?:\w+\.)+(com|fr|be|io|gov|net|tv|uk)(?:\/[^\s]+)?/g;
-
-        $("#js-open-preview").click(function() {
-
-            var url = $("#imagepost").val();
-            var preview = $("#previewModal");
-            var container = preview.find(".modal-body");
-
-            if (url.match(pattern)) {
-
-                if (!url.match(/^http[s]?:\/{2}/i)) {
-                    url = "http://" + url;
-                }
-
-                console.log(url);
-                var image = preview.find("img");
-
-                if (image.length === 1) {
-                    if (image.attr("src") === url) {
-                        preview.modal("toggle");
-                        return;
-                    }
-                    image.attr("src", url);
-                } else {
-                    image = $("<img>");
-                    image.attr("src", url);
-                    image.addClass("img-fluid");
-                }
-
-                var loader = $("<div>");
-                loader.text("Loading...");
-
-                container.empty();
-                container.append(loader);
-                preview.modal("toggle");
-
-                image.on("load", function() {
-                    container.empty();
-                    container.append(image);
-                });
-
-                image.on("error", function() {
-
-                    var message = $("<div>");
-                    message.addClass("alert");
-                    message.addClass("alert-danger");
-                    message.text("Could not load the given image :(");
-
-                    container.empty();
-                    container.append(message);
-                });
-
-            } else {
-
-                var message = $("<div>");
-                message.addClass("alert");
-                message.addClass("alert-danger");
-                message.text("Please, enter a valid url for the image");
-
-                container.empty();
-                container.append(message);
-                preview.modal("toggle");
-            }
-        });
-
         // This manage if a channel is selected or not:
         //  it hides/shows a tab for a channel
         //  it adds an information bullet to unavailable fields for each channel
