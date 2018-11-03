@@ -69,6 +69,18 @@ class Publishing(db.Model):
         return db.session.query(Post).get(self.post_id).user_id
 
 
+class PubGCal(Publishing):
+
+    date_start = db.Column(db.DateTime, nullable=False)
+    date_end = db.Column(db.DateTime, nullable=False)
+    location = db.Column(db.Text)
+    color_id = db.Column(db.Text)
+    hour_start = db.Column(db.Text)
+    hour_end = db.Column(db.Text)
+    guests = db.Column(db.Text)
+    visibility = db.Column(db.Text)
+    availability = db.Column(db.Text)
+
 class Channel(db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
     name = db.Column(db.Text, nullable=False)
@@ -76,7 +88,7 @@ class Channel(db.Model):
     config = db.Column(db.Text, nullable=False)
 
     publishings = db.relationship("Publishing", backref="channel", lazy=True)
-    authorizations = db.relationship("Authorization", cascade="all, delete", backref="channel", lazy=True)
+    authorizations = db.relationship("Authorization", backref="channel", lazy=True)
 
     __table_args__ = ({"sqlite_autoincrement": True},)
 
