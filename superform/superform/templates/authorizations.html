@@ -49,7 +49,7 @@
                                         <tr>
                                             <td>
                                                 <input type="hidden" name="channel_id{{ loop.index }}" value="{{ channel.id }}">
-                                                <input class="form-control js-search-user" type="text" placeholder="Username" name="username{{ loop.index }}" data-trigger="focus" data-toggle="popover" data-placement="bottom" data-content="no result" autocomplete="off">
+                                                <input class="form-control js-search-user" type="text" placeholder="Username" name="username{{ loop.index }}" data-trigger="focus" data-toggle="popover" data-placement="bottom" data-content="Enter a username" autocomplete="off">
                                             </td>
                                             <td>
                                                 <select class="form-control" id="sel1" name="permission{{ loop.index }}">
@@ -97,7 +97,7 @@
                     return;
                 }
                 if (json["names"].length === 0) {
-                    input.attr("data-content", "No results");
+                    input.attr("data-content", "No result");
                     input.data("bs.popover").show();
                     return;
                 }
@@ -150,7 +150,7 @@
            var nbinput = ($('input').length)/2;
            var chanid = $(this).data("channelid");
            var parent = $(this).parent().parent().parent();
-           parent.append('<tr><td><input type="hidden" name="channel_id'+nbinput+'" value="'+chanid+'"><input class="form-control js-search-user" data-trigger="focus" data-toggle="popover" data-placement="bottom" data-content="no result" autocomplete="off" type="text" placeholder="Username" name="username'+nbinput+'"></td><td><select class="form-control" id="sel1"name="permission'+nbinput+'">\n' +
+           parent.append('<tr><td><input type="hidden" name="channel_id'+nbinput+'" value="'+chanid+'"><input class="form-control js-search-user" data-trigger="focus" data-toggle="popover" data-placement="bottom" data-content="Enter a username" autocomplete="off" type="text" placeholder="Username" name="username'+nbinput+'"></td><td><select class="form-control" id="sel1"name="permission'+nbinput+'">\n' +
                '{% for permission in permissions %}\n'+
                    '<option value="{{ permission.value }}">{{ permission }}</option>\n'
                    +

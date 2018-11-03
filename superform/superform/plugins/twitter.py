@@ -6,8 +6,6 @@ import requests
 import tweepy
 
 
-TYPE = "twitter"
-ICON_NAME = "fab fa-twitter"
 FIELDS_UNAVAILABLE = ["Title"]
 CONFIG_FIELDS = ["consumer_key", "consumer_secret", "access_token_key", "access_token_secret"]
 

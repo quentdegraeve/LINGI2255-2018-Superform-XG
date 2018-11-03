@@ -51,8 +51,7 @@ def new_post():
         clas = get_instance_from_module_path(m)
         unaivalable_fields = ','.join(clas.FIELDS_UNAVAILABLE)
         setattr(elem, "unavailablefields", unaivalable_fields)
-        setattr(elem, "type", clas.TYPE)
-        setattr(elem, "icon", clas.ICON_NAME)
+        setattr(elem, "plugin_name", str(m))
 
     if request.method == "GET":
         return render_template('new.html', l_chan=list_of_channels)
@@ -69,17 +68,17 @@ def edit_post(post_id):
     if user_id == -1:
         return redirect(url_for('index'))
 
-    post = db.session.query(Post).filter(
-        Post.id == post_id,
-        Post.user_id == user_id
-    ).first()
+    post = db.session.query(Post).filter(Post.id == post_id, Post.user_id == user_id).first()
 
     if post is None:
         return redirect(url_for('index'))
 
-    publishing = db.session.query(Publishing).filter(
-        Publishing.post_id == post.id
-    ).all()
+    publishing = db.session.query(Publishing).filter(Publishing.post_id == post.id).all()
+
+    for elem in publishing:
+        print(elem.channel_id)
+        # channel = db.session.query(Channel).filter(Channel.id == elem.channel_id).first()
+        # setattr(elem, "channel_name", channel.name)
 
     list_of_channels = channels_available_for_user(user_id)
     for elem in list_of_channels:
@@ -88,25 +87,7 @@ def edit_post(post_id):
         unaivalable_fields = ','.join(clas.FIELDS_UNAVAILABLE)
         setattr(elem, "unavailablefields", unaivalable_fields)
 
-    # 'channel'
-    # 'channel_id'
-    # 'date_from'
-    # 'date_until'
-    # 'description'
-    # 'get_author'
-    # 'image_url'
-    # 'link_url'
-    # 'metadata'
-    # 'post'
-    # 'post_id'
-    # 'state'
-    # 'title'
-
-    if request.method == "GET":
-        return render_template('edit.html', post=post, publishing=publishing, l_chan=list_of_channels)
-    else:
-        create_a_post(request.form)
-        return redirect(url_for('index'))
+    return render_template('edit.html', post=post, publishing=publishing, l_chan=list_of_channels)
 
 
 @posts_page.route('/publish', methods=['POST'])

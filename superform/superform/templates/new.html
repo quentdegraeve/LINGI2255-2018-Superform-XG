@@ -74,7 +74,15 @@
                                     <div class="form-check">
                                         <label class="form-check-label">
                                             <input id="chan_option_{{ chan.id }}" data-namechan="{{ chan.name }}" data-unavailablefields="{{ chan.unavailablefields }}" name="chan_option_{{ chan.id }}" type="checkbox" class="form-check-input checkbox" value="{{ chan.id }}">
-                                            <i class="{{ chan.icon }}"></i>
+                                            {% if chan.plugin_name == 'superform.plugins.twitter' %}
+                                            <i class="fab fa-twitter"></i>
+                                            {% elif chan.plugin_name == 'superform.plugins.mail' %}
+                                            <i class="fas fa-envelope"></i>
+                                            {% elif chan.plugin_name == 'superform.plugins.ICTV'%}
+                                            <i class="fas fa-tv"></i>
+                                            {% else %}
+                                            <i class="fas fa-question"></i>
+                                            {% endif %}
                                             <span>{{ chan.name }}</span>
                                         </label>
                                     </div>
@@ -100,7 +108,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="{{ chan.name }}_descriptionpost">Description</label><br>
-                                        {% if chan.type == 'twitter' %}
+                                        {% if chan.module_name == 'superform.plugins.twitter' %}
                                         <div class="js-counter">
                                             <div class="alert alert-danger" style="display: none">
                                                 <span class=""></span>Warning : Your message will be split in several part
