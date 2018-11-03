@@ -1,5 +1,5 @@
 from flask import Blueprint, current_app, url_for, request, make_response, redirect, session, render_template
-
+from superform.suputils import keepass
 from superform.utils import login_required, get_instance_from_module_path, get_modules_names, get_module_full_name
 from superform.models import db, Channel
 import ast
@@ -14,23 +14,36 @@ def channel_list():
         action = request.form.get('@action', '')
         if action == "new":
             name = request.form.get('name')
+            username = request.form.get('username')
+            password = request.form.get('password')
             module = request.form.get('module')
             if module in get_modules_names(current_app.config["PLUGINS"].keys()):
                 channel = Channel(name=name, module=get_module_full_name(module), config="{}")
                 db.session.add(channel)
+                db.session.flush()
+                keepass.set_entry_from_data(str(channel.id), username, password)
+                keepass.add_entry_in_group(module)
                 db.session.commit()
+
         elif action == "delete":
             channel_id = request.form.get("id")
             channel = Channel.query.get(channel_id)
             if channel:
                 db.session.delete(channel)
                 db.session.commit()
+                keepass.delete_entry(channel_id)
         elif action == "edit":
             channel_id = request.form.get("id")
             channel = Channel.query.get(channel_id)
             name = request.form.get('name')
-            channel.name = name
-            db.session.commit()
+            username = request.form.get('username')
+            password = request.form.get('password')
+            if name is not '':
+                channel.name = name
+                db.session.commit()
+            if username is not '' or password is not '':
+                keepass.set_entry_from_data(str(channel.id), username, password)
+                keepass.modify_entry_in_group(get_modules_names([channel.module])[0], channel.id)
 
     channels = Channel.query.all()
     return render_template("channels.html", channels=channels,

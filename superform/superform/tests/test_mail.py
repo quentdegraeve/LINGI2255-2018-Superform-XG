@@ -26,4 +26,5 @@ def client():
     
 def test_run_mail(client):
     #Is there a way to test a send mail function?
+
     assert True == True

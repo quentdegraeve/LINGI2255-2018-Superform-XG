@@ -82,7 +82,7 @@
                             <ul class="list-group">
                                 {% for pub in publishing %}
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    {{ pub.channel_id }}
+                                    {{ pub.channel.name }}
                                     {% if pub.state == -1 %}
                                     <span class="badge badge-danger badge-pill">
                                         Incomplete
@@ -99,6 +99,7 @@
                                     <span class="badge badge-success badge-pill">
                                         Archived
                                     {% endif %}
+                                    </span>
                                 </li>
                                 {% endfor %}
                             </ul>

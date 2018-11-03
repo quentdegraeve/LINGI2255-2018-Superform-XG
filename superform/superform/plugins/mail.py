@@ -28,5 +28,13 @@ def run(publishing,channel_config):
         smtpObj.sendmail(sender, receivers, text)
         smtpObj.quit()
     except SMTPException as e:
-        #TODO should add log here
+        # TODO should add log here
         print(e)
+
+# Methods from other groups :
+
+def post_pre_validation(post):
+    return 1;
+
+def authenticate(channel_name, publishing_id):
+    return 'AlreadyAuthenticated'

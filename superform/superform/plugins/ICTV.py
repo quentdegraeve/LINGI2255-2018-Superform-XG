@@ -26,3 +26,11 @@ def run(publishing, channel_config):
         print("Status code of the request : {0}".format(response.status_code))
     except requests.exceptions.RequestException as e:
         print("Connection error")
+
+# Methods from other groups :
+
+def post_pre_validation(post):
+    return 1;
+
+def authenticate(channel_name, publishing_id):
+    return 'AlreadyAuthenticated'

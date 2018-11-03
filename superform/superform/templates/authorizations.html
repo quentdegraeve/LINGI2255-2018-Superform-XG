@@ -35,14 +35,12 @@
                                                 <td>
                                                     <select class="form-control" id="sel1" name="permission_edit#{{ authorization.user_id }}#{{ channel.id }}" {{ 'disabled' if is_session_user else '' }}>
                                                         {% for permission in permissions %}
-                                                            <option value="{{ permission.value }}" {{ 'selected' if authorization.permission == permission.value else '' }}>{{ permission }}</option>
+                                                            <option value="{{ permission.value }}" {{ 'selected' if authorization.permission == permission.value else '' }}>{{ permission.name }}</option>
                                                         {% endfor %}
                                                     </select>
                                                 </td>
                                                 <td>
-                                                    {% if not is_session_user %}
-                                                        <a type="button" href="{{ url_for('authorizations.delete_authorization',id=authorization.user_id,cid=authorization.channel_id) }}" class="btn btn-danger">Delete</a>
-                                                    {% endif %}
+                                                    <a type="button" href="{{ url_for('authorizations.delete_authorization',id=authorization.user_id,cid=authorization.channel_id) }}" class="btn btn-danger">Delete</a>
                                                 </td>
                                             </tr>
                                         {% endfor %}
@@ -54,7 +52,7 @@
                                             <td>
                                                 <select class="form-control" id="sel1" name="permission{{ loop.index }}">
                                                     {% for permission in permissions %}
-                                                        <option value="{{ permission.value }}">{{ permission }}</option>
+                                                        <option value="{{ permission.value }}">{{ permission.name }}</option>
                                                     {% endfor %}
                                                 </select>
                                             </td>
@@ -152,7 +150,7 @@
            var parent = $(this).parent().parent().parent();
            parent.append('<tr><td><input type="hidden" name="channel_id'+nbinput+'" value="'+chanid+'"><input class="form-control js-search-user" data-trigger="focus" data-toggle="popover" data-placement="bottom" data-content="Enter a username" autocomplete="off" type="text" placeholder="Username" name="username'+nbinput+'"></td><td><select class="form-control" id="sel1"name="permission'+nbinput+'">\n' +
                '{% for permission in permissions %}\n'+
-                   '<option value="{{ permission.value }}">{{ permission }}</option>\n'
+                   '<option value="{{ permission.value }}">{{ permission.name }}</option>\n'
                    +
                    '{% endfor %}\n' +
                '</select></td><td><button class="remove btn btn-warning" onclick="remove(this)">Remove</button></td></tr>');

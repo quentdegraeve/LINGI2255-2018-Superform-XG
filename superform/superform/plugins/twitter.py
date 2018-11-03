@@ -27,6 +27,7 @@ def run(publishing, channel_config):
         "access_token": str(json_data['access_token_key']),
         "access_token_secret": str(json_data['access_token_secret'])
     }
+
     api = get_api(cfg)
     link_url = publishing.link_url
     text = publishing.description
@@ -67,7 +68,8 @@ def get_api(cfg):
 
 
 def get_urls(text):
-    return re.findall(r'((?:http[s]?:/{2})?(?:w{3}\.)?(?:\w+\.)+(?:com|fr|be|io|gov|net|tv|uk|ch|de|nl|lu)(?:/[^\s]+)?)', text)
+    pattern = r'((?:http[s]?:/{2})?(?:w{3}\.)?(?:\w+\.)+(?:com|fr|be|io|gov|net|tv|uk|ch|de|nl|lu)(?:/[^\s]+)?)'
+    return re.findall(pattern, text)
 
 
 def tweet_split(text, separators):
@@ -167,3 +169,10 @@ def tweet_split(text, separators):
 
     return tweets
 
+# Methods from other groups :
+
+def post_pre_validation(post):
+    return 1;
+
+def authenticate(channel_name, publishing_id):
+    return 'AlreadyAuthenticated'

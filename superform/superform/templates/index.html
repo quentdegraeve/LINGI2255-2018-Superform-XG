@@ -20,17 +20,24 @@
                         <tbody>
                         {% for p in publishings %}
                             <tr>
-                                <td>{{ p.channel_id }}</td>
-                                <td>{{ p.title }}</td>
+                                <td>{{ p.channel.name }}</td>
                                 <td>
-                                    <div class="row">
-                                        <div class="col">{{ p.description }}</div>
-                                    </div>
+                                    {% if p.title == "" %}
+                                    <span class="text-muted">(vide)</span>
+                                    {% else %}
+                                    {{ p.title }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if p.description == "" %}
+                                    <span class="text-muted">(vide)</span>
+                                    {% else %}
+                                    {{ p.description }}
+                                    {% endif %}
                                 </td>
                                 <td>{{ p.get_author() }}</td>
                                 <td>
-                                    <a href="{{ url_for('publishings.moderate_publishing',id=p.post_id,idc=p.channel_id) }}"
-                                       class="btn btn-outline-primary" role="button">Moderate</a>
+                                    <a href="{{ url_for('publishings.moderate_publishing',id=p.post_id,idc=p.channel_id) }}" class="btn btn-outline-primary" role="button">Moderate</a>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -51,15 +58,22 @@
                     {% for item in posts %}
                         <tr>
                             <td>{{ item.id }}</td>
-                            <td>{{ item.title }}</td>
                             <td>
-                                <div class="row">
-                                    <div class="col">{{ item.description }}</div>
-                                </div>
+                                {% if item.title == "" %}
+                                <span class="text-muted">(vide)</span>
+                                {% else %}
+                                {{ item.title }}
+                                {% endif %}
                             </td>
                             <td>
-                                <a class="btn btn-outline-primary" role="button"
-                                   href="{{ url_for('posts.edit_post', post_id=item.id) }}">Edit</a>
+                                {% if item.description == "" %}
+                                <span class="text-muted">(vide)</span>
+                                {% else %}
+                                {{ item.description }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a class="btn btn-outline-primary" role="button" href="{{ url_for('posts.edit_post', post_id=item.id) }}">Edit</a>
                                 <a class="btn btn-outline-primary" role="button" href="#">Copy</a>
                                 <a class="btn btn-outline-warning" role="button" href="#">Delete</a>
                             </td>
