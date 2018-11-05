@@ -2,6 +2,7 @@ from flask import Blueprint, url_for, request, redirect, session, render_templat
 from superform.users import channels_available_for_user
 from superform.utils import login_required, datetime_converter, str_converter, get_instance_from_module_path
 from superform.models import db, Post, Publishing, Channel
+from datetime import date
 
 posts_page = Blueprint('posts', __name__)
 
@@ -12,8 +13,14 @@ def create_a_post(form):
     descr_post = form.get('descriptionpost')
     link_post = form.get('linkurlpost')
     image_post = form.get('imagepost')
-    date_from = datetime_converter(form.get('datefrompost'))
-    date_until = datetime_converter(form.get('dateuntilpost'))
+    if form.get('datefrompost') is '':
+        date_from = date.today()
+    else:
+        date_from = datetime_converter(form.get('datefrompost'))
+    if form.get('dateuntilpost') is '':
+        date_until = date.today()
+    else:
+        date_until = datetime_converter(form.get('dateuntilpost'))
     p = Post(user_id=user_id, title=title_post, description=descr_post, link_url=link_post, image_url=image_post,
              date_from=date_from, date_until=date_until)
     db.session.add(p)
@@ -28,10 +35,16 @@ def create_a_publishing(post, chn, form):
         chan + '_descriptionpost') is not None else post.description
     link_post = form.get(chan + '_linkurlpost') if form.get(chan + '_linkurlpost') is not None else post.link_url
     image_post = form.get(chan + '_imagepost') if form.get(chan + '_imagepost') is not None else post.image_url
-    date_from = datetime_converter(form.get(chan + '_datefrompost')) if datetime_converter(
-        form.get(chan + '_datefrompost')) is not None else post.date_from
-    date_until = datetime_converter(form.get(chan + '_dateuntilpost')) if datetime_converter(
-        form.get(chan + '_dateuntilpost')) is not None else post.date_until
+    if form.get('datefrompost') is '':
+        date_from = date.today()
+    else:
+        date_from = datetime_converter(form.get(chan + '_datefrompost')) if datetime_converter(
+            form.get(chan + '_datefrompost')) is not None else post.date_from
+    if form.get('dateuntilpost') is '':
+        date_until = date.today()
+    else:
+        date_until = datetime_converter(form.get(chan + '_dateuntilpost')) if datetime_converter(
+            form.get(chan + '_dateuntilpost')) is not None else post.date_until
     pub = Publishing(post_id=post.id, channel_id=chan, state=0, title=title_post, description=descr_post,
                      link_url=link_post, image_url=image_post,
                      date_from=date_from, date_until=date_until)
