@@ -3,7 +3,7 @@ from superform.suputils import keepass
 from superform.utils import login_required, get_instance_from_module_path, get_modules_names, get_module_full_name
 from superform.models import db, Channel
 import ast
-
+import os
 channels_page = Blueprint('channels', __name__)
 
 
@@ -46,6 +46,7 @@ def channel_list():
                 keepass.modify_entry_in_group(get_modules_names([channel.module])[0], channel.id)
 
     channels = Channel.query.all()
+
     return render_template("channels.html", channels=channels,
                            modules=get_modules_names(current_app.config["PLUGINS"].keys()))
 
