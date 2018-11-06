@@ -26,6 +26,7 @@ def client():
     os.unlink(app.config['DATABASE'])
 
 def login(client, login):
+
     with client as c:
         with c.session_transaction() as sess:
             if login is not "myself":

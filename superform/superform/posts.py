@@ -2,7 +2,7 @@ from flask import Blueprint, url_for, request, redirect, session, render_templat
 
 from superform.users import channels_available_for_user
 from superform.utils import login_required, datetime_converter, str_converter, get_instance_from_module_path
-from superform.models import db, Post, Publishing, Channel
+from superform.models import db, Post, Publishing, Channel, PubGCal
 
 from importlib import import_module
 
@@ -25,22 +25,45 @@ def create_a_post(form):
 
 
 def create_a_publishing(post, chn, form):
+
     chan = str(chn.name)
-    validate = pre_validate_post(chn,post)
-    if validate == -1 or validate == 0 :
+    validate = pre_validate_post(chn, post)
+    if validate == -1 or validate == 0:
         return validate
+
     title_post = form.get(chan + '_titlepost') if (form.get(chan + '_titlepost') is not None) else post.title
     descr_post = form.get(chan + '_descriptionpost') if form.get(
         chan + '_descriptionpost') is not None else post.description
     link_post = form.get(chan + '_linkurlpost') if form.get(chan + '_linkurlpost') is not None else post.link_url
     image_post = form.get(chan + '_imagepost') if form.get(chan + '_imagepost') is not None else post.image_url
-    date_from = datetime_converter(form.get(chan + '_datefrompost')) if datetime_converter(
-        form.get(chan + '_datefrompost')) is not None else post.date_from
-    date_until = datetime_converter(form.get(chan + '_dateuntilpost')) if datetime_converter(
-        form.get(chan + '_dateuntilpost')) is not None else post.date_until
-    pub = Publishing(post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
-                     link_url=link_post, image_url=image_post,
-                     date_from=date_from, date_until=date_until)
+
+    if chn.module == 'superform.plugins.gcal':
+
+        date_start = datetime_converter(form.get(chan + '_datedebut')) if datetime_converter(
+            form.get(chan + '_datedebut')) is not None else post.date_from
+        date_end = datetime_converter(form.get(chan + '_datefin')) if datetime_converter(
+            form.get(chan + '_datefin')) is not None else post.date_until
+        hour_start = form.get(chan + '_heuredebut') if form.get(chan + '_heuredebut') is not None else '00:00'
+        hour_end = form.get(chan + '_heurefin') if form.get(chan + '_heurefin') is not None else '00:00'
+        location = form.get(chan + '_location')
+        color_id = form.get(chan + '_color')
+        guests = form.get(chan + '_guests')
+        visibility = form.get(chan + '_visibility')
+        # availability = form.get(chan + '_availability')
+
+        pub = PubGCal(post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
+                      link_url=link_post, image_url=image_post,
+                      date_from=None, date_until=None, date_start=date_start, date_end=date_end,
+                      location=location, color_id=color_id, hour_start=hour_start, hour_end=hour_end,
+                      guests=guests, visibility=visibility)  # , availability=availability)
+    else:
+        date_from = datetime_converter(form.get(chan + '_datefrompost')) if datetime_converter(
+            form.get(chan + '_datefrompost')) is not None else post.date_from
+        date_until = datetime_converter(form.get(chan + '_dateuntilpost')) if datetime_converter(
+            form.get(chan + '_dateuntilpost')) is not None else post.date_until
+        pub = Publishing(post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
+                         link_url=link_post, image_url=image_post,
+                         date_from=date_from, date_until=date_until)
 
     db.session.add(pub)
     db.session.commit()

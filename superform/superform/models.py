@@ -69,6 +69,19 @@ class Publishing(db.Model):
         return db.session.query(Post).get(self.post_id).user_id
 
 
+class PubGCal(Publishing):
+
+    date_start = db.Column(db.DateTime, nullable=True)
+    date_end = db.Column(db.DateTime, nullable=True)
+    location = db.Column(db.Text, nullable=True)
+    color_id = db.Column(db.Text, nullable=True)
+    hour_start = db.Column(db.Text, nullable=True)
+    hour_end = db.Column(db.Text, nullable=True)
+    guests = db.Column(db.Text, nullable=True)
+    visibility = db.Column(db.Text, nullable=True)
+    availability = db.Column(db.Text, nullable=True)
+
+
 class Channel(db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
     name = db.Column(db.Text, nullable=False)

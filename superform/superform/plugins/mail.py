@@ -5,20 +5,21 @@ from smtplib import SMTPException
 from flask import current_app
 import json
 
-FIELDS_UNAVAILABLE = ["Url"]
+FIELDS_UNAVAILABLE = ['Title','Description']
+
 CONFIG_FIELDS = ["sender","receiver"]
 
 def run(publishing,channel_config):
     json_data = json.loads(channel_config)
-    sender = json_data["sender"]
-    receivers = json_data["receiver"]
+    sender = json_data['sender']
+    receivers = json_data['receiver']
     msg = MIMEMultipart()
-    msg["From"] = sender
-    msg["To"] = receivers
-    msg["Subject"] = publishing.title
+    msg['From'] = sender
+    msg['To'] = receivers
+    msg['Subject'] = publishing.title
 
     body = publishing.description
-    msg.attach(MIMEText(body, "plain"))
+    msg.attach(MIMEText(body, 'plain'))
 
     try:
         smtpObj = smtplib.SMTP(current_app.config["SMTP_HOST"],current_app.config["SMTP_PORT"])
