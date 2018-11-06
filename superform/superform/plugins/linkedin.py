@@ -1,12 +1,8 @@
 import json
 import time
-import platform
-import os
-import sys
-from datetime import datetime, timedelta
 from flask import redirect, url_for
 from linkedin import linkedin
-from selenium import webdriver, common
+from superform.suputils.selenium_utils import get_headless_chrome
 from datetime import datetime, timedelta
 
 from superform.models import db, Channel
@@ -17,8 +13,8 @@ FIELDS_UNAVAILABLE = []
 
 CONFIG_FIELDS = ["profile_email", "channel_name", "linkedin_access_token", "linkedin_token_expiration_date"]
 
-API_KEY = keepass.get_password_from_keepass('superform_key')
-API_SECRET = keepass.get_password_from_keepass('superform_secret')
+API_KEY = keepass.get_password_from_keepass('linkedin_key')
+API_SECRET = keepass.get_password_from_keepass('linkedin_secret')
 RETURN_URL = 'http://localhost:5000/linkedin/verify'
 
 authentication = linkedin.LinkedInAuthentication(
@@ -82,26 +78,10 @@ def share_post(channel_name, comment, title, submitted_url,submitted_image_url,v
 
 def auto_auth(url, channel_id):
     if keepass.set_entry_from_keepass(str(channel_id)) is 0:
+        print('Error : cant get keepass entry :', str(channel_id), 'for linkedin plugin')
         return redirect(url_for('error_keepass'))
-    dir_path = os.path.dirname(os.path.realpath(__file__))
 
-    options = webdriver.ChromeOptions()
-    options.add_argument('headless')
-
-    chrome = 'chromedriver'
-    if platform.system() == 'Windows':
-        chrome += '.exe'
-
-    try:
-        if platform.system() == 'Windows':
-            driver = webdriver.Chrome(dir_path + '\chrome\\' + chrome, chrome_options=options)
-        else:
-            driver = webdriver.Chrome(dir_path + '/chrome/' + chrome, chrome_options=options)
-
-    except common.exceptions.WebDriverException:
-        sys.exit('Can not find a valid chrome driver. it should be named cheromedriver on linux or cheromedriver.exe '
-                 'on windows and it should be located in the plugins/chrome folder see this page for download : '
-                 'https://sites.google.com/a/chromium.org/chromedriver/downloads')
+    driver = get_headless_chrome()
 
     driver.get(url)
     username = driver.find_element_by_name("session_key")
