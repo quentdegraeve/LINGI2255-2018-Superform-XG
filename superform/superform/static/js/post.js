@@ -3,7 +3,12 @@ $("#publish-button").click(function(event){
     var toReturn = true;
      $("input[type='checkbox']:checked").each(function(){
         if($(this).attr("module-namechan") == "superform.plugins.linkedin"){
-            if((!prevalidate_post($(this).attr("data-namechan")))){
+            if((!prevalidate_post($(this).attr("data-namechan"),200,256))){
+                toReturn = false
+                return toReturn;
+            }
+        }else if($(this).attr("module-namechan") == "superform.plugins.slack"){
+            if((!prevalidate_post($(this).attr("data-namechan"),40000,40000))){
                 toReturn = false
                 return toReturn;
             }
@@ -25,7 +30,7 @@ function createErrorMessage (element,error_message,id){
          element.before(new_elem);
     }
 }
-function prevalidate_post (chan_name){
+function prevalidate_post (chan_name,title_length,descr_length){
      var toReturn = true;
      var elementToRemove;
      var input_title = document.getElementById(chan_name+"_titlepost");
@@ -33,7 +38,7 @@ function prevalidate_post (chan_name){
         createErrorMessage(input_title,"the title is empty","error_title");
         input_title.classList.add("invalid");
         toReturn = false;
-    }else if(input_title.value.length > 200){
+    }else if(input_title.value.length > title_length){
          createErrorMessage(input_title,"the title is too long","error_title");
         input_title.classList.add("invalid");
         toReturn = false;
@@ -49,7 +54,7 @@ function prevalidate_post (chan_name){
         createErrorMessage(input_descrip,"the description is empty","error_desc");
         input_descrip.classList.add("invalid");
         toReturn = false;
-    }else if(input_descrip.value.length > 256){
+    }else if(input_descrip.value.length > descr_length){
         createErrorMessage(input_descrip,"the description is too long","error_desc");
         input_descrip.classList.add("invalid");
         toReturn = false;
@@ -89,7 +94,6 @@ function prevalidate_post (chan_name){
     }
 
     var input_datefrompost = document.getElementById(chan_name+"_datefrompost");
-    alert(input_datefrompost.value);
     if(input_datefrompost.value == ""){
         createErrorMessage(input_datefrompost,"the date from post is empty","error_datefrompost");
         input_datefrompost.classList.add("invalid");
