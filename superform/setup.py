@@ -11,7 +11,6 @@ setup(
         'flask-sqlalchemy',
         'python3-linkedin',
         'pykeepass',
-        'linkedin',
         'selenium'
     ],
 )
