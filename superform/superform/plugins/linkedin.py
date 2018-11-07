@@ -11,7 +11,7 @@ from superform.suputils import keepass
 
 FIELDS_UNAVAILABLE = []
 
-CONFIG_FIELDS = ["profile_email", "channel_name", "linkedin_access_token", "linkedin_token_expiration_date"]
+CONFIG_FIELDS = ["channel_name", "linkedin_access_token", "linkedin_token_expiration_date"]
 
 API_KEY = keepass.get_password_from_keepass('linkedin_key')
 API_SECRET = keepass.get_password_from_keepass('linkedin_secret')
@@ -53,11 +53,10 @@ def set_access_token(channel_name, code):
     #channel = Channel.query.filter_by(name=channel_name, module=get_module_full_name("linkedin")).first()
     # add the configuration to the channel
     conf = dict()
-    conf["profile_email"] = "" #Do api call to have the profile email
     conf["channel_name"] = channel_name
     conf["linkedin_access_token"] = result.access_token
     conf["linkedin_token_expiration_date"] = (datetime.now() +timedelta(seconds=result.expires_in)).__str__()
-
+    
     LinkedinTokens.put_token(LinkedinTokens, channel_name, conf)
     return conf
 
