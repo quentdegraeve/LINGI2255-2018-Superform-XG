@@ -5,6 +5,7 @@ from superform.utils import login_required, datetime_converter, str_converter, g
 from superform.models import db, Post, Publishing, Channel, PubGCal
 
 from importlib import import_module
+from datetime import date
 
 posts_page = Blueprint('posts', __name__)
 
@@ -15,8 +16,14 @@ def create_a_post(form):
     descr_post = form.get('descriptionpost')
     link_post = form.get('linkurlpost')
     image_post = form.get('imagepost')
-    date_from = datetime_converter(form.get('datefrompost'))
-    date_until = datetime_converter(form.get('dateuntilpost'))
+    if form.get('datefrompost') is '':
+        date_from = date.today()
+    else:
+        date_from = datetime_converter(form.get('datefrompost'))
+    if form.get('dateuntilpost') is '':
+        date_until = date.today()
+    else:
+        date_until = datetime_converter(form.get('dateuntilpost'))
     p = Post(user_id=user_id, title=title_post, description=descr_post, link_url=link_post, image_url=image_post,
              date_from=date_from, date_until=date_until)
     db.session.add(p)
@@ -57,13 +64,19 @@ def create_a_publishing(post, chn, form):
                       location=location, color_id=color_id, hour_start=hour_start, hour_end=hour_end,
                       guests=guests, visibility=visibility)  # , availability=availability)
     else:
-        date_from = datetime_converter(form.get(chan + '_datefrompost')) if datetime_converter(
-            form.get(chan + '_datefrompost')) is not None else post.date_from
+        if form.get('datefrompost') is '':
+            date_from = date.today()
+        else:
+            date_from = datetime_converter(form.get(chan + '_datefrompost')) if datetime_converter(
+                form.get(chan + '_datefrompost')) is not None else post.date_from
+    if form.get('dateuntilpost') is '':
+        date_until = date.today()
+    else:
         date_until = datetime_converter(form.get(chan + '_dateuntilpost')) if datetime_converter(
             form.get(chan + '_dateuntilpost')) is not None else post.date_until
-        pub = Publishing(post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
-                         link_url=link_post, image_url=image_post,
-                         date_from=date_from, date_until=date_until)
+    pub = Publishing(post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
+                     link_url=link_post, image_url=image_post,
+                     date_from=date_from, date_until=date_until)
 
     db.session.add(pub)
     db.session.commit()
