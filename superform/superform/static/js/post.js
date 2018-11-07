@@ -69,7 +69,6 @@ function prevalidate_post (chan_name,title_length,descr_length){
 
     var input_linkUrlPost = document.getElementById(chan_name+"_linkurlpost");
     var pattern = new RegExp('^(?:(?:https?|http?|wwww?):\\/\\/)?(?:(?!(?:10|127)(?:\\.\\d{1,3}){3})(?!(?:169\\.254|192\\.168)(?:\\.\\d{1,3}){2})(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\\.(?:[a-z\u00a1-\uffff]{2,})))(?::\\d{2,5})?(?:\\/\\S*)?$');
-    alert(input_linkUrlPost.value);
     if( input_linkUrlPost.value != "" && !pattern.test(input_linkUrlPost.value)) {
         createErrorMessage(input_linkUrlPost,"insert a valid link","error_linkUrlPost");
         input_linkUrlPost.classList.add("invalid");
@@ -128,8 +127,10 @@ function prevalidate_post (chan_name,title_length,descr_length){
         input_dateuntilpost.classList.add("invalid");
         toReturn = false;
     }
-    if(a < new Date(new Date().toLocaleDateString())){
-        createErrorMessage(input_datefrompost,"the date is more old that now","error_datefrompost");
+
+    if(a > new Date()){
+        console.log(a + new Date())
+        createErrorMessage(input_datefrompost,"the date is more old that now ", "error_datefrompost");
         input_dateuntilpost.classList.add("invalid");
         toReturn = false;
     }
