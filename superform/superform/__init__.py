@@ -5,15 +5,18 @@ from flask import request
 
 import superform.plugins
 from superform.publishings import pub_page
-from superform.models import db, User, Post,Publishing,Channel
+from superform.models import db, User, Post,Publishing, Channel
 from superform.authentication import authentication_page
 from superform.authorizations import authorizations_page
 from superform.channels import channels_page
 from superform.posts import posts_page
-from superform.users import get_moderate_channels_for_user, is_moderator
+from superform.users import get_moderate_channels_for_user, is_moderator, user_page
 from superform.utils import get_module_full_name
+from superform.api import api_page
 
-from superform.plugins.linkedin import setAccessToken
+from superform.plugins import linkedin
+
+import json
 
 app = Flask(__name__)
 app.config.from_json("config.json")
@@ -24,6 +27,7 @@ app.register_blueprint(authorizations_page)
 app.register_blueprint(channels_page)
 app.register_blueprint(posts_page)
 app.register_blueprint(pub_page)
+app.register_blueprint(api_page)
 
 # Init dbs
 db.init_app(app)
@@ -35,41 +39,46 @@ app.config["PLUGINS"] = {
     in pkgutil.iter_modules(superform.plugins.__path__, superform.plugins.__name__ + ".")
 }
 
-
 @app.route('/')
 def index():
     user = User.query.get(session.get("user_id", "")) if session.get("logged_in", False) else None
-    posts=[]
-    flattened_list_pubs =[]
+    posts = []
+    flattened_list_pubs = []
     if user is not None:
-        setattr(user,'is_mod',is_moderator(user))
-        posts = db.session.query(Post).filter(Post.user_id==session.get("user_id", ""))
+        setattr(user, 'is_mod', is_moderator(user))
+        posts = db.session.query(Post).filter(Post.user_id == session.get("user_id", ""))
         chans = get_moderate_channels_for_user(user)
         pubs_per_chan = (db.session.query(Publishing).filter((Publishing.channel_id == c.id) & (Publishing.state == 0)) for c in chans)
         flattened_list_pubs = [y for x in pubs_per_chan for y in x]
 
-    return render_template("index.html", user=user,posts=posts,publishings = flattened_list_pubs)
+    return render_template("index.html", user=user, posts=posts, publishings=flattened_list_pubs)
+
+
+
+@app.route('/error_keepass')
+def error_keepass():
+    return render_template('error_keepass.html')
 
 
 @app.route('/linkedin/verify')
 def linkedin_verify_authorization():
     code = request.args.get('code')
-    channel_name = request.args.get('state')
-    if code != None:
-        profile_email = setAccessToken(channel_name,code)
-
-        channel = Channel.query.filter_by(name=channel_name,module=get_module_full_name("linkedin")).first()
-        print(channel)
-        #add the configuration to the channel
-        str_conf = "{"
-        str_conf += "\"profile_email\" : \"" + profile_email + "\""
-        str_conf += "}"
-
-        channel.config = str_conf
-        db.session.commit()
-
+    conf_publishing = json.loads(request.args.get('state'))
+    channel_name = conf_publishing['channel_name']
+    publishing_id = conf_publishing['publishing_id']
+    post_id = publishing_id.__getitem__(0)
+    channel_id = publishing_id.__getitem__(1)
+    print("code", code)
+    print("post id, channel id", post_id, channel_id)
+    channel_config = {}
+    if code:
+        channel_config = linkedin.set_access_token(channel_name,code)
+    print("channel_config", channel_config)
     #normally should redirect to the channel page or to the page that publish a post
-    return redirect(url_for('channels.channel_list'))
+    publishing = Publishing.query.filter_by(post_id=post_id, channel_id=channel_id).first()
+    print("init publishing", publishing)
+    linkedin.run(publishing, channel_config)
+    return redirect(url_for('index'))
 
 @app.errorhandler(403)
 def forbidden(error):

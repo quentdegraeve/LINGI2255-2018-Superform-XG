@@ -13,7 +13,6 @@ channels_page = Blueprint('channels', __name__)
 @login_required(admin_required=True)
 def channel_list():
 
-    #linkedin.run(None,{})
     if request.method == "POST":
         action = request.form.get('@action', '')
         if action == "new":
@@ -23,8 +22,6 @@ def channel_list():
                 channel = Channel(name=name, module=get_module_full_name(module), config="{}")
                 db.session.add(channel)
                 db.session.commit()
-
-                print(module)
                 if module == "linkedin":
                     authorization_url = authenticate(name)  # channel's name
                     if authorization_url != "alreadyAuthenticated":
@@ -44,8 +41,7 @@ def channel_list():
             db.session.commit()
 
     channels = Channel.query.all()
-    return render_template("channels.html", channels=channels,
-                           modules=get_modules_names(current_app.config["PLUGINS"].keys()))
+    return render_template("channels.html", channels=channels, modules=get_modules_names(current_app.config["PLUGINS"].keys()))
 
 
 @channels_page.route("/configure/<int:id>", methods=['GET', 'POST'])
@@ -66,7 +62,7 @@ def configure_channel(id):
     for field in config_fields:
         if cfield > 0:
             str_conf += ","
-        str_conf += "\'" + field + "\' : \'" + request.form.get(field) + "\'"
+        str_conf += "\"" + field + "\" : \"" + request.form.get(field) + "\""
         cfield += 1
     str_conf += "}"
     c.config = str_conf

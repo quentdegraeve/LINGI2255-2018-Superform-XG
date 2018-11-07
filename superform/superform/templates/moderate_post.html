@@ -70,7 +70,7 @@
                     {% endif %}
                     <div class="form-group">
                         <label for="imagepost">Image</label><br>
-                        <input type="file" name="imagepost" id="imagepost" class="form-control" value="{{ pub.image_url }}">
+                        <input type="text" name="imagepost" id="imagepost" class="form-control" value="{{ pub.image_url }}">
                     </div>
                     {% if channel.module != "superform.plugins.gcal" %}
                     <div class="row">
@@ -95,5 +95,4 @@
     {% else %}
         Your are not logged in.
     {% endif %}
-
 {% endblock %}
