@@ -29,8 +29,6 @@ def create_a_publishing(post, chn, form):
     validate = pre_validate_post(chn,post)
     if validate == -1 or validate == 0 :
         return validate
-    print(post.id)
-    print(chn.id)
     title_post = form.get(chan + '_titlepost') if (form.get(chan + '_titlepost') is not None) else post.title
     descr_post = form.get(chan + '_descriptionpost') if form.get(
         chan + '_descriptionpost') is not None else post.description
