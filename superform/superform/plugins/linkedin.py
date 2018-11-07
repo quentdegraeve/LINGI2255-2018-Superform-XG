@@ -83,7 +83,6 @@ def auto_auth(url, channel_id):
     if keepass.set_entry_from_keepass(str(channel_id)) is 0:
         print('Error : cant get keepass entry :', str(channel_id), 'for linkedin plugin')
         return redirect(url_for('keepass.error_keepass'))
-
     driver = get_headless_chrome()
 
     driver.get(url)
@@ -105,7 +104,8 @@ def run(publishing,channel_config):
     print("publishing Linkedin", publishing)
     print("channel-conf", type(channel_config), channel_config)
     print("conf run", channel_config, type(channel_config))
-    channel_name = channel_config['channel_name']
+    conf = json.loads(channel_config)
+    channel_name = conf['channel_name']
     authenticate(channel_name, (publishing.post_id, publishing.channel_id))
     share_post(channel_name, publishing.description, publishing.title, publishing.link_url, publishing.image_url, "anyone")
 
@@ -159,5 +159,5 @@ def linkedin_verify_authorization():
     #normally should redirect to the channel page or to the page that publish a post
     publishing = Publishing.query.filter_by(post_id=post_id, channel_id=channel_id).first()
     print("init publishing", publishing)
-    run(publishing, channel_config)
+    run(publishing, json.dumps(channel_config))
     return redirect(url_for('index'))

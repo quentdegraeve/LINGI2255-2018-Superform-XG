@@ -61,8 +61,10 @@ def set_access_token(channel_name, code):
     return conf
 
 
-def post_pre_validation(post):
+def auto_auth(url, channel_id):
+    return redirect(url)
 
+def post_pre_validation(post):
     return 1;
 
 
@@ -113,7 +115,7 @@ def slack_verify_authorization():
     # normally should redirect to the channel page or to the page that publish a post
     publishing = Publishing.query.filter_by(post_id=post_id, channel_id=channel_id).first()
     print("init publishing", publishing)
-    run(publishing, json.dump(channel_config))
+    run(publishing, json.dumps(channel_config))
 
     return redirect(url_for('index'))
 
