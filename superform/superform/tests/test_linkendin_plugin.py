@@ -2,6 +2,7 @@ from superform.plugins import linkedin
 import os
 import tempfile
 
+from superform.suputils import keepass
 from datetime import datetime, timedelta
 
 import pytest
@@ -10,8 +11,8 @@ from superform.models import Channel
 from superform import app, db, Post, posts
 from superform.utils import get_module_full_name
 
-API_KEY = '861s90686z5fuz'
-API_SECRET = 'xHDD886NZNkWVuN4'
+API_KEY = keepass.get_password_from_keepass('linkedin_key')
+API_SECRET = keepass.get_password_from_keepass('linkedin_secret')
 RETURN_URL = 'http://localhost:5000'
 
 @pytest.fixture

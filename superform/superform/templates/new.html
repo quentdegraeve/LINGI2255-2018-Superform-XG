@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}New Post{% endblock %}
 {% block content %}
+     <link rel="stylesheet" href="{{ url_for('static', filename='css/error.css') }}" crossorigin="anonymous">
     <h1>New Post</h1>
     <ul class="nav nav-tabs">
       <li class="nav-item">
@@ -64,10 +65,14 @@
                              {% else %}
                                  {% for chan in l_chan %}
                                      <div class="form-check">
+
                                       <label class="form-check-label">
-                                        <input id="chan_option_{{ chan.id }}" data-namechan="{{ chan.name }}" data-unavailablefields="{{ chan.unavailablefields }}" name="chan_option_{{ chan.id }}" type="checkbox" class="form-check-input checkbox" value="{{ chan.id }}">{{ chan.name }}
+                                        <input id="chan_option_{{ chan.id }}" module-namechan ="{{ chan.module }}" data-namechan="{{ chan.name }}" data-unavailablefields="{{ chan.unavailablefields }}" name="chan_option_{{ chan.id }}" type="checkbox" class="form-check-input checkbox" value="{{ chan.id }}">{{ chan.name }}
+                                          <img  width="20" height="20" src="static/logos/{{ chan.module.split('.')[2] }}_logo.png" alt="logo" />
                                       </label>
+
                                     </div>
+
                                  {% endfor %}
                              {% endif %}
                          </div>
@@ -257,9 +262,6 @@
                 })
                 .val(text);
         });
-
-
-
     </script>
-
+    <script src="{{ url_for('static', filename='js/post.js') }}" crossorigin="anonymous"></script>
 {% endblock %}

@@ -1,19 +1,29 @@
-from linkedin import linkedin
-from superform import db, Channel
-from datetime import datetime, timedelta
-from flask import current_app
 import json
+import time
+from flask import redirect, url_for, request, Blueprint
+from linkedin import linkedin
+from superform.suputils.selenium_utils import get_headless_chrome
+from datetime import datetime, timedelta
+
+from superform.suputils.keepass import keypass_error_callback_page
+
+from superform.models import db, Channel, Publishing
 from superform.utils import get_module_full_name
+from superform.suputils import keepass
+
+linkedin_verify_callback_page = Blueprint('linkedin', 'channels')
 
 FIELDS_UNAVAILABLE = []
 
-CONFIG_FIELDS = ["profile_email", "channel_name", "linkedin_access_token", "linkedin_token_expiration_date"]
+CONFIG_FIELDS = ["channel_name", "linkedin_access_token", "linkedin_token_expiration_date"]
 
-RETURN_URL = 'http://localhost:5000/linkedin/verify'
+API_KEY = keepass.get_password_from_keepass('linkedin_key')
+API_SECRET = keepass.get_password_from_keepass('linkedin_secret')
+RETURN_URL = keepass.get_username_from_keepass('linkedin_return_url')
 
 authentication = linkedin.LinkedInAuthentication(
-    "861s90686z5fuz", #"API_KEY":
-    "xHDD886NZNkWVuN4", #"API_SECRET":
+    API_KEY,
+    API_SECRET,
     RETURN_URL,
     ['r_basicprofile', 'r_emailaddress', 'w_share', 'rw_company_admin']
 )
@@ -43,16 +53,14 @@ def set_access_token(channel_name, code):
 
     print("Access Token:", result.access_token)
     print("Expires in (seconds):", result.expires_in)
-
     #Add
     #channel = Channel.query.filter_by(name=channel_name, module=get_module_full_name("linkedin")).first()
     # add the configuration to the channel
     conf = dict()
-    conf["profile_email"] = "" #Do api call to have the profile email
     conf["channel_name"] = channel_name
     conf["linkedin_access_token"] = result.access_token
     conf["linkedin_token_expiration_date"] = (datetime.now() +timedelta(seconds=result.expires_in)).__str__()
-
+    
     LinkedinTokens.put_token(LinkedinTokens, channel_name, conf)
     return conf
 
@@ -69,6 +77,28 @@ def share_post(channel_name, comment, title, submitted_url,submitted_image_url,v
 
     application.submit_share(comment=comment, title=title, submitted_url=submitted_url,
                              submitted_image_url=submitted_image_url, description="This is a sharing from Superform",visibility_code=visibility_code)
+
+
+def auto_auth(url, channel_id):
+    if keepass.set_entry_from_keepass(str(channel_id)) is 0:
+        print('Error : cant get keepass entry :', str(channel_id), 'for linkedin plugin')
+        return redirect(url_for('keepass.error_keepass'))
+
+    driver = get_headless_chrome()
+
+    driver.get(url)
+    username = driver.find_element_by_name("session_key")
+    password = driver.find_element_by_name("session_password")
+
+    username.send_keys(keepass.KeepassEntry.username)
+    password.send_keys(keepass.KeepassEntry.password)
+
+    driver.find_element_by_name("signin").click()
+
+    while 'linkedin' in driver.current_url:
+        time.sleep(.50)
+    driver.close()
+    return redirect(url_for('index'))
 
 
 def run(publishing,channel_config):
@@ -111,3 +141,23 @@ class LinkedinTokens:
         c.config = json.dumps(config_json)
         print("put token", config_json)
         db.session.commit()
+
+@linkedin_verify_callback_page.route("/linkedin/verify", methods=['GET'])
+def linkedin_verify_authorization():
+    code = request.args.get('code')
+    conf_publishing = json.loads(request.args.get('state'))
+    channel_name = conf_publishing['channel_name']
+    publishing_id = conf_publishing['publishing_id']
+    post_id = publishing_id.__getitem__(0)
+    channel_id = publishing_id.__getitem__(1)
+    print("code", code)
+    print("post id, channel id", post_id, channel_id)
+    channel_config = {}
+    if code:
+        channel_config = set_access_token(channel_name,code)
+    print("channel_config", channel_config)
+    #normally should redirect to the channel page or to the page that publish a post
+    publishing = Publishing.query.filter_by(post_id=post_id, channel_id=channel_id).first()
+    print("init publishing", publishing)
+    run(publishing, channel_config)
+    return redirect(url_for('index'))

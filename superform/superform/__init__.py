@@ -10,11 +10,11 @@ from superform.authentication import authentication_page
 from superform.authorizations import authorizations_page
 from superform.channels import channels_page
 from superform.posts import posts_page
+from superform.suputils.keepass import keypass_error_callback_page
 from superform.users import get_moderate_channels_for_user, is_moderator
 from superform.utils import get_module_full_name
 
-from superform.plugins import linkedin
-
+from superform.plugins.linkedin import linkedin_verify_callback_page
 import json
 
 app = Flask(__name__)
@@ -26,8 +26,10 @@ app.register_blueprint(authorizations_page)
 app.register_blueprint(channels_page)
 app.register_blueprint(posts_page)
 app.register_blueprint(pub_page)
+app.register_blueprint(linkedin_verify_callback_page)
+app.register_blueprint(keypass_error_callback_page)
 
-# Init dbs
+# Init dbsx
 db.init_app(app)
 
 # List available channels in config
@@ -53,26 +55,6 @@ def index():
 
     return render_template("index.html", user=user,posts=posts,publishings = flattened_list_pubs)
 
-
-@app.route('/linkedin/verify')
-def linkedin_verify_authorization():
-    code = request.args.get('code')
-    conf_publishing = json.loads(request.args.get('state'))
-    channel_name = conf_publishing['channel_name']
-    publishing_id = conf_publishing['publishing_id']
-    post_id = publishing_id.__getitem__(0)
-    channel_id = publishing_id.__getitem__(1)
-    print("code", code)
-    print("post id, channel id", post_id, channel_id)
-    channel_config = {}
-    if code:
-        channel_config = linkedin.set_access_token(channel_name,code)
-    print("channel_config", channel_config)
-    #normally should redirect to the channel page or to the page that publish a post
-    publishing = Publishing.query.filter_by(post_id=post_id, channel_id=channel_id).first()
-    print("init publishing", publishing)
-    linkedin.run(publishing, channel_config)
-    return redirect(url_for('index'))
 
 @app.errorhandler(403)
 def forbidden(error):
