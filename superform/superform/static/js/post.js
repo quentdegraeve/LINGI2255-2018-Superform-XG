@@ -14,6 +14,7 @@ $("#publish-button").click(function(event){
 
 function createErrorMessage (element,error_message,id){
     var message = document.getElementById(id);
+    alert(id);
     if(message) {
         message.textContent =  error_message;
     }else{
@@ -62,9 +63,10 @@ function prevalidate_post (chan_name){
     }
 
     var input_linkUrlPost = document.getElementById(chan_name+"_linkurlpost");
-    var pattern = new RegExp('^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$'); // fragment locater
+    var pattern = new RegExp('^(?:(?:https?|http?|wwww?):\\/\\/)?(?:(?!(?:10|127)(?:\\.\\d{1,3}){3})(?!(?:169\\.254|192\\.168)(?:\\.\\d{1,3}){2})(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\\.(?:[a-z\u00a1-\uffff]{2,})))(?::\\d{2,5})?(?:\\/\\S*)?$');
+    alert(input_linkUrlPost.value);
     if( input_linkUrlPost.value != "" && !pattern.test(input_linkUrlPost.value)) {
-        createErrorMessage(input_linkUrlPost,"insert an link valid","error_linkUrlPost");
+        createErrorMessage(input_linkUrlPost,"insert a valid link","error_linkUrlPost");
         input_linkUrlPost.classList.add("invalid");
         toReturn = false;
     }else{
@@ -77,11 +79,11 @@ function prevalidate_post (chan_name){
 
     var input_linkImgUrlPost = document.getElementById(chan_name+"_imagepost");
     if( input_linkImgUrlPost.value != "" && !pattern.test(input_linkImgUrlPost.value)) {
-        createErrorMessage(input_linkImgUrlPost,"insert an picture link valid","error_linkImgUrlPost");
+        createErrorMessage(input_linkImgUrlPost,"insert a valid picture link ","error_linkImgUrlPost");
         input_linkImgUrlPost.classList.add("invalid");
         toReturn = false;
     }else{
-        elementToRemove = document.getElementById("error_linkUrlPost");
+        elementToRemove = document.getElementById("error_linkImgUrlPost");
         if(elementToRemove){
             elementToRemove.remove();
         }
@@ -89,7 +91,6 @@ function prevalidate_post (chan_name){
     }
 
     var input_datefrompost = document.getElementById(chan_name+"_datefrompost");
-    alert(input_datefrompost.value);
     if(input_datefrompost.value == ""){
         createErrorMessage(input_datefrompost,"the date from post is empty","error_datefrompost");
         input_datefrompost.classList.add("invalid");
@@ -121,7 +122,8 @@ function prevalidate_post (chan_name){
         createErrorMessage(input_dateuntilpost,"the date until post is more big that date from post","error_dateuntilpost");
         input_dateuntilpost.classList.add("invalid");
         toReturn = false;
-    }else if(a < new Date()){
+    }
+    if(a < new Date(new Date().toLocaleDateString())){
         createErrorMessage(input_datefrompost,"the date is more old that now","error_datefrompost");
         input_dateuntilpost.classList.add("invalid");
         toReturn = false;
