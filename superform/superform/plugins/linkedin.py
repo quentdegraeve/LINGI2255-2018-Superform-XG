@@ -1,13 +1,17 @@
 import json
 import time
-from flask import redirect, url_for
+from flask import redirect, url_for, request, Blueprint
 from linkedin import linkedin
 from superform.suputils.selenium_utils import get_headless_chrome
 from datetime import datetime, timedelta
 
-from superform.models import db, Channel
+from superform.suputils.keepass import keypass_error_callback_page
+
+from superform.models import db, Channel, Publishing
 from superform.utils import get_module_full_name
 from superform.suputils import keepass
+
+linkedin_verify_callback_page = Blueprint('linkedin', 'channels')
 
 FIELDS_UNAVAILABLE = []
 
@@ -15,7 +19,7 @@ CONFIG_FIELDS = ["channel_name", "linkedin_access_token", "linkedin_token_expira
 
 API_KEY = keepass.get_password_from_keepass('linkedin_key')
 API_SECRET = keepass.get_password_from_keepass('linkedin_secret')
-RETURN_URL = 'http://localhost:5000/linkedin/verify'
+RETURN_URL = keepass.get_username_from_keepass('linkedin_return_url')
 
 authentication = linkedin.LinkedInAuthentication(
     API_KEY,
@@ -78,7 +82,7 @@ def share_post(channel_name, comment, title, submitted_url,submitted_image_url,v
 def auto_auth(url, channel_id):
     if keepass.set_entry_from_keepass(str(channel_id)) is 0:
         print('Error : cant get keepass entry :', str(channel_id), 'for linkedin plugin')
-        return redirect(url_for('error_keepass'))
+        return redirect(url_for('keepass.error_keepass'))
 
     driver = get_headless_chrome()
 
@@ -137,3 +141,23 @@ class LinkedinTokens:
         c.config = json.dumps(config_json)
         print("put token", config_json)
         db.session.commit()
+
+@linkedin_verify_callback_page.route("/linkedin/verify", methods=['GET'])
+def linkedin_verify_authorization():
+    code = request.args.get('code')
+    conf_publishing = json.loads(request.args.get('state'))
+    channel_name = conf_publishing['channel_name']
+    publishing_id = conf_publishing['publishing_id']
+    post_id = publishing_id.__getitem__(0)
+    channel_id = publishing_id.__getitem__(1)
+    print("code", code)
+    print("post id, channel id", post_id, channel_id)
+    channel_config = {}
+    if code:
+        channel_config = set_access_token(channel_name,code)
+    print("channel_config", channel_config)
+    #normally should redirect to the channel page or to the page that publish a post
+    publishing = Publishing.query.filter_by(post_id=post_id, channel_id=channel_id).first()
+    print("init publishing", publishing)
+    run(publishing, channel_config)
+    return redirect(url_for('index'))

@@ -1,10 +1,11 @@
 import os
 import sys
 import platform
-from flask import has_request_context
+from flask import has_request_context, Blueprint, render_template
 from pykeepass import PyKeePass
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
+keypass_error_callback_page = Blueprint('keepass', 'channels')
 
 try:
     if platform.system() == 'Windows':
@@ -51,13 +52,21 @@ def modify_entry_in_group(group, title):
 
 def get_password_from_keepass(title):
     entry = kp.find_entries(title=title, first=True)
-    if entry.password is None:
+    if not entry or not entry.password:
         if has_request_context():
             return 0
         else:
             sys.exit('Keepass password is not set for ' + title)
     return entry.password
 
+def get_username_from_keepass(title):
+    entry = kp.find_entries(title=title, first=True)
+    if not entry or not entry.username:
+        if has_request_context():
+            return 0
+        else:
+            sys.exit('Keepass password is not set for ' + title)
+    return entry.username
 
 def set_entry_from_keepass(title):
     entry = kp.find_entries(title=title, first=True)
@@ -84,3 +93,8 @@ class KeepassEntry:
     password = ''
     url = ''
     notes = ''
+
+
+@keypass_error_callback_page.route('/error_keepass')
+def error_keepass():
+    return render_template('error_keepass.html')
