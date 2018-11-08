@@ -4,7 +4,7 @@
     <h1>Moderate this publication</h1>
     {% if session.logged_in %}
         <form method="POST" action="">
-            <div class="row">
+            <div class="row"  module-namechan="{{chan.module }}">
                 <div class="col-md-12">
                     <div class="form-group">
                         <label for="titlepost">Title</label><br>
@@ -20,7 +20,7 @@
                     </div>
                     <div class="form-group">
                         <label for="imagepost">Image</label><br>
-                        <input type="text" name="imagepost" id="imagepost" class="form-control" value="{{ pub.image_url }}">
+                        <input type="file" name="imagepost" id="imagepost" class="form-control" value="{{ pub.image_url }}">
                     </div>
                     <div class="row">
                         <div class="col-md-6">
@@ -44,5 +44,7 @@
     {% else %}
         Your are not logged in.
     {% endif %}
-
+{% endblock %}
+{% block scripts %}
+    <script src="{{ url_for('static', filename='js/moderate.js') }}" crossorigin="anonymous"></script>
 {% endblock %}
