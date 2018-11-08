@@ -59,6 +59,7 @@ def get_password_from_keepass(title):
             sys.exit('Keepass password is not set for ' + title)
     return entry.password
 
+
 def get_username_from_keepass(title):
     entry = kp.find_entries(title=title, first=True)
     if not entry or not entry.username:
@@ -68,9 +69,10 @@ def get_username_from_keepass(title):
             sys.exit('Keepass password is not set for ' + title)
     return entry.username
 
+
 def set_entry_from_keepass(title):
     entry = kp.find_entries(title=title, first=True)
-    if entry.username is None or entry.password is None:
+    if not entry or not entry.username or not entry.password:
         if has_request_context():
             return 0
         else:
@@ -83,6 +85,8 @@ def set_entry_from_keepass(title):
     KeepassEntry.title = entry.title
     KeepassEntry.username = entry.username
     KeepassEntry.password = entry.password
+    print('usr', entry.username)
+    print('pwd', entry.password)
     KeepassEntry.url = entry.url
     KeepassEntry.notes = entry.notes
 

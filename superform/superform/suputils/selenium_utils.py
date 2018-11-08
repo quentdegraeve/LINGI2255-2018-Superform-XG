@@ -5,6 +5,7 @@ from selenium import webdriver, common
 from time import sleep
 from superform import models
 from superform.models import Channel
+from suputils import keepass
 
 
 def get_headless_chrome():
@@ -12,7 +13,7 @@ def get_headless_chrome():
     options.add_argument('headless')
     try:
         if platform.system() == 'Windows':
-            return webdriver.Chrome(sys.path[0] + '\superform\sselenium_drivers\chromedriver.exe',
+            return webdriver.Chrome(sys.path[0] + '\superform\selenium_drivers\chromedriver.exe',
                                     chrome_options=options)
         else:
             return webdriver.Chrome(sys.path[0] + '/superform/selenium_drivers/chromedriver', chrome_options=options)
@@ -42,6 +43,7 @@ logout_url = 'http://localhost:5000/logout'
 authorization_url = 'http://localhost:5000/authorizations'
 new_post_url = 'http://localhost:5000/new'
 index_url = 'http://localhost:5000'
+linkedin_url = 'https://www.linkedin.com/'
 
 
 def login(driver, username, password):
@@ -104,22 +106,4 @@ def add_new_post(driver, name, title, description, link, image, date_from, date_
 
     driver.find_element_by_css_selector('input[data-namechan = "' + name + '"]').click()
     driver.find_element_by_css_selector('button[id="publish-button"]').click()
-    sleep(10)
-
-
-def moderate_last_post(driver):
-    driver.get(index_url)
-
-    module = driver.find_elements_by_css_selector('table[id="unmoderated"] a')
-    module[-1].click()
-
-    while 'moderate' not in driver.current_url:
-        sleep(.5)
-
-    driver.find_elements_by_css_selector('button[id="publish"]')[0].click()
-
-    sleep(20)
-
-
-
 

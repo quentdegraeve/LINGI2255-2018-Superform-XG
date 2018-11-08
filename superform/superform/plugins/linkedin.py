@@ -2,7 +2,7 @@ import json
 import time
 from flask import redirect, url_for, request, Blueprint
 from linkedin import linkedin
-from superform.suputils.selenium_utils import get_headless_chrome
+from superform.suputils import selenium_utils
 from datetime import datetime, timedelta
 
 from superform.suputils.keepass import keypass_error_callback_page
@@ -80,11 +80,13 @@ def share_post(channel_name, comment, title, submitted_url,submitted_image_url,v
 
 
 def auto_auth(url, channel_id):
+    print('starting autoauth')
     if keepass.set_entry_from_keepass(str(channel_id)) is 0:
         print('Error : cant get keepass entry :', str(channel_id), 'for linkedin plugin')
         return redirect(url_for('keepass.error_keepass'))
-    driver = get_headless_chrome()
-
+    print('keepass ok')
+    driver = selenium_utils.get_chrome()
+    print('headless aquired')
     driver.get(url)
     username = driver.find_element_by_name("session_key")
     password = driver.find_element_by_name("session_password")
@@ -93,7 +95,7 @@ def auto_auth(url, channel_id):
     password.send_keys(keepass.KeepassEntry.password)
 
     driver.find_element_by_name("signin").click()
-
+    print('clicked autoauth')
     while 'linkedin' in driver.current_url:
         time.sleep(.50)
     driver.close()
