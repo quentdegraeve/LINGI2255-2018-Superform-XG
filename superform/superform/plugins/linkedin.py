@@ -77,7 +77,7 @@ def share_post(channel_name, comment, title, submitted_url,submitted_image_url,v
 
     application.submit_share(comment=comment, title=title, submitted_url=submitted_url,
                              submitted_image_url=submitted_image_url, description="This is a sharing from Superform",visibility_code=visibility_code)
-
+    return True
 
 def auto_auth(url, channel_id):
     if keepass.set_entry_from_keepass(str(channel_id)) is 0:
@@ -107,13 +107,13 @@ def run(publishing,channel_config):
     conf = json.loads(channel_config)
     channel_name = conf['channel_name']
     authenticate(channel_name, (publishing.post_id, publishing.channel_id))
-    share_post(channel_name, publishing.description, publishing.title, publishing.link_url, publishing.image_url, "anyone")
+    return share_post(channel_name, publishing.description, publishing.title, publishing.link_url, publishing.image_url, "anyone")
 
 
 def post_pre_validation(post):
-    if len(post.title) > 200 or len(post.title) == 0: return 0;
-    if len(post.description) > 256 or len(post.description) == 0: return 0;
-    return 1;
+    if len(post.title) > 200 or len(post.title) == 0: return 0
+    if len(post.description) > 256 or len(post.description) == 0: return 0
+    return 1
 
 
 class LinkedinTokens:

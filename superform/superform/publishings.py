@@ -23,8 +23,9 @@ def moderate_publishing(id, idc):
         pub.date_from = datetime_converter(request.form.get('datefrompost'))
         pub.date_until = datetime_converter(request.form.get('dateuntilpost'))
         # state is shared & validated
-        pub.state = 1
+        """pub.state = 1
         db.session.commit()
+        """
         # running the plugin here
         c = db.session.query(Channel).filter(Channel.id == pub.channel_id).first()
         plugin_name = c.module
@@ -41,6 +42,8 @@ def moderate_publishing(id, idc):
             return plugin.auto_auth(url, pub.channel_id)
             #return redirect(url)
         print('publishing publishings.py', pub)
-        plugin.run(pub, c_conf)
+        if plugin.run(pub, c_conf):
+            pub.state = 1
+            db.session.commit()
 
         return redirect(url_for('index'))

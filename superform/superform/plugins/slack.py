@@ -1,13 +1,13 @@
 from datetime import datetime,timedelta
 
-from flask import Blueprint, redirect, url_for, request
+from flask import flash, Blueprint, redirect, url_for, request
 from slackclient import SlackClient
 import json
 from superform.models import Channel, Publishing, db
 from superform.utils import get_module_full_name
 from superform.suputils import keepass
 
-FIELDS_UNAVAILABLE = []
+FIELDS_UNAVAILABLE = ['Publication Date']
 CONFIG_FIELDS = ["channel_name","slack_channel_name", "slack_access_token", "slack_token_expiration_date"]
 
 API_CLIENT_KEY = keepass.get_password_from_keepass('slack_client_key')
@@ -17,7 +17,9 @@ API_CLIENT_ID = keepass.get_password_from_keepass('slack_client_id')
 slack_verify_callback_page = Blueprint('slack', 'channels')
 
 
-slackClient =  SlackClient();
+slackClient = SlackClient()
+
+
 def authenticate(channel_name, publishing_id):
 
     previous_token = SlackTokens.get_token(SlackTokens, channel_name)
@@ -68,20 +70,32 @@ def post_pre_validation(post):
     return 1;
 
 
-def share_post ( channel_name,slack_channel_name, text , link) :
+def share_post(channel_name,slack_channel_name, title, description , link, link_image):
 
     token = SlackTokens.get_token(SlackTokens, channel_name).__getitem__(0)
     slack_channel_name = slack_channel_name
 
     print('share_post token ', token)
     sc = SlackClient(token)
-
-    sc.api_call(
+    res = sc.api_call(
         "chat.postMessage",
         channel=slack_channel_name,
-        text=text
+        attachments=[
+            {
+                "pretext": title,
+                "title": link,
+                "title_link": link,
+                "image_url": link_image,
+                "text": description
+            }
+        ]
     )
-
+    print("res share post", res)
+    if not res['ok']:
+        print("Error", res["error"])
+        flash("Error " + ' '.join(res["error"].split('_')))
+        return False
+    return True
 
 
 def run(publishing, channel_config):
@@ -93,7 +107,7 @@ def run(publishing, channel_config):
     channel_name = channel_config['channel_name']
     slack_channel_name = channel_config['slack_channel_name']
     authenticate(channel_name, (publishing.post_id, publishing.channel_id))
-    share_post(channel_name, slack_channel_name,publishing.description,None)
+    return share_post(channel_name, slack_channel_name, publishing.title, publishing.description, publishing.link_url, publishing.image_url)
 
 
 @slack_verify_callback_page.route("/slack/verify", methods=['GET'])
