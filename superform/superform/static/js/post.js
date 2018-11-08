@@ -1,3 +1,12 @@
+$("input[type='checkbox']").each(function(){
+     if($(this).attr("module-namechan") == "superform.plugins.linkedin" || $(this).attr("module-namechan") == "superform.plugins.slack" ){
+         $(this).on("click",adapt_post_to_channel($(this).attr('data-namechan')));
+     }
+});
+
+function adapt_post_to_channel(chan_name){
+    document.getElementById(chan_name+"_imagepost").type = "text";
+}
 
 $("#publish-button").click(function(event){
     var toReturn = true;
@@ -17,6 +26,7 @@ $("#publish-button").click(function(event){
       });
      return toReturn;
 });
+
 
 function createErrorMessage (element,error_message,id){
     var message = document.getElementById(id);
