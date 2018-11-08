@@ -91,8 +91,8 @@ def new_post():
     for elem in list_of_channels:
         m = elem.module
         clas = get_instance_from_module_path(m)
-        unaivalable_fields = ','.join(clas.FIELDS_UNAVAILABLE)
-        setattr(elem, "unavailablefields", unaivalable_fields)
+        unavailable_fields = ','.join(clas.FIELDS_UNAVAILABLE)
+        setattr(elem, "unavailablefields", unavailable_fields)
         setattr(elem, "plugin_name", str(m))
 
     if request.method == "GET":
@@ -100,6 +100,7 @@ def new_post():
     else:
         create_a_post(request.form)
         return redirect(url_for('index'))
+
 
 @posts_page.route('/edit/<int:post_id>', methods=['GET'])
 @login_required()
@@ -115,17 +116,33 @@ def edit_post(post_id):
     if post is None:
         return redirect(url_for('index'))
 
+    channels = channels_available_for_user(user_id)
     publishing = db.session.query(Publishing).filter(Publishing.post_id == post.id).all()
 
-    list_of_channels = channels_available_for_user(user_id)
-    for elem in list_of_channels:
-        m = elem.module
-        clas = get_instance_from_module_path(m)
-        unaivalable_fields = ','.join(clas.FIELDS_UNAVAILABLE)
-        setattr(elem, "unavailablefields", unaivalable_fields)
+    for i in range(len(publishing)):
+        j = 0
+        exists = False
+        while j < len(channels) and not exists:
+            if channels[j].id == publishing[i].channel_id:
+                setattr(channels[j], "new", False)
+                exists = True
+            j = j + 1
+        if not exists:
+            channel = db.session.query(Channel).get(publishing[i].channel_id)
+            instance = get_instance_from_module_path(channel.module)
+            unavailable_fields = ','.join(instance.FIELDS_UNAVAILABLE)
+            setattr(channel, "unavailablefields", unavailable_fields)
+            setattr(channel, "new", True)
+            channels.append(channel)
 
-    return render_template('edit.html', post=post, publishing=publishing, l_chan=list_of_channels)
+    for channel in channels:
+        instance = get_instance_from_module_path(channel.module)
+        unavailable_fields = ','.join(instance.FIELDS_UNAVAILABLE)
+        setattr(channel, "unavailablefields", unavailable_fields)
+        if not hasattr(channel, "new"):
+            setattr(channel, "new", True)
 
+    return render_template('edit.html', post=post, publishing=publishing, l_chan=channels)
 
 @posts_page.route('/publish', methods=['POST'])
 @login_required()

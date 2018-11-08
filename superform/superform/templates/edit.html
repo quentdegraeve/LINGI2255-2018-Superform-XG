@@ -35,7 +35,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="imagepost">Image</label><br>
-                                        <input type="file" name="imagepost" id="imagepost" class="form-control">
+                                        <input type="text" name="imagepost" id="imagepost" class="form-control">
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6">
@@ -56,18 +56,27 @@
                         </div>
                         <aside class="col-md-4">
                             <div class="form-group">
-                                <label for="publishpost">Publish</label>
-                                {% if l_chan|length == 0 %}
-                                    <p>No channel available for this user</p>
-                                {% else %}
-                                    {% for chan in l_chan %}
-                                        <div class="form-check">
-                                            <label class="form-check-label">
-                                                <input id="chan_option_{{ chan.id }}" data-namechan="{{ chan.name }}" data-unavailablefields="{{ chan.unavailablefields }}" name="chan_option_{{ chan.id }}" type="checkbox" class="form-check-input checkbox" value="{{ chan.id }}">{{ chan.name }}
-                                            </label>
-                                        </div>
-                                    {% endfor %}
-                                {% endif %}
+                                <div class="card">
+                                    <div class="card-header">
+                                        Channels
+                                    </div>
+                                    <div class="card-body">
+                                        {% if l_chan|length == 0 %}
+                                            <p>No channel available for this user</p>
+                                        {% else %}
+                                            {% for chan in l_chan %}
+                                                <div class="form-check">
+                                                    <label class="form-check-label">
+                                                        <input id="chan_option_{{ chan.id }}" data-namechan="{{ chan.name }}" data-unavailablefields="{{ chan.unavailablefields }}" name="chan_option_{{ chan.id }}" type="checkbox" class="form-check-input checkbox" value="{{ chan.id }}">{{ chan.name }}
+                                                        {% if chan.new %}
+                                                            <span class="badge badge-secondary">New</span>
+                                                        {% endif %}
+                                                    </label>
+                                                </div>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                </div>
                             </div>
                             <ul class="list-group">
                                 {% for pub in publishing %}
@@ -116,7 +125,7 @@
                                         </div>
                                         <div class="form-group">
                                             <label for="{{ chan.name }}_imagepost">Image</label><br>
-                                            <input type="file" name="{{ chan.name }}_imagepost" id="{{ chan.name }}_imagepost" class="form-control">
+                                            <input type="text" name="{{ chan.name }}_imagepost" id="{{ chan.name }}_imagepost" class="form-control">
                                         </div>
                                         <div class="row">
                                             <div class="col-md-6">
@@ -143,14 +152,6 @@
                                         <label class="form-check-label">
                                             {{ chan.name }}
                                         </label>
-                                    </div>
-                                </div>
-                                <div class="card">
-                                    <div class="card-header">
-                                        Status
-                                    </div>
-                                    <div class="card-body">
-                                        Content
                                     </div>
                                 </div>
                             </div>
