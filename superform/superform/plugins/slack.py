@@ -145,3 +145,8 @@ class SlackTokens:
         c.config = json.dumps(config_json)
         print("put token", config_json)
         db.session.commit()
+
+    def post_pre_validation(post):
+        if len(post.title) > 40000 or len(post.title) == 0: return 0;
+        if len(post.description) > 40000 or len(post.description) == 0: return 0;
+        return 1;

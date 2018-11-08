@@ -4,7 +4,8 @@ $("#publish-button").click(function(event){
      $("input[type='checkbox']:checked").each(function(){
         if($(this).attr("module-namechan") == "superform.plugins.linkedin"){
             if((!prevalidate_post($(this).attr("data-namechan"),200,256))){
-                toReturn = false
+                document.getElementById("li_"+$(this).attr("data-namechan")).children[0].style.color = "red";
+                toReturn = false;
                 return toReturn;
             }
         }else if($(this).attr("module-namechan") == "superform.plugins.slack"){
@@ -19,7 +20,6 @@ $("#publish-button").click(function(event){
 
 function createErrorMessage (element,error_message,id){
     var message = document.getElementById(id);
-    alert(id);
     if(message) {
         message.textContent =  error_message;
     }else{
@@ -129,7 +129,6 @@ function prevalidate_post (chan_name,title_length,descr_length){
     }
 
     if(a > new Date()){
-        console.log(a + new Date())
         createErrorMessage(input_datefrompost,"the date is more old that now ", "error_datefrompost");
         input_dateuntilpost.classList.add("invalid");
         toReturn = false;
