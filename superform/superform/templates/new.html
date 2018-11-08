@@ -244,7 +244,7 @@
                 })
                 .val(text);
         });
-        $('#dateuntilpost').one("change",function(event){
+        $('#dateuntilpost').focusout(function(event){
             text = ($(this).val());
             //This is a subselect of input that match with the regex .*dateuntilpost
             $('input')
@@ -253,7 +253,7 @@
                 })
                 .val(text);
         });
-        $('#datefrompost').one("change",function(event){
+        $('#datefrompost').focusout(function(event){
             text = ($(this).val());
             //This is a subselect of input that match with the regex .*datefrompost
             $('input')

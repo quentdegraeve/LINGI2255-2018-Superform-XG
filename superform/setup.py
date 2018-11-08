@@ -12,6 +12,6 @@ setup(
         'python3-linkedin',
         'pykeepass',
         'slackclient',
-        'selenium'
+        'selenium', 'pytest'
     ],
 )

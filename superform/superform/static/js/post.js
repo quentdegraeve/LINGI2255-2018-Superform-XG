@@ -125,7 +125,7 @@ function prevalidate_post (chan_name,title_length,descr_length){
         createErrorMessage(input_dateuntilpost,"the date until post is more big that date from post","error_dateuntilpost");
         input_dateuntilpost.classList.add("invalid");
         toReturn = false;
-    }else if(a < new Date()){
+    }else if(a < new Date.now()){
         createErrorMessage(input_datefrompost,"the date is more old that now","error_datefrompost");
         input_dateuntilpost.classList.add("invalid");
         toReturn = false;

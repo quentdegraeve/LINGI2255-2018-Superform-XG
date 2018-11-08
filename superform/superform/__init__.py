@@ -12,13 +12,11 @@ from superform.channels import channels_page
 from superform.posts import posts_page
 from superform.suputils.keepass import keypass_error_callback_page
 from superform.users import get_moderate_channels_for_user, is_moderator
-from superform.utils import get_module_full_name
 
 from superform.plugins.linkedin import linkedin_verify_callback_page
-import json
 
 app = Flask(__name__)
-app.config.from_json("config.json")
+app.config.from_json("config_test.json")
 
 # Register blueprints
 app.register_blueprint(authentication_page)
