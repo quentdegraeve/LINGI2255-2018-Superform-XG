@@ -50,12 +50,16 @@ def set_access_token(channel_name, code):
 
     print(auth_response)
     # Add
-    # channel = Channel.query.filter_by(name=channel_name, module=get_module_full_name("linkedin")).first()
+    channel = Channel.query.filter_by(name=channel_name, module=get_module_full_name("slack")).first()
+    slack_channel_name = json.load(channel.config)["slack_channel_name"]
+    if not slack_channel_name :
+        slack_channel_name = "general"
+
     # add the configuration to the channel
     conf = dict()
 
     conf["channel_name"] = channel_name
-    conf["slack_channel_name"] = "fortestchannel" #TODO change it is harcoded here
+    conf["slack_channel_name"] = slack_channel_name
     conf["slack_access_token"] = auth_response['access_token']
     conf["slack_token_expiration_date"] = (datetime.now() + timedelta(hours=24*365)).__str__()
 
@@ -144,9 +148,10 @@ class SlackTokens:
             conf = json.loads(channel.config)
             date_string = conf.get("slack_token_expiration_date")
 
-            if not date_string :
+            if not date_string:
                 return (None, None)
 
+            print(not date_string)
             date_expiration = datetime.strptime(date_string, '%Y-%m-%d %H:%M:%S.%f')
             print("date_expiration", conf.get("slack_access_token"), date_expiration)
             return (conf.get("slack_access_token"), date_expiration)
