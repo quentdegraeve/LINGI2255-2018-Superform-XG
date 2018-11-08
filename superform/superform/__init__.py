@@ -4,6 +4,7 @@ import importlib
 from flask import request
 
 import superform.plugins
+from superform.plugins.slack import slack_verify_callback_page
 from superform.publishings import pub_page
 from superform.models import db, User, Post,Publishing,Channel
 from superform.authentication import authentication_page
@@ -26,6 +27,7 @@ app.register_blueprint(posts_page)
 app.register_blueprint(pub_page)
 app.register_blueprint(linkedin_verify_callback_page)
 app.register_blueprint(keypass_error_callback_page)
+app.register_blueprint(slack_verify_callback_page)
 
 # Init dbsx
 db.init_app(app)
