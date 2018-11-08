@@ -26,9 +26,6 @@ def create_a_post(form):
 
 def create_a_publishing(post, chn, form):
     chan = str(chn.name)
-    validate = pre_validate_post(chn,post)
-    if validate == -1 or validate == 0 :
-        return validate
     title_post = form.get(chan + '_titlepost') if (form.get(chan + '_titlepost') is not None) else post.title
     descr_post = form.get(chan + '_descriptionpost') if form.get(
         chan + '_descriptionpost') is not None else post.description
@@ -76,20 +73,16 @@ def publish_from_new_post():
                 def substr(elem):
                     import re
                     return re.sub('^chan\_option\_', '', elem)
-
                 c = Channel.query.get(substr(elem))
+                validate = pre_validate_post(c, p)
+                if validate == 0:
+                    error = "error in post :", p.id, " field(s) not valid"
+                    flash(error, "danger")
+                    return redirect(url_for('index'))
                 # for each selected channel options
                 # create the publication
-                pub = create_a_publishing(p, c, request.form)
-                if pub == -1:
-                    flash("no module selected", "danger")
-                    return  redirect(url_for('index'))
-                elif pub == 0:
-                    error = "error in post :", p.id ," title or description length not valid"
-                    flash(error, "danger")
-                    return  redirect(url_for('index'))
+                create_a_publishing(p, c, request.form)
 
-    print("submitted")
     db.session.commit()
     return redirect(url_for('index'))
 
@@ -104,4 +97,7 @@ def records():
 
 def pre_validate_post(channel,post):
     plugin = import_module(channel.module)
-    return plugin.post_pre_validation(post)
+    if channel.module == "superform.plugins.linkedin" or channel.module == "superform.plugins.slack":
+        return plugin.post_pre_validation(post)
+    else:
+        return 1

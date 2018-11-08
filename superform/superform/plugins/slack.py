@@ -1,13 +1,13 @@
 from datetime import datetime,timedelta
 
-from flask import Blueprint, redirect, url_for, request
+from flask import flash, Blueprint, redirect, url_for, request
 from slackclient import SlackClient
 import json
 from superform.models import Channel, Publishing, db
 from superform.utils import get_module_full_name
 from superform.suputils import keepass
 
-FIELDS_UNAVAILABLE = []
+FIELDS_UNAVAILABLE = ['Publication Date']
 CONFIG_FIELDS = ["channel_name","slack_channel_name", "slack_access_token", "slack_token_expiration_date"]
 
 API_CLIENT_KEY = keepass.get_password_from_keepass('slack_client_key')
@@ -17,7 +17,9 @@ API_CLIENT_ID = keepass.get_password_from_keepass('slack_client_id')
 slack_verify_callback_page = Blueprint('slack', 'channels')
 
 
-slackClient =  SlackClient();
+slackClient = SlackClient()
+
+
 def authenticate(channel_name, publishing_id):
 
     previous_token = SlackTokens.get_token(SlackTokens, channel_name)
@@ -48,12 +50,16 @@ def set_access_token(channel_name, code):
 
     print(auth_response)
     # Add
-    # channel = Channel.query.filter_by(name=channel_name, module=get_module_full_name("linkedin")).first()
+    channel = Channel.query.filter_by(name=channel_name, module=get_module_full_name("slack")).first()
+    slack_channel_name = json.load(channel.config)["slack_channel_name"]
+    if (not slack_channel_name) or slack_channel_name is '':
+        slack_channel_name = "general"
+
     # add the configuration to the channel
     conf = dict()
 
     conf["channel_name"] = channel_name
-    conf["slack_channel_name"] = "fortestchannel" #TODO change it is harcoded here
+    conf["slack_channel_name"] = slack_channel_name
     conf["slack_access_token"] = auth_response['access_token']
     conf["slack_token_expiration_date"] = (datetime.now() + timedelta(hours=24*365)).__str__()
 
@@ -68,20 +74,34 @@ def post_pre_validation(post):
     return 1;
 
 
-def share_post ( channel_name,slack_channel_name, text , link) :
+def share_post(channel_name,slack_channel_name, title, description , link, link_image):
 
     token = SlackTokens.get_token(SlackTokens, channel_name).__getitem__(0)
-    slack_channel_name = slack_channel_name
+    
+    if (not slack_channel_name) or slack_channel_name is '':
+        slack_channel_name = "general"
 
-    print('share_post token ', token)
+    print('slack_channel_nam  ', slack_channel_name)
     sc = SlackClient(token)
-
-    sc.api_call(
+    res = sc.api_call(
         "chat.postMessage",
         channel=slack_channel_name,
-        text=text
+        attachments=[
+            {
+                "pretext": title,
+                "title": link,
+                "title_link": link,
+                "image_url": link_image,
+                "text": description
+            }
+        ]
     )
-
+    print("res share post", res)
+    if not res['ok']:
+        print("Error", res["error"])
+        flash("Error " + ' '.join(res["error"].split('_')))
+        return False
+    return True
 
 
 def run(publishing, channel_config):
@@ -92,8 +112,9 @@ def run(publishing, channel_config):
     print("conf run", channel_config, type(channel_config))
     channel_name = channel_config['channel_name']
     slack_channel_name = channel_config['slack_channel_name']
+
     authenticate(channel_name, (publishing.post_id, publishing.channel_id))
-    share_post(channel_name, slack_channel_name,publishing.description,None)
+    return share_post(channel_name, slack_channel_name, publishing.title, publishing.description, publishing.link_url, publishing.image_url)
 
 
 @slack_verify_callback_page.route("/slack/verify", methods=['GET'])
@@ -130,7 +151,7 @@ class SlackTokens:
             conf = json.loads(channel.config)
             date_string = conf.get("slack_token_expiration_date")
 
-            if not date_string :
+            if not date_string:
                 return (None, None)
 
             date_expiration = datetime.strptime(date_string, '%Y-%m-%d %H:%M:%S.%f')
@@ -145,3 +166,8 @@ class SlackTokens:
         c.config = json.dumps(config_json)
         print("put token", config_json)
         db.session.commit()
+
+    def post_pre_validation(post):
+        if len(post.title) > 40000 or len(post.title) == 0: return 0;
+        if len(post.description) > 40000 or len(post.description) == 0: return 0;
+        return 1;

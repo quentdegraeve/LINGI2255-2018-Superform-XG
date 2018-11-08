@@ -9,11 +9,12 @@ pub_page = Blueprint('publishings', __name__)
 @login_required()
 def moderate_publishing(id, idc):
     pub = db.session.query(Publishing).filter(Publishing.post_id == id, Publishing.channel_id == idc).first()
+    chan = db.session.query(Channel).filter(Channel.id == idc).first()
     pub.date_from = str_converter(pub.date_from)
     pub.date_until = str_converter(pub.date_until)
     if request.method == "GET":
         print('get moderate_publishing')
-        return render_template('moderate_post.html', pub=pub)
+        return render_template('moderate_post.html', pub=pub, chan=chan)
     else:
         print('post moderate_publishing')
         pub.title = request.form.get('titlepost')
@@ -23,8 +24,9 @@ def moderate_publishing(id, idc):
         pub.date_from = datetime_converter(request.form.get('datefrompost'))
         pub.date_until = datetime_converter(request.form.get('dateuntilpost'))
         # state is shared & validated
-        pub.state = 1
+        """pub.state = 1
         db.session.commit()
+        """
         # running the plugin here
         c = db.session.query(Channel).filter(Channel.id == pub.channel_id).first()
         plugin_name = c.module
@@ -41,6 +43,8 @@ def moderate_publishing(id, idc):
             return plugin.auto_auth(url, pub.channel_id)
             #return redirect(url)
         print('publishing publishings.py', pub)
-        plugin.run(pub, c_conf)
+        if plugin.run(pub, c_conf):
+            pub.state = 1
+            db.session.commit()
 
         return redirect(url_for('index'))

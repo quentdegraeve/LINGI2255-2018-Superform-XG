@@ -102,28 +102,26 @@ def test_pre_validate_post_description():
     assert posts.pre_validate_post(chan, post) == 0
 
 
-def test_authenticate():
-    result = linkedin.authenticate('', publishing_id)
+def test_authenticate(session):
+    false_post_id = -1
+    false_channel_id = -1
+    url = linkedin.authenticate("name_test", (false_post_id, false_channel_id))
+    assert url != 'AlreadyAuthenticated'
 
-# def test_authenticate(session):
-#     false_post_id = -1
-#     false_channel_id = -1
-#     url = linkedin.authenticate("name_test", (false_post_id, false_channel_id))
-#     assert url != 'AlreadyAuthenticated'
-#
-# def test_authenticate2(session):
-#     linkedin_access_token = "test_token"
-#     linkedin_token_expiration_date = datetime.now() + timedelta(seconds=60)
-#     channel_name = "channel_test"
-#     c_test = Channel(name=channel_name, module=get_module_full_name("linkedin"), config="{}", linkedin_access_token=linkedin_access_token, linkedin_token_expiration_date=linkedin_token_expiration_date)
-#
-#     session.add(c_test)
-#     conf = dict()
-#     conf["channel_name"] = channel_name
-#     conf["linkedin_access_token"] = linkedin_access_token
-#     conf["linkedin_token_expiration_date"] = linkedin_token_expiration_date.__str__()
-#     linkedin.LinkedinTokens.put_token(linkedin.LinkedinTokens, "channel_test", conf)
-#     false_post_id = -1
-#     false_channel_id = -1
-#     url = linkedin.authenticate(channel_name, (false_post_id, false_channel_id))
-#     assert url == 'AlreadyAuthenticated'
+
+def test_authenticate2(session):
+    linkedin_access_token = "test_token"
+    linkedin_token_expiration_date = datetime.now() + timedelta(seconds=60)
+    channel_name = "channel_test"
+    c_test = Channel(name=channel_name, module=get_module_full_name("linkedin"), config="{}", linkedin_access_token=linkedin_access_token, linkedin_token_expiration_date=linkedin_token_expiration_date)
+
+    session.add(c_test)
+    conf = dict()
+    conf["channel_name"] = channel_name
+    conf["linkedin_access_token"] = linkedin_access_token
+    conf["linkedin_token_expiration_date"] = linkedin_token_expiration_date.__str__()
+    linkedin.LinkedinTokens.put_token(linkedin.LinkedinTokens, "channel_test", conf)
+    false_post_id = -1
+    false_channel_id = -1
+    url = linkedin.authenticate(channel_name, (false_post_id, false_channel_id))
+    assert url == 'AlreadyAuthenticated'
