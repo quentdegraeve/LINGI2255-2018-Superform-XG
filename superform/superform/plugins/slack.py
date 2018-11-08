@@ -52,7 +52,7 @@ def set_access_token(channel_name, code):
     # Add
     channel = Channel.query.filter_by(name=channel_name, module=get_module_full_name("slack")).first()
     slack_channel_name = json.load(channel.config)["slack_channel_name"]
-    if not slack_channel_name :
+    if (not slack_channel_name) or slack_channel_name is '':
         slack_channel_name = "general"
 
     # add the configuration to the channel
@@ -77,9 +77,11 @@ def post_pre_validation(post):
 def share_post(channel_name,slack_channel_name, title, description , link, link_image):
 
     token = SlackTokens.get_token(SlackTokens, channel_name).__getitem__(0)
-    slack_channel_name = slack_channel_name
+    
+    if (not slack_channel_name) or slack_channel_name is '':
+        slack_channel_name = "general"
 
-    print('share_post token ', token)
+    print('slack_channel_nam  ', slack_channel_name)
     sc = SlackClient(token)
     res = sc.api_call(
         "chat.postMessage",
@@ -110,6 +112,7 @@ def run(publishing, channel_config):
     print("conf run", channel_config, type(channel_config))
     channel_name = channel_config['channel_name']
     slack_channel_name = channel_config['slack_channel_name']
+
     authenticate(channel_name, (publishing.post_id, publishing.channel_id))
     return share_post(channel_name, slack_channel_name, publishing.title, publishing.description, publishing.link_url, publishing.image_url)
 
@@ -151,7 +154,6 @@ class SlackTokens:
             if not date_string:
                 return (None, None)
 
-            print(not date_string)
             date_expiration = datetime.strptime(date_string, '%Y-%m-%d %H:%M:%S.%f')
             print("date_expiration", conf.get("slack_access_token"), date_expiration)
             return (conf.get("slack_access_token"), date_expiration)
