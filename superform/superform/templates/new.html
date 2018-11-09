@@ -116,11 +116,7 @@
                                                     <div class="col-6">
                                                         Numbers of Characters : <span class="counter">?</span>
                                                     </div>
-                                                    <div class="col-6" style="text-align: right">
-                                                        <button id="js-twitter-open-preview" type="button" class="btn btn-secondary">
-                                                            Preview Tweets
-                                                        </button>
-                                                    </div>
+                                                    
                                                 </div>
                                             </div>
                                             {% else %}
@@ -309,12 +305,9 @@
             var container = preview.find(".modal-body");
 
             message.addClass("alert");
-            //message.addClass("alert-danger");
 
-            //var channel = document.getElementById("chan.name");
-            //message.text(document.getElementById("{chan.name}descriptionpost").value);
-            //message.text($("chan.name"));
             message.text(document.getElementById("descriptionpost").value);
+
             container.empty();
             container.append(message);
             preview.modal("toggle");
