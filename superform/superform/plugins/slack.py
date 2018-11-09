@@ -114,7 +114,9 @@ def run(publishing, channel_config):
     slack_channel_name = channel_config['slack_channel_name']
 
     authenticate(channel_name, (publishing.post_id, publishing.channel_id))
-    return share_post(channel_name, slack_channel_name, publishing.title, publishing.description, publishing.link_url, publishing.image_url)
+    if share_post(channel_name, slack_channel_name, publishing.title, publishing.description, publishing.link_url, publishing.image_url):
+        publishing.state = 1
+        db.session.commit()
 
 
 @slack_verify_callback_page.route("/slack/verify", methods=['GET'])
