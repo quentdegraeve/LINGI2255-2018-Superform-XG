@@ -5,7 +5,7 @@ from selenium import webdriver, common
 from time import sleep
 from superform import models
 from superform.models import Channel
-from suputils import keepass
+from superform.suputils import keepass
 
 
 def get_headless_chrome():

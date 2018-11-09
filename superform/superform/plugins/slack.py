@@ -51,7 +51,7 @@ def set_access_token(channel_name, code):
     print(auth_response)
     # Add
     channel = Channel.query.filter_by(name=channel_name, module=get_module_full_name("slack")).first()
-    slack_channel_name = json.load(channel.config)["slack_channel_name"]
+    slack_channel_name = json.loads(channel.config).get("slack_channel_name")
     if (not slack_channel_name) or slack_channel_name is '':
         slack_channel_name = "general"
 
