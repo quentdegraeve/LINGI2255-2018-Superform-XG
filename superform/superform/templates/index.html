@@ -2,117 +2,93 @@
 {% block title %}Index{% endblock %}
 {% block content %}
     <h1>Index</h1>
-
     {% if session.logged_in %}
-        {% with messages = get_flashed_messages() %}
-         {% if messages %}
-             <ul class=flashes >
-              {% for message in messages %}
-                  <li><font color="red"><strong>{{ message }}</strong></font></li>
-               {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
-
         <div class="row">
-        <div class="col-md-12">
-            {% if user.is_mod %}
-                <h2>Unmoderated Publishings</h2>
-                <table id="unmoderated" class="table table-bordered">
-                <thead>
-                  <tr>
-                    <th>
-                      Channel
-                    </th>
-                    <th>
-                      Subject
-                    </th>
-                    <th>
-                      Body
-                    </th>
-                    <th>
-                        Author
-                    </th>
-                    <th>
-                        Action
-                    </th>
-                  </tr>
-                </thead>
 
-                <tbody>
-                {% for p in publishings %}
+            <div class="col-md-12">
+                {% if user.is_mod %}
+                    <h2>Unmoderated Publishings</h2>
+                    <table id="unmoderated" class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>Channel</th>
+                            <th>Subject</th>
+                            <th>Body</th>
+                            <th>Author</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for p in publishings %}
+                            <tr>
+                                <td>
+                                  {{ p.channel.name }}
+                                  <img  width="20" height="20" src="static/logos/{{ p.channel.module.split('.')[2] }}_logo.png" alt="logo" />
+                                </td>
+                                <td>
+                                    {% if p.title == "" %}
+                                    <span class="text-muted">(vide)</span>
+                                    {% else %}
+                                    {{ p.title }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if p.description == "" %}
+                                    <span class="text-muted">(vide)</span>
+                                    {% else %}
+                                    {{ p.description }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ p.get_author() }}</td>
+                                <td>
+                                    <a href="{{ url_for('publishings.moderate_publishing',id=p.post_id,idc=p.channel_id) }}" class="btn btn-outline-primary" role="button">Moderate</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+                <h2>All my posts</h2>
+                <table class="table table-bordered">
+                    <thead>
                     <tr>
-                        <td>
-                            {{ p.channel.name }}
-                            <img  width="20" height="20" src="static/logos/{{ p.channel.module.split('.')[2] }}_logo.png" alt="logo" />
-                        </td>
-                        <td>
-                            {{ p.title }}
-                        </td>
-                        <td>
-                            <div class="row">
-                                <div class="col">{{ p.description }}</div>
-                            </div>
-                        </td>
-                        <td>
-                            {{ p.get_author() }}
-                        </td>
-                        <td>
-                            <a  href="{{ url_for('publishings.moderate_publishing',id=p.post_id,idc=p.channel_id) }}" class="btn btn-outline-primary" role="button">Moderate</a>
+                        <th>#</th>
+                        <th>Subject</th>
+                        <th>Body</th>
+                        <th>Action</th>
 
-                        </td>
                     </tr>
-                {% endfor %}
-                </tbody>
+                    </thead>
+                    <tbody>
+                    {% for item in posts %}
+                        <tr>
+                            <td>{{ item.id }}</td>
+                            <td>
+                                {% if item.title == "" %}
+                                <span class="text-muted">(vide)</span>
+                                {% else %}
+                                {{ item.title }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if item.description == "" %}
+                                <span class="text-muted">(vide)</span>
+                                {% else %}
+                                {{ item.description }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a class="btn btn-outline-primary" role="button" href="{{ url_for('posts.edit_post', post_id=item.id) }}">Edit</a>
+                                <a class="btn btn-outline-primary" role="button" href="#">Copy</a>
+                                <a class="btn btn-outline-warning" role="button" href="#">Delete</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
                 </table>
-            {% endif %}
-            <h2>All my posts</h2>
-            <table class="table table-bordered">
-            <thead>
-              <tr>
-                <th>
-                  #
-                </th>
-                <th>
-                  Subject
-                </th>
-                <th>
-                  Body
-                </th>
-                <th>
-                    Action
-                </th>
-              </tr>
-            </thead>
-
-            <tbody>
-                {% for item in posts %}
-                <tr>
-                    <td>
-                        {{ item.id }}
-                    </td>
-                    <td>
-                        {{ item.title }}
-                    </td>
-                    <td>
-                        <div class="row">
-                            <div class="col">{{ item.description }}</div>
-                        </div>
-                    </td>
-                    <td>
-                        <a href="#" class="btn btn-outline-primary" role="button">Edit</a>
-                        <a href="#" class="btn btn-outline-primary">Copy</a>
-                        <a href="#" class="btn btn-outline-warning" role="button">Delete</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-            </table>
+            </div>
         </div>
-      </div>
     {% else %}
         <p>Your are not logged in.</p>
     {% endif %}
-
-
 {% endblock %}

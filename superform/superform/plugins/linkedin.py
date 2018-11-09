@@ -102,7 +102,7 @@ def auto_auth(url, channel_id):
     return redirect(url_for('index'))
 
 
-def run(publishing,channel_config):
+def run(publishing, channel_config):
     print("publishing Linkedin", publishing)
     print("channel-conf", type(channel_config), channel_config)
     print("conf run", channel_config, type(channel_config))
