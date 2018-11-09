@@ -17,7 +17,7 @@ from superform.users import get_moderate_channels_for_user, is_moderator
 from superform.plugins.linkedin import linkedin_verify_callback_page
 
 app = Flask(__name__)
-app.config.from_json("config_test.json")
+app.config.from_json("config.json")
 
 # Register blueprints
 app.register_blueprint(authentication_page)
