@@ -5,7 +5,7 @@ from time import sleep
 
 
 #Create a channel and add 2 post (moderation and publication have to be done manually)
-def test_complete_linkedin():
+def test_prepare():
     driver = selenium_utils.get_chrome()
     selenium_utils.login(driver, 'superego', 'superego')
     keepass.set_entry_from_keepass('account_linkedin')

@@ -8,7 +8,7 @@ from superform.utils import get_module_full_name
 from superform.suputils import keepass
 
 FIELDS_UNAVAILABLE = ['Publication Date']
-CONFIG_FIELDS = ["channel_name","slack_channel_name", "slack_access_token", "slack_token_expiration_date"]
+CONFIG_FIELDS = ["channel_name", "slack_channel_name", "slack_access_token", "slack_token_expiration_date"]
 
 API_CLIENT_KEY = keepass.get_password_from_keepass('slack_client_key')
 API_SECRET = keepass.get_password_from_keepass('slack_secret')
@@ -158,7 +158,7 @@ class SlackTokens:
             conf = json.loads(channel.config)
             date_string = conf.get("slack_token_expiration_date")
 
-            if date_string == "None":
+            if not date_string or date_string is None or date_string == "None":
                 return (None, None)
 
             date_expiration = datetime.strptime(date_string, '%Y-%m-%d %H:%M:%S.%f')
