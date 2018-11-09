@@ -1,15 +1,20 @@
-from flask import Flask, render_template, session
+from flask import Flask, render_template, session,url_for, redirect
 import pkgutil
 import importlib
+from flask import request
 
 import superform.plugins
+from superform.plugins.slack import slack_verify_callback_page
 from superform.publishings import pub_page
-from superform.models import db, User, Post,Publishing
+from superform.models import db, User, Post,Publishing,Channel
 from superform.authentication import authentication_page
 from superform.authorizations import authorizations_page
 from superform.channels import channels_page
 from superform.posts import posts_page
+from superform.suputils.keepass import keypass_error_callback_page
 from superform.users import get_moderate_channels_for_user, is_moderator
+
+from superform.plugins.linkedin import linkedin_verify_callback_page
 
 app = Flask(__name__)
 app.config.from_json("config.json")
@@ -20,8 +25,11 @@ app.register_blueprint(authorizations_page)
 app.register_blueprint(channels_page)
 app.register_blueprint(posts_page)
 app.register_blueprint(pub_page)
+app.register_blueprint(linkedin_verify_callback_page)
+app.register_blueprint(keypass_error_callback_page)
+app.register_blueprint(slack_verify_callback_page)
 
-# Init dbs
+# Init dbsx
 db.init_app(app)
 
 # List available channels in config
@@ -34,6 +42,7 @@ app.config["PLUGINS"] = {
 
 @app.route('/')
 def index():
+
     user = User.query.get(session.get("user_id", "")) if session.get("logged_in", False) else None
     posts=[]
     flattened_list_pubs =[]
@@ -45,6 +54,7 @@ def index():
         flattened_list_pubs = [y for x in pubs_per_chan for y in x]
 
     return render_template("index.html", user=user,posts=posts,publishings = flattened_list_pubs)
+
 
 @app.errorhandler(403)
 def forbidden(error):

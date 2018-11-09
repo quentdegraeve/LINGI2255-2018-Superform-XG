@@ -31,3 +31,10 @@ def run(publishing,channel_config):
     except SMTPException as e:
         #TODO should add log here
         print(e)
+
+def authenticate(channel_name, publishing_id):
+    return "AlreadyAuthenticated"
+
+
+def post_pre_validation(post):
+    return 1;
