@@ -147,13 +147,18 @@ class SlackTokens:
 
     def get_token(self, channel_name):
 
+        print('channel_name', channel_name)
+
         channel = Channel.query.filter_by(name=channel_name, module=get_module_full_name("slack")).first()
 
+        print('channel', channel)
+
         if channel and channel.config:
+            print('channel.config', channel.config)
             conf = json.loads(channel.config)
             date_string = conf.get("slack_token_expiration_date")
 
-            if not date_string:
+            if date_string == "None":
                 return (None, None)
 
             date_expiration = datetime.strptime(date_string, '%Y-%m-%d %H:%M:%S.%f')
