@@ -109,7 +109,10 @@ def run(publishing,channel_config):
     conf = json.loads(channel_config)
     channel_name = conf['channel_name']
     authenticate(channel_name, (publishing.post_id, publishing.channel_id))
-    return share_post(channel_name, publishing.description, publishing.title, publishing.link_url, publishing.image_url, "anyone")
+
+    if share_post(channel_name, publishing.description, publishing.title, publishing.link_url, publishing.image_url, "anyone"):
+        publishing.state = 1
+        db.session.commit()
 
 
 def post_pre_validation(post):

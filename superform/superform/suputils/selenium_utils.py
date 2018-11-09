@@ -1,11 +1,7 @@
 import platform
 import sys
-from flask import session
 from selenium import webdriver, common
 from time import sleep
-from superform import models
-from superform.models import Channel
-from superform.suputils import keepass
 
 
 def get_headless_chrome():

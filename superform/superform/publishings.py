@@ -41,10 +41,7 @@ def moderate_publishing(id, idc):
         if url != "AlreadyAuthenticated":
             print("url", url)
             return plugin.auto_auth(url, pub.channel_id)
-            #return redirect(url)
         print('publishing publishings.py', pub)
-        if plugin.run(pub, c_conf):
-            pub.state = 1
-            db.session.commit()
+        plugin.run(pub, c_conf)
 
         return redirect(url_for('index'))
