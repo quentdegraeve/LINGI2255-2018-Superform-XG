@@ -10,7 +10,7 @@ from datetime import date, timedelta
 posts_page = Blueprint('posts', __name__)
 
 
-def create_a_post(form):
+def create_a_post(form):  # called in publish_from_new_post() & new_post()
     user_id = session.get("user_id", "") if session.get("logged_in", False) else -1
     title_post = form.get('titlepost')
     descr_post = form.get('descriptionpost')
@@ -32,7 +32,7 @@ def create_a_post(form):
     return p
 
 
-def create_a_publishing(post, chn, form):
+def create_a_publishing(post, chn, form):  # called in publish_from_new_post()
 
     chan = str(chn.name)
     validate = pre_validate_post(chn, post)
@@ -96,11 +96,11 @@ def new_post():
         setattr(elem, "unavailablefields", unaivalable_fields)
         setattr(elem, "plugin_name", str(m))
 
-    if request.method == "GET":
+    if request.method == "GET":  # when clicking on the new post tab
         # set default date
         default_date = {'from': date.today(), 'until': date.today() + timedelta(days=7)}
         return render_template('new.html', l_chan=list_of_channels, date=default_date)
-    else:
+    else:  # when we click on 'save as draft' button
         create_a_post(request.form)
         return redirect(url_for('index'))
 
@@ -133,7 +133,7 @@ def edit_post(post_id):
 
 @posts_page.route('/publish', methods=['POST'])
 @login_required()
-def publish_from_new_post():
+def publish_from_new_post():  # when clicking on 'save and publish' button
     # First create the post
     p = create_a_post(request.form)
     # then treat the publish part
