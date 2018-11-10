@@ -97,7 +97,9 @@ def tweet_split(text, separators):
         nbTweet = 0  # nombre de tweets
         count = 0  # taille du tweet actuel
         temp = ""  # tweet temporaire
+
         for s in sentences:
+            done = False
             if (len(s) + 1) > limit:
                 if separators == ' ':
                     print("Split between characters")
@@ -106,7 +108,7 @@ def tweet_split(text, separators):
                     print("Split between words")
                     return tweet_split(text, ' ')
             else:
-                if not url_index:  # si pas d'url
+                if not url_index:  # if no url in text
                     if (count + len(s) + 1) < limit:  # tweet small enough
                         temp += text[index: index + len(s) + 1]
                         count += len(s) + 1
@@ -122,10 +124,20 @@ def tweet_split(text, separators):
                             count = len(s) + 1
                             index += len(s) + 1
                         nbTweet += 1
-                else:  # si url
+                else:  # if url in text
                     for (i, l) in zip(url_index, url_len):
-                        if (i <= index <= i + l) or (i <= index + len(s) + 1 <= i + l):  # url in this part
-                            if limit - count <= l + i - index + 1:  # no room in this tweet to put entire url
+                        # url in this sentence :
+                        if (i <= index <= i + l) or (i <= index + len(s) + 1 <= i + l):
+                            done = True
+                            if limit - count <= l + i - index + 1:  # no room in this tweet to add until end of url
+                                if limit - count <= i - index + 1:  # no room to add until start of url then start a new one
+                                    tweets += [temp]
+                                    nbTweet += 1
+                                    count = 0
+                                    temp = ""
+                                # enough room in this tweet to add until start of url
+                                if text[index] == ' ':
+                                    index += 1
                                 temp += text[index: i]
                                 tweets += [temp]
                                 nbTweet += 1
@@ -133,7 +145,8 @@ def tweet_split(text, separators):
                                 temp = text[i: index]  # start of a new tweet
                                 count = index - i
                             else:  # url can be put in full in this tweet
-                                if len(s) > limit - count:  # full sentence can't be put in tweet
+                                if len(s) > limit - count:
+                                    # full sentence can't be put in this tweet, so take until end of url, then start new one
                                     temp += text[index: i + l]
                                     tweets += [temp]
                                     nbTweet += 1
@@ -144,22 +157,24 @@ def tweet_split(text, separators):
                                     temp += text[index: index + len(s) + 1]
                                     count += len(s) + 1
                                     index += len(s) + 1
-                        else:  # url not in this part
-                            if (count + len(s) + 1) < limit:  # tweet small enough to put a sentence
-                                temp += text[index: index + len(s) + 1]
-                                count += len(s) + 1
+
+                    # url not in this sentence
+                    if not done:
+                        if (count + len(s) + 1) < limit:  # tweet small enough to put a sentence
+                            temp += text[index: index + len(s) + 1]
+                            count += len(s) + 1
+                            index += len(s) + 1
+                        else:  # tweet too big
+                            tweets += [temp]
+                            if text[index] == ' ':
+                                temp = text[index + 1: index + len(s) + 1]
+                                count = len(s)
                                 index += len(s) + 1
-                            else:  # tweet too big
-                                tweets += [temp]
-                                if text[index] == ' ':
-                                    temp = text[index + 1: index + len(s) + 1]
-                                    count = len(s)
-                                    index += len(s) + 1
-                                else:
-                                    temp = text[index: index + len(s) + 1]
-                                    count = len(s) + 1
-                                    index += len(s) + 1
-                                nbTweet += 1
+                            else:
+                                temp = text[index: index + len(s) + 1]
+                                count = len(s) + 1
+                                index += len(s) + 1
+                            nbTweet += 1
 
         tweets += [temp]
 
