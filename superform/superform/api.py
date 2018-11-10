@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from superform.utils import login_required
 from superform.models import db, User
+from superform.plugins.twitter import tweet_split
 
 api_page = Blueprint('api', __name__)
 
@@ -25,3 +26,13 @@ def search():
         })
 
     return jsonify(data)
+
+
+@api_page.route('/api/get_split', methods=["GET"])
+@login_required()
+def get_split():
+    description = request.args.get("descr")
+    tweets = tweet_split(description, (',', '!', '?', ':', ';', '\n'))
+    return jsonify(
+        tweetpreview=tweets
+    )

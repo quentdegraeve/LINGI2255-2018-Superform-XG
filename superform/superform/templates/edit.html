@@ -130,8 +130,7 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="{{ chan.name }}_datefrompost">Publication
-                                                        Date</label><br>
+                                                    <label for="{{ chan.name }}_datefrompost">Publication Date</label><br>
                                                     <input id="{{ chan.name }}_datefrompost" name="{{ chan.name }}_datefrompost" type="date"  class="form-control" required>
                                                 </div>
                                             </div>
@@ -146,12 +145,12 @@
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="publishpost">Publish</label>
-                                    <div>
-                                        <label class="form-check-label">
-                                            {{ chan.name }}
-                                        </label>
+                                <div class="card">
+                                    <div class="card-header">
+                                        <label for="publishpost">Channels</label>
+                                    </div>
+                                    <div class="card-body">
+                                        <span>{{ chan.name }}</span>
                                     </div>
                                 </div>
                             </div>

@@ -82,6 +82,8 @@
                                                         <i class="fas fa-envelope"></i>
                                                     {% elif chan.plugin_name == 'superform.plugins.ICTV' %}
                                                         <i class="fas fa-tv"></i>
+                                                    {% elif chan.plugin_name == 'superform.plugins.gcal' %}
+                                                        <i class="far fa-calendar"></i>
                                                     {% else %}
                                                         <i class="fas fa-question"></i>
                                                     {% endif %}
@@ -303,27 +305,43 @@
     <script>
 
         // Preview tweet button :
+        var address = "{{ url_for('api.get_split')}}";
 
         $("#js-twitter-open-preview").click(function () {
+            var value = document.getElementById("descriptionpost").value;
 
-            var message = $("<div>");
-            var preview = $("#previewModal");
-            var container = preview.find(".modal-body");
+            $.getJSON(address, {
+                "descr": value
+            }, function(json) {
+                var text = "";
+                var message = $("<div>");
+                message.addClass("alert");
+                 if (typeof json["tweetpreview"] === 'undefined') {
+                     message.addClass("alert-danger");
+                     text+="Error";
+                    return;
+                }
+                if (json["tweetpreview"].length === 0) {
+                    message.addClass("alert-danger");
+                    text+="Error";
+                    return;
+                }
 
-            message.addClass("alert");
-            //message.addClass("alert-danger");
+                for (var k = 0; k < json["tweetpreview"].length; k++) {
+                    text+=json["tweetpreview"][k];
+                    text+=' ';  // need to find way to put a \n instead
+                }
 
-            //var channel = document.getElementById("chan.name");
-            //message.text(document.getElementById("{chan.name}descriptionpost").value);
-            //message.text($("chan.name"));
-            message.text(document.getElementById("descriptionpost").value);
-            container.empty();
-            container.append(message);
-            preview.modal("toggle");
+                var preview = $("#previewTweetsModal");
+                var container = preview.find(".modal-body");
+                message.text(text);
+                container.empty();
+                container.append(message);
+                preview.modal("toggle");
+            });
         });
 
         // Preview image button :
-
         $("#js-open-preview").click(function () {
 
             var protocol = /^http[s]?:\/{2}/i;
