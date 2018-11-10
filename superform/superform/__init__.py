@@ -1,17 +1,15 @@
-from flask import Flask, render_template, session,url_for, redirect
+from flask import Flask, render_template, session, url_for, redirect
 import pkgutil
 import importlib
 from flask import request
 
 import superform.plugins
 from superform.publishings import pub_page
-from superform.models import db, User, Post,Publishing, Channel
+from superform.models import db, Post, Publishing
 from superform.authentication import authentication_page
 from superform.authorizations import authorizations_page
 from superform.channels import channels_page
 from superform.posts import posts_page
-from superform.users import get_moderate_channels_for_user, is_moderator, user_page
-from superform.utils import get_module_full_name
 from superform.api import api_page
 
 from superform.plugins import linkedin
@@ -39,21 +37,13 @@ app.config["PLUGINS"] = {
     in pkgutil.iter_modules(superform.plugins.__path__, superform.plugins.__name__ + ".")
 }
 
-@app.route('/')
+@app.route('/', methods=["GET"])
 def index():
-    user = User.query.get(session.get("user_id", "")) if session.get("logged_in", False) else None
+    user_id = session.get("user_id", "") if session.get("logged_in", False) else -1
     posts = []
-    flattened_list_pubs = []
-    if user is not None:
-        setattr(user, 'is_mod', is_moderator(user))
-        posts = db.session.query(Post).filter(Post.user_id == session.get("user_id", ""))
-        chans = get_moderate_channels_for_user(user)
-        pubs_per_chan = (db.session.query(Publishing).filter((Publishing.channel_id == c.id) & (Publishing.state == 0)) for c in chans)
-        flattened_list_pubs = [y for x in pubs_per_chan for y in x]
-
-    return render_template("index.html", user=user, posts=posts, publishings=flattened_list_pubs)
-
-
+    if user_id != -1:
+        posts.extend(db.session.query(Post).filter(Post.user_id == user_id).order_by(Post.date_created.desc()))
+    return render_template("index.html", posts=posts)
 
 @app.route('/error_keepass')
 def error_keepass():
