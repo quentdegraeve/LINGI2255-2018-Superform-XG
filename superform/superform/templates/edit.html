@@ -83,22 +83,22 @@
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     {{ pub.channel.name }}
                                     {% if pub.state == -1 %}
-                                    <span class="badge badge-danger badge-pill">
-                                        Incomplete
-                                    </span>
+                                        <span class="badge badge-danger badge-pill">
+                                            Incomplete
+                                        </span>
                                     {% elif pub.state == 0%}
-                                    <span class="badge badge-warning badge-pill">
-                                        Not validated
-                                    </span>
+                                        <span class="badge badge-warning badge-pill">
+                                            Not validated
+                                        </span>
                                     {% elif pub.state == 1%}
-                                    <span class="badge badge-primary badge-pill">
-                                        Validated
-                                    </span>
+                                        <span class="badge badge-primary badge-pill">
+                                            Validated
+                                        </span>
                                     {% elif pub.state == 2%}
-                                    <span class="badge badge-success badge-pill">
-                                        Archived
+                                        <span class="badge badge-success badge-pill">
+                                            Archived
+                                        </span>
                                     {% endif %}
-                                    </span>
                                 </li>
                                 {% endfor %}
                             </ul>

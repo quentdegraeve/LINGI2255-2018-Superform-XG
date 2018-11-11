@@ -5,7 +5,7 @@ from flask import request
 
 import superform.plugins
 from superform.publishings import pub_page
-from superform.models import db, Post, Publishing
+from superform.models import db, Post, Publishing, Channel
 from superform.authentication import authentication_page
 from superform.authorizations import authorizations_page
 from superform.channels import channels_page
@@ -39,10 +39,21 @@ app.config["PLUGINS"] = {
 
 @app.route('/', methods=["GET"])
 def index():
+    page = request.args.get("page")
+    if page is None or not page.isnumeric():
+        page = 1
+    else:
+        page = int(page)
     user_id = session.get("user_id", "") if session.get("logged_in", False) else -1
     posts = []
     if user_id != -1:
-        posts.extend(db.session.query(Post).filter(Post.user_id == user_id).order_by(Post.date_created.desc()))
+        posts = Post.query.order_by(Post.date_created.desc()).paginate(page, 5, error_out=False)
+        for post in posts.items:
+            publishings = db.session.query(Publishing).filter(Publishing.post_id == post.id).all()
+            channels = []
+            for publishing in publishings:
+                channels.append(db.session.query(Channel).filter(Channel.id == publishing.channel_id).first())
+            setattr(post, "channels", channels)
     return render_template("index.html", posts=posts)
 
 @app.route('/error_keepass')

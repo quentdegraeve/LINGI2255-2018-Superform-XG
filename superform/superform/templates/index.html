@@ -5,6 +5,9 @@
     .card {
         margin: 25px 0;
     }
+    .card-title {
+        font-size: 1.4em;
+    }
     </style>
 {% endblock %}
 {% block content %}
@@ -17,7 +20,7 @@
             </div>
             <div class="row">
                 <div class="col-md-8">
-                    {% for item in posts %}
+                    {% for item in posts.items %}
                         <div class="card">
                             <div class="card-body">
                                 <div class="card-title">
@@ -31,11 +34,20 @@
                                     <span class="text-muted">{{ item.date_created }}</span>
                                 </div>
                                 <div class="card-text">
-                                    {% if item.description == "" %}
-                                        <p>(vide)</p>
-                                    {% else %}
-                                        <p>{{ item.description }}</p>
-                                    {% endif %}
+                                    <div class="tags">
+                                        {% for channel in item.channels %}
+                                            <a href="#" class="badge badge-primary">
+                                                {{ channel.name }}
+                                            </a>
+                                        {% endfor %}
+                                    </div>
+                                    <p class="preview">
+                                        {% if item.description == "" %}
+                                            (vide)
+                                        {% else %}
+                                            {{ item.description }}
+                                        {% endif %}
+                                    </p>
                                 </div>
                                 <a class="btn btn-outline-primary" role="button" href="{{ url_for('posts.edit_post', post_id=item.id) }}">Edit</a>
                                 <a class="btn btn-outline-warning" role="button" href="#">Delete</a>
@@ -44,20 +56,43 @@
                     {% endfor %}
                     <nav aria-label="Page navigation example">
                         <ul class="pagination justify-content-center">
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1">Previous</a>
+                            {% if posts.has_prev %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for("index", page=posts.page - 1) }}"}>
+                                        Previous
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1"}>
+                                        Previous
+                                    </a>
+                                </li>
+                            {% endif %}
+                            <li class="page-item active">
+                                <a class="page-link" href="#">
+                                    {{ posts.page }}
+                                    <span class="sr-only">(current)</span>
+                                </a>
                             </li>
-                            <li class="page-item"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">Next</a>
-                            </li>
+                            {% if posts.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for("index", page=posts.page + 1) }}"}>
+                                        Next
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1"}>
+                                        Next
+                                    </a>
+                                </li>
+                            {% endif %}
                         </ul>
                     </nav>
                 </div>
                 <div class="col-4">
-                    Filtrer...
+                    Filter...
                 </div>
             </div>
         </div>
