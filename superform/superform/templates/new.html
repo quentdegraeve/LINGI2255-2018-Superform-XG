@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% import "macro/modal.html" as modal %}
 {% block title %}New Post{% endblock %}
 {% block stylesheet %}
 {% endblock %}
@@ -111,7 +112,6 @@
                                                     Warning : Your message will be split in several part
                                                 </div>
                                                 <textarea class="form-control" rows="5" id="{{ chan.name }}_descriptionpost" name="{{ chan.name }}_descriptionpost"></textarea>
-
                                                 <div class="row" >
                                                     <div class="col-6">
                                                         Numbers of Characters : <span class="counter">?</span>
@@ -250,47 +250,16 @@
             </div>
         </form>
 
-        <!-- Modal -->
-        <div class="modal fade" id="previewModal" tabindex="-1" role="dialog" aria-labelledby="previewModalLabel"
-             aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Image preview</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body"></div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                            Close
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Modals -->
 
-        <!-- Modal -->
-        <div class="modal fade" id="previewTweetsModal" tabindex="-1" role="dialog" aria-labelledby="previewTweetsModalLabel"
-             aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Tweets preview</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body"></div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                            Close
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {%  call modal.modal_block(id='previewModal', title='Image preview') %}
+            <div>Preview</div>
+        {%  endcall %}
+
+        {%  call modal.modal_block(id='previewTweetsModal', title='Tweets preview') %}
+            <div>Modal</div>
+        {%  endcall %}
+
     {% else %}
         Your are not logged in.
     {% endif %}
