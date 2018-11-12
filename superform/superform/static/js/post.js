@@ -32,6 +32,7 @@ function createErrorMessage (element,error_message,id){
     var message = document.getElementById(id);
     if(message) {
         message.textContent =  error_message;
+        message.hidden = false;
     }else{
         var new_elem = document.createElement('div');
         new_elem.setAttribute('id', id);
@@ -56,7 +57,7 @@ function prevalidate_post (chan_name,title_length,descr_length){
     }else{
         elementToRemove = document.getElementById("error_title");;
         if(elementToRemove){
-            elementToRemove.remove();
+            elementToRemove.hidden = true;
         }
         input_title.classList.remove("invalid");
     }
@@ -72,7 +73,7 @@ function prevalidate_post (chan_name,title_length,descr_length){
     }else{
         elementToRemove = document.getElementById("error_desc");
         if(elementToRemove){
-            elementToRemove.remove();
+            elementToRemove.hidden = true;
         }
         input_descrip.classList.remove("invalid");
     }
@@ -86,7 +87,7 @@ function prevalidate_post (chan_name,title_length,descr_length){
     }else{
         elementToRemove = document.getElementById("error_linkUrlPost");
         if(elementToRemove){
-            elementToRemove.remove();
+            elementToRemove.hidden = true;
         }
          input_linkUrlPost.classList.remove("invalid");
     }
@@ -99,7 +100,7 @@ function prevalidate_post (chan_name,title_length,descr_length){
     }else{
         elementToRemove = document.getElementById("error_linkImgUrlPost");
         if(elementToRemove){
-            elementToRemove.remove();
+            elementToRemove.hidden = true;
         }
          input_linkImgUrlPost.classList.remove("invalid");
     }
@@ -112,7 +113,7 @@ function prevalidate_post (chan_name,title_length,descr_length){
     }else{
         elementToRemove = document.getElementById("error_datefrompost");
         if(elementToRemove){
-            elementToRemove.remove();
+            elementToRemove.hidden = true;
         }
         input_datefrompost.classList.remove("invalid");
     }
@@ -125,21 +126,38 @@ function prevalidate_post (chan_name,title_length,descr_length){
     }else{
         elementToRemove = document.getElementById("error_dateuntilpost");
         if(elementToRemove){
-            elementToRemove.remove();
+            elementToRemove.hidden = true;
         }
         input_dateuntilpost.classList.remove("invalid");
     }
+    if(input_datefrompost.value != "" && input_dateuntilpost.value != "") {
+        var a = new Date(input_datefrompost.value);
+        var b = new Date(input_dateuntilpost.value);
 
-    var a = new Date(input_datefrompost.value);
-    var b = new Date(input_dateuntilpost.value);
-    if( b < a){
-        createErrorMessage(input_dateuntilpost,"the date until post is more big that date from post","error_dateuntilpost");
-        input_dateuntilpost.classList.add("invalid");
-        toReturn = false;
-    }else if(a < new Date.now()){
-        createErrorMessage(input_datefrompost,"the date is more old that now","error_datefrompost");
-        input_dateuntilpost.classList.add("invalid");
-        toReturn = false;
+        if (b < a) {
+            createErrorMessage(input_dateuntilpost, "the date until post is greater that date from post", "error_dateuntilpost");
+            input_dateuntilpost.classList.add("invalid");
+            toReturn = false;
+        } else {
+            elementToRemove = document.getElementById("error_dateuntilpost");
+            if (elementToRemove) {
+                elementToRemove.hidden = true;
+            }
+            input_dateuntilpost.classList.remove("invalid");
+        }
+    }
+    if(input_datefrompost.value != ""){
+        if(a < Date.now()){
+                createErrorMessage(input_datefrompost,"the date is older that now","error_datefrompost");
+                input_datefrompost.classList.add("invalid");
+                toReturn = false;
+        }else{
+            elementToRemove = document.getElementById("error_datefrompost");
+            if(elementToRemove){
+                elementToRemove.hidden = true;
+            }
+            input_datefrompost.classList.remove("invalid");
+        }
     }
     return toReturn;
 }

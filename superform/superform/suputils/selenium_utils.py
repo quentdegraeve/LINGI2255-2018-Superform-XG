@@ -53,13 +53,14 @@ def login(driver, username, password):
 
 def create_channel(driver, name, username, password, module):
     driver.get(channel_url)
+    driver.find_element_by_css_selector('select[name="module"] option[value="' + module + '"]').click()
     input_name = driver.find_element_by_name("name")
     input_username = driver.find_element_by_name("username")
     input_password = driver.find_element_by_name("password")
     input_name.send_keys(name)
     input_username.send_keys(username)
     input_password.send_keys(password)
-    driver.find_element_by_css_selector('select[name="module"] option[value="' + module + '"]').click()
+
     driver.find_element_by_name("add_chan").click()
 
 
