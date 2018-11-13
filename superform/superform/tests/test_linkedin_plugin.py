@@ -1,3 +1,7 @@
+import importlib
+import pkgutil
+
+import superform
 from superform.plugins import linkedin
 import os
 import tempfile
@@ -29,7 +33,11 @@ def app(request):
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = TEST_DATABASE_URI
     app.config['TESTING'] = True
-
+    app.config["PLUGINS"] = {
+        name: importlib.import_module(name)
+        for finder, name, ispkg
+        in pkgutil.iter_modules(superform.plugins.__path__, superform.plugins.__name__ + ".")
+    }
     # Establish an application context before running the tests.
     ctx = app.app_context()
     ctx.push()
@@ -113,7 +121,7 @@ def test_authenticate2(session):
     linkedin_access_token = "test_token"
     linkedin_token_expiration_date = datetime.now() + timedelta(seconds=60)
     channel_name = "channel_test"
-    c_test = Channel(name=channel_name, module=get_module_full_name("linkedin"), config="{}", linkedin_access_token=linkedin_access_token, linkedin_token_expiration_date=linkedin_token_expiration_date)
+    c_test = Channel(name=channel_name, module=get_module_full_name("linkedin"), config="{}")
 
     session.add(c_test)
     conf = dict()
