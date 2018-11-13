@@ -45,7 +45,9 @@
             </select>
         </div>
         <div class="input-group mr-sm-2">
-            <input name="name" type="text" class="form-control" id="inlineFormInputText" placeholder="New channel name">
+            <input name="name" type="text" class="form-control" id="inlineFormInputName" placeholder="New channel name">
+            <input name="username" type="text" hidden class="form-control" id="inlineFormInputTextUserName" placeholder="New channel username">
+            <input name="password" type="password" hidden class="form-control" id="inlineFormInputTextPassword" placeholder="New channel password">
         </div>
 
         <button id="add_chan_button" name="add_chan" type="submit" class="btn btn-primary">
@@ -117,5 +119,8 @@
             $(this).find('#channel-id').val(button.data('id'));
         });
     </script>
-    <script src="{{ url_for('static', filename='js/channel.js') }}" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/channel.js') }}" crossorigin="anonymous">  </script>
+     <script type="text/javascript">
+    var auth_fields = {{ auth_fields|tojson }}
+    </script>
 {% endblock %}

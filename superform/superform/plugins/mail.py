@@ -8,6 +8,7 @@ import json
 FIELDS_UNAVAILABLE = ['Title','Description']
 
 CONFIG_FIELDS = ["sender","receiver"]
+AUTH_FIELDS = False
 
 def run(publishing,channel_config):
     json_data = json.loads(channel_config)
