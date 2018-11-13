@@ -1,5 +1,7 @@
 import platform
 import sys
+import time
+
 from selenium import webdriver, common
 from time import sleep
 
@@ -42,6 +44,28 @@ index_url = 'http://localhost:5000'
 linkedin_url = 'https://www.linkedin.com/'
 
 
+#---------- Autolog methods
+def wait_redirect(driver, url):
+    cpt = 0
+    while url in driver.current_url:
+        time.sleep(.50)
+        cpt += 1
+        if cpt == 10:
+            return False
+    return True
+
+
+def wait_redirect_after(driver, url):
+    cpt = 0
+    while url not in driver.current_url:
+        time.sleep(.50)
+        cpt += 1
+        if cpt == 10:
+            return False
+    return True
+
+
+#---------- Test methods
 def login(driver, username, password):
     driver.get(login_url)
     input_username = driver.find_element_by_name("j_username")

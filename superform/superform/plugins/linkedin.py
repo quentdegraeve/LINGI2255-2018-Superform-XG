@@ -1,6 +1,6 @@
 import json
 import time
-from flask import redirect, url_for, request, Blueprint
+from flask import redirect, url_for, request, Blueprint, flash
 from linkedin import linkedin
 from superform.suputils import selenium_utils
 from datetime import datetime, timedelta
@@ -64,6 +64,7 @@ def set_access_token(channel_name, code):
     LinkedinTokens.put_token(LinkedinTokens, channel_name, conf)
     return conf
 
+
 def share_post(channel_name, comment, title, submitted_url,submitted_image_url,visibility_code):
 
     token = LinkedinTokens.get_token(LinkedinTokens, channel_name).__getitem__(0)
@@ -79,14 +80,15 @@ def share_post(channel_name, comment, title, submitted_url,submitted_image_url,v
                              submitted_image_url=submitted_image_url, description="This is a sharing from Superform",visibility_code=visibility_code)
     return True
 
+
 def auto_auth(url, channel_id):
-    print('starting autoauth')
+
     if keepass.set_entry_from_keepass(str(channel_id)) is 0:
         print('Error : cant get keepass entry :', str(channel_id), 'for linkedin plugin')
         return redirect(url_for('keepass.error_keepass'))
-    print('keepass ok')
+
     driver = selenium_utils.get_chrome()
-    print('headless aquired')
+
     driver.get(url)
     username = driver.find_element_by_name("session_key")
     password = driver.find_element_by_name("session_password")
@@ -95,14 +97,17 @@ def auto_auth(url, channel_id):
     password.send_keys(keepass.KeepassEntry.password)
 
     driver.find_element_by_name("signin").click()
-    print('clicked autoauth')
-    while 'linkedin' in driver.current_url:
-        time.sleep(.50)
+
+    if not selenium_utils.wait_redirect(driver, 'linkedin'):
+        driver.close()
+        flash("Error linkedin channel wrong username or password")
+        return redirect(url_for('index'))
+
     driver.close()
     return redirect(url_for('index'))
 
 
-def run(publishing,channel_config):
+def run(publishing, channel_config):
     print("publishing Linkedin", publishing)
     print("channel-conf", type(channel_config), channel_config)
     print("conf run", channel_config, type(channel_config))
