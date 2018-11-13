@@ -85,6 +85,7 @@ def session(db, request):
     request.addfinalizer(teardown)
     return session
 
+
 def test_pre_validate_post_title():
     chan = Channel
     post = Post
@@ -96,6 +97,7 @@ def test_pre_validate_post_title():
     assert posts.pre_validate_post(chan, post) == 0
     post.title = ""
     assert posts.pre_validate_post(chan, post) == 0
+
 
 def test_pre_validate_post_description():
     chan = Channel
@@ -113,7 +115,11 @@ def test_pre_validate_post_description():
 def test_authenticate(session):
     false_post_id = -1
     false_channel_id = -1
-    url = linkedin.authenticate("name_test", (false_post_id, false_channel_id))
+    channel_name = "name_test"
+    c_test = Channel(name=channel_name, module=get_module_full_name("linkedin"), config="{}")
+
+    session.add(c_test)
+    url = linkedin.authenticate(channel_name, (false_post_id, false_channel_id))
     assert url != 'AlreadyAuthenticated'
 
 
