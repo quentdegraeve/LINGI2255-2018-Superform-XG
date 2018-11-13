@@ -46,9 +46,19 @@ def channel_list():
                 keepass.modify_entry_in_group(get_modules_names([channel.module])[0], channel.id)
 
     channels = Channel.query.all()
+    mods = get_modules_names(current_app.config["PLUGINS"].keys())
 
-    return render_template("channels.html", channels=channels,
-                           modules=get_modules_names(current_app.config["PLUGINS"].keys()))
+    auth_fields = dict()
+
+    for m in mods:
+        full_name = get_module_full_name(m)
+        clas = get_instance_from_module_path(full_name)
+        fields = clas.AUTH_FIELDS
+        auth_fields[m] = fields
+
+    print(auth_fields)
+
+    return render_template("channels.html", channels=channels, modules=get_modules_names(current_app.config["PLUGINS"].keys()), auth_fields=auth_fields)
 
 
 @channels_page.route("/configure/<int:id>", methods=['GET', 'POST'])

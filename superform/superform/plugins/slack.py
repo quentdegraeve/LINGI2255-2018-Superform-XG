@@ -9,6 +9,7 @@ from superform.suputils import keepass
 
 FIELDS_UNAVAILABLE = ['Publication Date']
 CONFIG_FIELDS = ["channel_name", "slack_channel_name", "slack_access_token", "slack_token_expiration_date"]
+AUTH_FIELDS = True
 
 API_CLIENT_KEY = keepass.get_password_from_keepass('slack_client_key')
 API_SECRET = keepass.get_password_from_keepass('slack_secret')

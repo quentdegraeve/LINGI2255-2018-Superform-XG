@@ -14,6 +14,7 @@ from superform.suputils import keepass
 linkedin_verify_callback_page = Blueprint('linkedin', 'channels')
 
 FIELDS_UNAVAILABLE = []
+AUTH_FIELDS = True
 
 CONFIG_FIELDS = ["channel_name", "linkedin_access_token", "linkedin_token_expiration_date"]
 
