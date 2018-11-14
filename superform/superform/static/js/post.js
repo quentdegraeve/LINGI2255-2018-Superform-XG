@@ -1,17 +1,12 @@
 $("input[type='checkbox']").each(function(){
 
     let mod = $(this).attr("module-namechan").split('.')[2];
-    fyn(mod)
-});
-
-function fyn(mod){
-    console.log("cc" + post_form_validations_json);
     if(mod != undefined){
-        if(post_form_validations_json[mod]['image_type'] != undefined && post_form_validations_json[mod]['image_type'].toLocaleLowerCase() =="url"){
+        if(post_form_validations[mod]['image_type'] != undefined && post_form_validations[mod]['image_type'].toLocaleLowerCase() =="url"){
              $(this).on("click",adapt_post_to_channel($(this).attr('data-namechan')));
         }
     }
-}
+});
 
 function adapt_post_to_channel(chan_name){
     document.getElementById(chan_name+"_imagepost").type = "text";
