@@ -8,7 +8,8 @@ from superform.suputils import keepass
 from superform.suputils import selenium_utils
 
 FIELDS_UNAVAILABLE = ['Publication Date']
-CONFIG_FIELDS = ["channel_name", "slack_channel_name", "slack_domain_name", "slack_access_token", "slack_token_expiration_date"]
+CONFIG_FIELDS = ["channel_name", "slack_channel_name", "slack_domain_name", "slack_access_token",
+                 "slack_token_expiration_date"]
 AUTH_FIELDS = True
 
 API_CLIENT_KEY = keepass.get_password_from_keepass('slack_client_key')
@@ -16,6 +17,7 @@ API_SECRET = keepass.get_password_from_keepass('slack_secret')
 API_CLIENT_ID = keepass.get_password_from_keepass('slack_client_id')
 from superform.plugins import plugin_utils
 
+slack_error_callback_page = Blueprint('slack_error', 'channels')
 slack_verify_callback_page = Blueprint('slack', 'channels')
 
 slackClient = SlackClient()
@@ -36,7 +38,7 @@ def authenticate(channel_name, publishing_id):
         return 'AlreadyAuthenticated'
 
 
-def set_access_token(channel_name, code):
+def set_access_token(channel_id, code):
     # An empty string is a valid token for this request
     sc = SlackClient("")
 
@@ -48,9 +50,9 @@ def set_access_token(channel_name, code):
         code=code
     )
 
-    print(auth_response)
     # Add
-    channel = Channel.query.filter_by(name=channel_name, module=get_module_full_name("slack")).first()
+    channel = Channel.query.get(channel_id)
+    channel_name = channel.name
     slack_channel_name = json.loads(channel.config).get("slack_channel_name")
     if (not slack_channel_name) or slack_channel_name is '':
         slack_channel_name = "general"
@@ -70,31 +72,26 @@ def set_access_token(channel_name, code):
 def auto_auth(url, channel_id):
     if keepass.set_entry_from_keepass(str(channel_id)) is 0:
         print('Error : cant get keepass entry :', str(channel_id), 'for slack plugin')
-        return redirect(url_for('keepass.error_keepass'))
-    driver = selenium_utils.get_chrome()
-    driver.get(url)
+        return redirect(url_for('keepass.error_channel_keepass', chan_id=channel_id))
 
     conf = Channel.query.get(channel_id).config
     if not conf or conf == '{}':
-        driver.close()
-        flash("Error slack channel config missing")
-        return redirect(url_for('index'))
+        return redirect(url_for('slack_error.error_config_slack', chan_id=channel_id))
 
     dom = json.loads(conf)['slack_domain_name']
 
-    if dom == 'None':
-        driver.close()
-        flash("Error slack channel domain name missing")
-        return redirect(url_for('index'))
+    if dom == 'None' or dom == '':
+        return redirect(url_for('slack_error.error_config_slack', chan_id=channel_id))
 
+    driver = selenium_utils.get_chrome()
+    driver.get(url)
     domain = driver.find_element_by_name("domain")
     domain.send_keys(dom)
     driver.find_elements_by_css_selector('button[id="submit_team_domain"]')[0].click()
 
     if not selenium_utils.wait_redirect(driver, 'signin'):
         driver.close()
-        flash("Error slack channel wrong domain name")
-        return redirect(url_for('index'))
+        return redirect(url_for('slack_error.error_config_slack', chan_id=channel_id))
 
     email = driver.find_element_by_name("email")
     password = driver.find_element_by_name("password")
@@ -104,15 +101,13 @@ def auto_auth(url, channel_id):
 
     if not selenium_utils.wait_redirect_after(driver, 'testlingi2255team8.slack.com/oauth'):
         driver.close()
-        flash("Error slack channel wrong username or password")
-        return redirect(url_for('index'))
+        return redirect(url_for('keepass.error_channel_keepass', chan_id=channel_id))
 
     driver.find_elements_by_css_selector('button[id="oauth_authorizify"]')[0].click()
 
     if not selenium_utils.wait_redirect(driver, 'testlingi2255team8.slack.com'):
         driver.close()
-        flash("Error something went wrong contact admin")
-        return redirect(url_for('index'))
+        return redirect(url_for('slack_error.error_config_slack', chan_id=channel_id))
 
     driver.close()
     return redirect(url_for('index'))
@@ -179,7 +174,7 @@ def slack_verify_authorization():
     print(auth_code)
 
     if auth_code:
-        channel_config = set_access_token(channel_name, auth_code)
+        channel_config = set_access_token(channel_id, auth_code)
 
     print("channel_config", channel_config)
     # normally should redirect to the channel page or to the page that publish a post

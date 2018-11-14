@@ -16,7 +16,7 @@ def get_headless_chrome():
         else:
             return webdriver.Chrome(sys.path[0] + '/superform/selenium_drivers/chromedriver', chrome_options=options)
     except common.exceptions.WebDriverException:
-        sys.exit(
+        print(
             'Can not find a valid selenium_drivers driver. it should be named chromedriver on linux or chromedriver.exe '
             'on windows and it should be located in the superform/selenium_drivers folder see this page for '
             'download : https://sites.google.com/a/chromium.org/chromedriver/downloads')
@@ -29,7 +29,7 @@ def get_chrome():
         else:
             return webdriver.Chrome(sys.path[0] + '/superform/selenium_drivers/chromedriver')
     except common.exceptions.WebDriverException:
-        sys.exit(
+        print(
             'Can not find a valid selenium_drivers driver. it should be named chromedriver on linux or chromedriver.exe '
             'on windows and it should be located in the superform/selenium_drivers folder see this page for '
             'download : https://sites.google.com/a/chromium.org/chromedriver/downloads')

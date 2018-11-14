@@ -3,6 +3,7 @@ import sys
 import platform
 from flask import has_request_context, Blueprint, render_template
 from pykeepass import PyKeePass
+from superform.models import Channel
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 keypass_error_callback_page = Blueprint('keepass', 'channels')
@@ -14,7 +15,7 @@ try:
         kp = PyKeePass(dir_path + '/Superform.kdbx', keyfile=dir_path + '/NewKey.key')
 
 except ImportError or FileNotFoundError:
-    sys.exit('Please create a Keepass database named Superform with a key file named NewKey.key in the subutils folder')
+    print('Please create a Keepass database named Superform with a key file named NewKey.key in the subutils folder')
 
 
 def set_entry_from_data(title, username=None, password=None, url=None, notes=None):
@@ -56,7 +57,7 @@ def get_password_from_keepass(title):
         if has_request_context():
             return 0
         else:
-            sys.exit('Keepass password is not set for ' + title)
+            print('Keepass password is not set for ' + title)
     return entry.password
 
 
@@ -66,7 +67,7 @@ def get_username_from_keepass(title):
         if has_request_context():
             return 0
         else:
-            sys.exit('Keepass password is not set for ' + title)
+            print('Keepass password is not set for ' + title)
     return entry.username
 
 
@@ -77,11 +78,11 @@ def set_entry_from_keepass(title):
             return 0
         else:
             if entry.username is None and entry.password is None:
-                sys.exit('Keepass username and password are not set for ' + title)
+                print('Keepass username and password are not set for ' + title)
             elif entry.password is None:
-                sys.exit('Keepass password is not set for ' + title)
+                print('Keepass password is not set for ' + title)
             else:
-                sys.exit('Keepass username is not set for ' + title)
+                print('Keepass username is not set for ' + title)
     KeepassEntry.title = entry.title
     KeepassEntry.username = entry.username
     KeepassEntry.password = entry.password
@@ -99,6 +100,7 @@ class KeepassEntry:
     notes = ''
 
 
-@keypass_error_callback_page.route('/error_keepass')
-def error_keepass():
-    return render_template('error_keepass.html')
+@keypass_error_callback_page.route('/error_channel_keepass/<int:chan_id>')
+def error_channel_keepass(chan_id):
+    chan_name = Channel.query.get(chan_id).name
+    return render_template('error_channel_keepass.html', channel=chan_name)
