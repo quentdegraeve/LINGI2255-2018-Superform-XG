@@ -15,10 +15,13 @@ from superform.suputils import keepass
 linkedin_verify_callback_page = Blueprint('linkedin', 'channels')
 
 FIELDS_UNAVAILABLE = []
-AUTH_FIELDS = True
-
 CONFIG_FIELDS = ["channel_name", "linkedin_access_token", "linkedin_token_expiration_date"]
-
+AUTH_FIELDS = True
+POST_FORM_VALIDATIONS = {
+    'title_max_length': 40000,
+    'description_max_length': 40000,
+    'image_type': 'url'
+}
 API_KEY = keepass.get_password_from_keepass('linkedin_key')
 API_SECRET = keepass.get_password_from_keepass('linkedin_secret')
 RETURN_URL = keepass.get_username_from_keepass('linkedin_return_url')

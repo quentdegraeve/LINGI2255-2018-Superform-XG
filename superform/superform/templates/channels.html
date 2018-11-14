@@ -120,7 +120,8 @@
         });
     </script>
     <script src="{{ url_for('static', filename='js/channel.js') }}" crossorigin="anonymous">  </script>
-     <script type="text/javascript">
-    var auth_fields = {{ auth_fields|tojson }}
+    <script type="text/javascript">
+        var auth_fields = {{ auth_fields|tojson }}
+
     </script>
 {% endblock %}

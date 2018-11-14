@@ -13,6 +13,12 @@ CONFIG_FIELDS = ["channel_name", "slack_channel_name", "slack_domain_name", "sla
                  "slack_token_expiration_date"]
 AUTH_FIELDS = True
 
+POST_FORM_VALIDATIONS = {
+    'title_max_length': 40000,
+    'description_max_length': 40000,
+    'image_type': 'url'
+}
+
 API_CLIENT_KEY = keepass.get_password_from_keepass('slack_client_key')
 API_SECRET = keepass.get_password_from_keepass('slack_secret')
 API_CLIENT_ID = keepass.get_password_from_keepass('slack_client_id')

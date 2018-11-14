@@ -1,7 +1,7 @@
-from flask import Blueprint, url_for, request, redirect, session, render_template , flash
+from flask import Blueprint, url_for, current_app, request, redirect, session, render_template , flash
 
 from superform.users import channels_available_for_user
-from superform.utils import login_required, datetime_converter, str_converter, get_instance_from_module_path
+from superform.utils import login_required, datetime_converter, str_converter, get_instance_from_module_path, get_modules_names, get_module_full_name
 from superform.models import db, Post, Publishing, Channel
 
 from importlib import import_module
@@ -56,7 +56,17 @@ def new_post():
         setattr(elem, "unavailablefields", unaivalable_fields)
 
     if request.method == "GET":
-        return render_template('new.html', l_chan=list_of_channels)
+
+        mods = get_modules_names(current_app.config["PLUGINS"].keys())
+        post_form_validations = dict()
+        for m in mods:
+            full_name = get_module_full_name(m)
+            clas = get_instance_from_module_path(full_name)
+            fields = clas.POST_FORM_VALIDATIONS
+            post_form_validations[m] = fields
+
+        print(post_form_validations)
+        return render_template('new.html', l_chan=list_of_channels, post_form_validations=post_form_validations)
     else:
         create_a_post(request.form)
         return redirect(url_for('index'))
@@ -102,7 +112,4 @@ def records():
 
 def pre_validate_post(channel,post):
     plugin = import_module(channel.module)
-    if channel.module == "superform.plugins.linkedin" or channel.module == "superform.plugins.slack":
-        return plugin.post_pre_validation(post)
-    else:
-        return 1
+    return plugin.post_pre_validation(post)
