@@ -19,8 +19,8 @@ FIELDS_UNAVAILABLE = []
 CONFIG_FIELDS = ["channel_name", "linkedin_access_token", "linkedin_token_expiration_date"]
 AUTH_FIELDS = True
 POST_FORM_VALIDATIONS = {
-    'title_max_length': 40000,
-    'description_max_length': 40000,
+    'title_max_length': 200,
+    'description_max_length': 256,
     'image_type': 'url'
 }
 API_KEY = keepass.get_password_from_keepass('linkedin_key')
