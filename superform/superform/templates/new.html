@@ -137,6 +137,17 @@
                                             <label for="{{ chan.name }}_linkurlpost">Link</label><br>
                                             <input type="text" name="{{ chan.name }}_linkurlpost" id="{{ chan.name }}_linkurlpost" class="form-control">
                                         </div>
+                                    <div class="form-group">
+                                            <label for="{{ chan.name }}_imagepost">Image</label><br>
+                                        <div class="input-group">
+                                            <input type="text" name="{{ chan.name }}_linkurlpost" id="{{ chan.name }}_imagepost" class="form-control">
+                                            <button id="js-open-preview-test" type="button" class="btn btn-secondary" onclick="PreviewFunction()">
+                                                Preview
+                                            </button>
+
+
+                                        </div>
+                                        </div>
                                         {% if chan.module == "superform.plugins.gcal" %}
                                             <div class="row">
                                                 <div class="col-md-6">
@@ -275,6 +286,72 @@
 {% block scripts %}
     <script>
 
+
+        function PreviewFunction() {
+            var protocol = /^http[s]?:\/{2}/i;
+            var pattern = /(?:https?:\/{2})?(?:w{3}\.)?(?:\w+\.)+(com|fr|be|io|gov|net|tv|uk|ch|de|nl|lu)(?:\/[^\s]+)?/g;
+
+            var url = $("#imagepost").val();
+            var preview = $("#previewModal");
+            var container = preview.find(".modal-body");
+
+            if (url.match(pattern)) {
+
+                if (!url.match(protocol)) {
+                    url = "http://" + url;
+                }
+
+                var image = preview.find("img");
+
+                if (image.length === 1) {
+                    if (image.attr("src") === url) {
+                        preview.modal("toggle");
+                        return;
+                    }
+                    image.attr("src", url);
+                } else {
+                    image = $("<img>");
+                    image.attr("src", url);
+                    image.addClass("img-fluid");
+                }
+
+                var loader = $("<div>");
+                loader.text("Loading...");
+
+                container.empty();
+                container.append(loader);
+                preview.modal("toggle");
+
+                image.on("load", function () {
+                    container.empty();
+                    container.append(image);
+                });
+
+                image.on("error", function () {
+
+                    var message = $("<div>");
+                    message.addClass("alert");
+                    message.addClass("alert-danger");
+                    message.text("Could not load the given image :(");
+
+                    container.empty();
+                    container.append(message);
+                });
+
+            } else {
+
+                var message = $("<div>");
+                message.addClass("alert");
+                message.addClass("alert-danger");
+                message.text("Please, enter a valid url for the image");
+
+                container.empty();
+                container.append(message);
+                preview.modal("toggle");
+            }
+        }
+
+
         // Preview tweet button :
         var address = "{{ url_for('api.get_split')}}";
 
@@ -311,6 +388,9 @@
                 preview.modal("toggle");
             });
         });
+
+
+
 
         // Preview image button :
         $("#js-open-preview").click(function () {
@@ -437,7 +517,8 @@
         });
         // From here, I copy a field ONCE from general to all the equivalent fields of each channel
         //It works but it's not really sexy to rewrite this for all fields of general tab
-        $('#titlepost').one("change", function (event) {
+
+        $('#titlepost').on("change", function (event) {
             text = ($(this).val());
             //This is a subselect of input that match with the regex .*titlepost
             $('input')
@@ -446,7 +527,7 @@
                 })
                 .val(text);
         });
-        $('#descriptionpost').one("change", function (event) {
+        $('#descriptionpost').on("change", function (event) {
             text = ($(this).val());
             //This is a subselect of input that match with the regex .*descriptionpost
             $('textarea')
@@ -455,7 +536,7 @@
                 })
                 .val(text);
         });
-        $('#linkurlpost').one("change", function (event) {
+        $('#linkurlpost').on("change", function (event) {
             text = ($(this).val());
             //This is a subselect of input that match with the regex .*linkurlpost
             $('input')
@@ -464,7 +545,7 @@
                 })
                 .val(text);
         });
-        $('#imagepost').one("change", function (event) {
+        $('#imagepost').on("change", function (event) {
             text = ($(this).val());
             //This is a subselect of input that match with the regex .*imagepost
             $('input')
@@ -472,8 +553,11 @@
                     return this.id.match(/.*imagepost/);
                 })
                 .val(text);
+
+
         });
-        $('#dateuntilpost').one("change", function (event) {
+
+        $('#dateuntilpost').on("change", function (event) {
             text = ($(this).val());
             //This is a subselect of input that match with the regex .*dateuntilpost
             $('input')
@@ -482,7 +566,7 @@
                 })
                 .val(text);
         });
-        $('#datefrompost').one("change", function (event) {
+        $('#datefrompost').on("change", function (event) {
             text = ($(this).val());
             //This is a subselect of input that match with the regex .*datefrompost
             $('input')
