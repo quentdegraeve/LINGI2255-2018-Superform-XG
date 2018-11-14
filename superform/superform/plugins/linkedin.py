@@ -46,7 +46,7 @@ def authenticate(channel_name, publishing_id):
         return 'AlreadyAuthenticated'
 
 
-def set_access_token(channel_name, code):
+def set_access_token(channel_id, code):
     authentication.authorization_code = code
 
     print(authentication.authorization_code)
@@ -55,7 +55,8 @@ def set_access_token(channel_name, code):
     print("Access Token:", result.access_token)
     print("Expires in (seconds):", result.expires_in)
     #Add
-    #channel = Channel.query.filter_by(name=channel_name, module=get_module_full_name("linkedin")).first()
+    channel = Channel.query.get(channel_id)
+    channel_name = channel.name
     # add the configuration to the channel
     conf = dict()
     conf["channel_name"] = channel_name
@@ -86,7 +87,7 @@ def auto_auth(url, channel_id):
 
     if keepass.set_entry_from_keepass(str(channel_id)) is 0:
         print('Error : cant get keepass entry :', str(channel_id), 'for linkedin plugin')
-        return redirect(url_for('keepass.error_keepass'))
+        return redirect(url_for('keepass.error_channel_keepass', chan_id=channel_id))
 
     driver = selenium_utils.get_chrome()
 
@@ -101,8 +102,7 @@ def auto_auth(url, channel_id):
 
     if not selenium_utils.wait_redirect(driver, 'linkedin'):
         driver.close()
-        flash("Error linkedin channel wrong username or password")
-        return redirect(url_for('index'))
+        return redirect(url_for('keepass.error_channel_keepass', chan_id=channel_id))
 
     driver.close()
     return redirect(url_for('index'))
@@ -138,7 +138,7 @@ class LinkedinTokens:
             conf = json.loads(channel.config)
             date_string = conf.get("linkedin_token_expiration_date")
 
-            if not date_string :
+            if date_string == "None":
                 return (None, None)
 
             date_expiration = datetime.strptime(date_string, '%Y-%m-%d %H:%M:%S.%f')
@@ -165,7 +165,7 @@ def linkedin_verify_authorization():
     print("post id, channel id", post_id, channel_id)
     channel_config = {}
     if code:
-        channel_config = set_access_token(channel_name,code)
+        channel_config = set_access_token(channel_id,code)
     print("channel_config", channel_config)
     #normally should redirect to the channel page or to the page that publish a post
     publishing = Publishing.query.filter_by(post_id=post_id, channel_id=channel_id).first()

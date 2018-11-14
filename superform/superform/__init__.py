@@ -1,17 +1,16 @@
-from flask import Flask, render_template, session,url_for, redirect
+from flask import Flask, render_template, session
 import pkgutil
 import importlib
-from flask import request
 
 import superform.plugins
-from superform.plugins.slack import slack_verify_callback_page
 from superform.publishings import pub_page
-from superform.models import db, User, Post,Publishing,Channel
+from superform.models import db, User, Post, Publishing
 from superform.authentication import authentication_page
 from superform.authorizations import authorizations_page
 from superform.channels import channels_page
 from superform.posts import posts_page
 from superform.suputils.keepass import keypass_error_callback_page
+from superform.plugins.slack import slack_error_callback_page, slack_verify_callback_page
 from superform.users import get_moderate_channels_for_user, is_moderator
 
 from superform.plugins.linkedin import linkedin_verify_callback_page
@@ -27,6 +26,7 @@ app.register_blueprint(posts_page)
 app.register_blueprint(pub_page)
 app.register_blueprint(linkedin_verify_callback_page)
 app.register_blueprint(keypass_error_callback_page)
+app.register_blueprint(slack_error_callback_page)
 app.register_blueprint(slack_verify_callback_page)
 
 # Init dbsx

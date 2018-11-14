@@ -1,9 +1,10 @@
-from flask import Blueprint, current_app, url_for, request, make_response, redirect, session, render_template
+import json
+import ast
+
+from flask import Blueprint, current_app, url_for, request, redirect, render_template
 from superform.suputils import keepass
 from superform.utils import login_required, get_instance_from_module_path, get_modules_names, get_module_full_name
 from superform.models import db, Channel
-import ast
-import os
 channels_page = Blueprint('channels', __name__)
 
 
@@ -40,6 +41,9 @@ def channel_list():
             password = request.form.get('password')
             if name is not '':
                 channel.name = name
+                conf = json.loads(channel.config)
+                conf["channel_name"] = name
+                channel.config = json.dumps(conf)
                 db.session.commit()
             if username is not '' or password is not '':
                 keepass.set_entry_from_data(str(channel.id), username, password)
