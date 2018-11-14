@@ -263,5 +263,10 @@
                 .val(text);
         });
     </script>
+    <script type="text/javascript">
+        var post_form_validations_json = {{ post_form_validations|tojson }}
+        console.log(post_form_validations_json)
+    </script>
     <script src="{{ url_for('static', filename='js/post.js') }}" crossorigin="anonymous"></script>
+
 {% endblock %}

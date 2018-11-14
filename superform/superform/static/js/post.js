@@ -1,8 +1,17 @@
 $("input[type='checkbox']").each(function(){
-     if($(this).attr("module-namechan") == "superform.plugins.linkedin" || $(this).attr("module-namechan") == "superform.plugins.slack" ){
-         $(this).on("click",adapt_post_to_channel($(this).attr('data-namechan')));
-     }
+
+    let mod = $(this).attr("module-namechan").split('.')[2];
+    fyn(mod)
 });
+
+function fyn(mod){
+    console.log("cc" + post_form_validations_json);
+    if(mod != undefined){
+        if(post_form_validations_json[mod]['image_type'] != undefined && post_form_validations_json[mod]['image_type'].toLocaleLowerCase() =="url"){
+             $(this).on("click",adapt_post_to_channel($(this).attr('data-namechan')));
+        }
+    }
+}
 
 function adapt_post_to_channel(chan_name){
     document.getElementById(chan_name+"_imagepost").type = "text";
@@ -11,18 +20,25 @@ function adapt_post_to_channel(chan_name){
 $("#publish-button").click(function(event){
     var toReturn = true;
      $("input[type='checkbox']:checked").each(function(){
-        if($(this).attr("module-namechan") == "superform.plugins.linkedin"){
-            if((!prevalidate_post($(this).attr("data-namechan"),200,256))){
-                document.getElementById("li_"+$(this).attr("data-namechan")).children[0].style.color = "red";
-                toReturn = false;
-                return toReturn;
-            }
-        }else if($(this).attr("module-namechan") == "superform.plugins.slack"){
-            if((!prevalidate_post($(this).attr("data-namechan"),40000,40000))){
-                toReturn = false
-                return toReturn;
-            }
+         let mod = $(this).attr("module-namechan").split('.')[2];
+         let title_max_length=100000;
+         let descr_max_length=100000;
+         if(mod != undefined){
+             console.log(post_form_validations[mod]);
+             if(post_form_validations[mod]['title_max_length'] != undefined){
+                 title_max_length = post_form_validations[mod]['title_max_length'] ;
+             }
+             if(post_form_validations[mod]['description_max_length'] != undefined){
+                 descr_max_length = post_form_validations[mod]['description_max_length'] ;
+             }
+         }
+
+        if((!prevalidate_post($(this).attr("data-namechan"),title_max_length,descr_max_length))){
+            document.getElementById("li_"+$(this).attr("data-namechan")).children[0].style.color = "red";
+            toReturn = false;
+            return toReturn;
         }
+
       });
      return toReturn;
 });
