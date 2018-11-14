@@ -146,19 +146,6 @@ function prevalidate_post (chan_name,title_length,descr_length){
             input_dateuntilpost.classList.remove("invalid");
         }
     }
-    if(input_datefrompost.value != ""){
-        if(a < Date.now()){
-                createErrorMessage(input_datefrompost,"the date is older that now","error_datefrompost");
-                input_datefrompost.classList.add("invalid");
-                toReturn = false;
-        }else{
-            elementToRemove = document.getElementById("error_datefrompost");
-            if(elementToRemove){
-                elementToRemove.hidden = true;
-            }
-            input_datefrompost.classList.remove("invalid");
-        }
-    }
     return toReturn;
 }
 

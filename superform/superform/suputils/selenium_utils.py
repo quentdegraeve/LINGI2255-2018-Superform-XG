@@ -108,20 +108,18 @@ def add_authorization(driver, name, username, permission):
     driver.find_element_by_css_selector('button[id="update"]').click()
 
 
-def add_new_post(driver, name, title, description, link, image, date_from, date_to):
+def add_new_post(driver, name, title, description, date_from, date_to, link=''):
     driver.get(new_post_url)
 
     input_title = driver.find_element_by_name("titlepost")
     input_description = driver.find_element_by_name("descriptionpost")
     input_link = driver.find_element_by_name("linkurlpost")
-    input_image = driver.find_element_by_name("imagepost")
     input_date_from = driver.find_element_by_name("datefrompost")
     input_date_to = driver.find_element_by_name("dateuntilpost")
 
     input_title.send_keys(title)
     input_description.send_keys(description)
     input_link.send_keys(link)
-    input_image.send_keys(image)
     input_date_from.send_keys(date_from)
     input_date_to.send_keys(date_to)
 

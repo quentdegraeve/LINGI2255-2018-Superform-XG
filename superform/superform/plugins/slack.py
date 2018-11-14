@@ -1,16 +1,16 @@
-from datetime import datetime, timedelta, time
-
+from datetime import datetime, timedelta
+import re
 from flask import flash, Blueprint, redirect, url_for, request, render_template
 from slackclient import SlackClient
 import json
 from superform.models import Channel, Publishing, db
 from superform.utils import get_module_full_name
 from superform.suputils import keepass
-from suputils import selenium_utils
-
+from superform.suputils import selenium_utils
 
 FIELDS_UNAVAILABLE = ['Publication Date']
-CONFIG_FIELDS = ["channel_name", "slack_channel_name", "slack_domain_name", "slack_access_token", "slack_token_expiration_date"]
+CONFIG_FIELDS = ["channel_name", "slack_channel_name", "slack_domain_name", "slack_access_token",
+                 "slack_token_expiration_date"]
 AUTH_FIELDS = True
 
 API_CLIENT_KEY = keepass.get_password_from_keepass('slack_client_key')
@@ -111,6 +111,18 @@ def auto_auth(url, channel_id):
 
     driver.close()
     return redirect(url_for('index'))
+
+
+def post_pre_validation(post):
+    pattern = '^(?:(?:https?|http?|wwww?):\/\/)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/\S*)?$';
+    if len(post.title) > 40000 or len(post.title) == 0: return 0
+    if len(post.description) > 40000 or len(post.description) == 0: return 0
+    if not (post.link_url is None or len(post.link_url) == 0):
+        if (re.match(pattern, post.link_url, 0) == None): return 0;
+    if not (post.image_url is None or len(post.image_url) == 0):
+        if (re.match(pattern, post.image_url, 0) == None): return 0;
+    print(" prevalidation slack is ok")
+    return 1
 
 
 def share_post(channel_name, slack_channel_name, title, description, link, link_image):

@@ -16,4 +16,9 @@ def test_prepare():
     selenium_utils.add_authorization(driver, 'test_linkedin', 'superego', 2)
     selenium_utils.add_authorization(driver, 'test_slack', 'superego', 2)
     selenium_utils.add_authorization(driver, 'test_chan_slack', 'superego', 2)
+
+    selenium_utils.add_new_post(driver, 'test_linkedin', 'test_linkedin title', 'test_linkedin description', '14112018', '14112018')
+    selenium_utils.add_new_post(driver, 'test_slack', 'test_slack title', 'test_slack description', '14112018', '14112018')
+
     assert 1 == 1
+

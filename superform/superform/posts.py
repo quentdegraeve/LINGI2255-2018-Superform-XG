@@ -68,6 +68,8 @@ def publish_from_new_post():
     p = create_a_post(request.form)
     # then treat the publish part
     if request.method == "POST":
+        error_id  = "";
+        state_error = False;
         for elem in request.form:
             if elem.startswith("chan_option_"):
                 def substr(elem):
@@ -76,13 +78,16 @@ def publish_from_new_post():
                 c = Channel.query.get(substr(elem))
                 validate = pre_validate_post(c, p)
                 if validate == 0:
-                    error = "error in post :", p.id, " field(s) not valid"
-                    flash(error, "danger")
-                    return redirect(url_for('index'))
+                    state_error = True
+                    error_id = str(p.id) + ","
                 # for each selected channel options
                 # create the publication
                 create_a_publishing(p, c, request.form)
-
+        if state_error:
+            error_id = error_id[:-1]
+            error = "error in post :", error_id, " field(s) not valid"
+            flash(error, "danger")
+            return redirect(url_for('index'))
     db.session.commit()
     return redirect(url_for('index'))
 
