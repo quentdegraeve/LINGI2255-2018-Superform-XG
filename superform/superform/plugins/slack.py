@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from flask import flash, Blueprint, redirect, url_for, request
+from flask import flash, Blueprint, redirect, url_for, request, render_template
 from slackclient import SlackClient
 import json
 from superform.models import Channel, Publishing, db
@@ -197,7 +197,6 @@ def slack_verify_authorization():
     # Retrieve the auth code from the request params
     auth_code = request.args['code']
     conf_publishing = json.loads(request.args.get('state'))
-    channel_name = conf_publishing['channel_name']
     publishing_id = conf_publishing['publishing_id']
     post_id = publishing_id.__getitem__(0)
     channel_id = publishing_id.__getitem__(1)
@@ -241,3 +240,9 @@ class SlackTokens:
         c.config = json.dumps(config_json)
         print("put token", config_json)
         db.session.commit()
+
+
+@slack_error_callback_page.route('/error_config_slack/<int:chan_id>')
+def error_config_slack(chan_id):
+    chan_name = Channel.query.get(chan_id).name
+    return render_template('error_config_slack.html', channel=chan_name)

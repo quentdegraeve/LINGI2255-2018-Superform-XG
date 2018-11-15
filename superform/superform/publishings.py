@@ -37,7 +37,7 @@ def moderate_publishing(id, idc):
         #every plugin should implement the autheticate method that redirect to the plugin authentication process
         #if it is required or necessary (no token available or expired)!
 
-        url = plugin.authenticate(c.name, (id, idc))
+        url = plugin.authenticate(c.id, (id, idc))
         if url != "AlreadyAuthenticated":
             print("url", url)
             return plugin.auto_auth(url, pub.channel_id)
