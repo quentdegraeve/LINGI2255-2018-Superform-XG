@@ -21,6 +21,7 @@ def edit_post(post_id):
         return redirect(url_for('index'))
 
     post = db.session.query(Post).filter(Post.id == post_id, Post.user_id == user_id).first()
+    print(post)
 
     if post is None:
         return redirect(url_for('index'))
@@ -58,15 +59,33 @@ def edit_post(post_id):
 @login_required()
 def publish_edit_post(post_id): # when we do a save and publish in edit
     if request.method == "POST":
-        print(post_id)
-        p = db.session.query(Post).filter(Post.id == post_id)  # retrieve old post
+        p = db.session.query(Post).filter((Post.id == post_id)).first()  # retrieve old post
         pubs = (db.session.query(Publishing).filter((Publishing.post_id == post_id)))  # retrieve old publishings
 
-        print(p)
+        form = request.form
+
+        p.title = form.get('titlepost')
+        p.descr = form.get('descriptionpost')
+        print(p.descr)
+        print(form.get('descriptionpost'))
+        p.link = form.get('linkurlpost')
+        p.image = form.get('imagepost')
+        if form.get('datefrompost') is '':
+            # set default date if no date was chosen
+            p.date_from = date.today()
+        else:
+            p.date_from = datetime_converter(form.get('datefrompost'))
+        if form.get('dateuntilpost') is '':
+            p.date_until = date.today() + timedelta(days=7)
+        else:
+            p.date_until = datetime_converter(form.get('dateuntilpost'))
+
+        db.session.commit()
+
         for pub in pubs:
             if pub.state == 0:  # unpublished so we can always edit
+                # remove this publication and create a new one
                 db.session.delete(pub)
-                # remove this publication
             else:
                 print('autre chose')
 
