@@ -3,11 +3,13 @@ from flask import Blueprint, url_for, request, redirect, session, render_templat
 from superform.users import channels_available_for_user
 from superform.utils import login_required, datetime_converter, str_converter, get_instance_from_module_path
 from superform.models import db, Post, Publishing, Channel, PubGCal
+from superform.posts import create_a_publishing, create_a_post
 
 from importlib import import_module
 from datetime import date, timedelta
 
 edit_page = Blueprint('edit', __name__)
+
 
 @edit_page.route('/edit/<int:post_id>', methods=['GET'])
 @login_required()
@@ -52,5 +54,7 @@ def edit_post(post_id):
     return render_template('edit.html', post=post, publishing=publishing, l_chan=channels)
 
 
+@edit_page.route('/edited', methods=['POST'])
+@login_required()
 def publish_edit_post():
     print()
