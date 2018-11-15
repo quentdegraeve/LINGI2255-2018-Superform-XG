@@ -356,35 +356,46 @@
         var address = "{{ url_for('api.get_split')}}";
 
         $("#js-twitter-open-preview").click(function () {
+
             var value = document.getElementById("descriptionpost").value;
 
             $.getJSON(address, {
                 "descr": value
             }, function(json) {
-                var text = "";
-                var message = $("<div>");
-                message.addClass("alert");
-                 if (typeof json["tweetpreview"] === 'undefined') {
-                     message.addClass("alert-danger");
-                     text+="Error";
-                    return;
-                }
-                if (json["tweetpreview"].length === 0) {
-                    message.addClass("alert-danger");
-                    text+="Error";
-                    return;
-                }
-
-                for (var k = 0; k < json["tweetpreview"].length; k++) {
-                    text+=json["tweetpreview"][k];
-                    text+=' ';  // need to find way to put a \n instead
-                }
 
                 var preview = $("#previewTweetsModal");
                 var container = preview.find(".modal-body");
-                message.text(text);
+
+                if (typeof json["tweetpreview"] === 'undefined') {
+                    var message = $("<div>");
+                    message.addClass("alert");
+                    message.addClass("alert-danger");
+                    message.text("Error");
+                    container.append(message);
+                    preview.modal("toggle");
+                    return;
+                }
+                if (json["tweetpreview"].length === 0) {
+                    var message = $("<div>");
+                    message.addClass("alert");
+                    message.addClass("alert-danger");
+                    message.text("Error");
+                    container.append(message);
+                    preview.modal("toogle");
+                    return;
+                }
+
+                // https://getbootstrap.com/docs/4.1/components/card/#list-groups
+                var tweets = $("<div>");
+                for (var k = 0; k < json["tweetpreview"].length; k++) {
+                    var tweet = $("<div>");
+                    tweet.text(json["tweetpreview"][k]);
+                    tweets.append(tweet);
+                }
+
+                var container = preview.find(".modal-body");
                 container.empty();
-                container.append(message);
+                container.append(tweets);
                 preview.modal("toggle");
             });
         });
