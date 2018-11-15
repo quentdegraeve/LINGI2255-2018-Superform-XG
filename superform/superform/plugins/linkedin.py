@@ -149,7 +149,7 @@ class LinkedinTokens:
             conf = json.loads(channel.config)
             date_string = conf.get("linkedin_token_expiration_date")
 
-            if date_string == "None":
+            if date_string == "None" or date_string is None:
                 return (None, None)
 
             date_expiration = datetime.strptime(date_string, '%Y-%m-%d %H:%M:%S.%f')

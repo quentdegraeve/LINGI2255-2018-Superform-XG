@@ -87,7 +87,7 @@ def auto_auth(url, channel_id):
     driver.get(url)
     domain = driver.find_element_by_name("domain")
     domain.send_keys(dom)
-    driver.find_elements_by_css_selector('button[id="submit_team_domain"]')[0].click()
+    driver.find_element_by_css_selector('button[id="submit_team_domain"]').click()
 
     if not selenium_utils.wait_redirect(driver, 'signin'):
         driver.close()
@@ -97,13 +97,13 @@ def auto_auth(url, channel_id):
     password = driver.find_element_by_name("password")
     email.send_keys(keepass.KeepassEntry.username)
     password.send_keys(keepass.KeepassEntry.password)
-    driver.find_elements_by_css_selector('button[id="signin_btn"]')[0].click()
+    driver.find_element_by_css_selector('button[id="signin_btn"]').click()
 
     if not selenium_utils.wait_redirect_after(driver, 'testlingi2255team8.slack.com/oauth'):
         driver.close()
         return redirect(url_for('keepass.error_channel_keepass', chan_id=channel_id))
 
-    driver.find_elements_by_css_selector('button[id="oauth_authorizify"]')[0].click()
+    driver.find_element_by_css_selector('button[id="oauth_authorizify"]').click()
 
     if not selenium_utils.wait_redirect(driver, 'testlingi2255team8.slack.com'):
         driver.close()

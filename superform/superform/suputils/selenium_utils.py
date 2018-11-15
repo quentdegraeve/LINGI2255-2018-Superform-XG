@@ -41,6 +41,7 @@ logout_url = 'http://localhost:5000/logout'
 authorization_url = 'http://localhost:5000/authorizations'
 new_post_url = 'http://localhost:5000/new'
 index_url = 'http://localhost:5000'
+configure_url = 'http://localhost:5000/configure/'
 linkedin_url = 'https://www.linkedin.com/'
 
 
@@ -88,6 +89,17 @@ def create_channel(driver, name, username, password, module):
     driver.find_element_by_name("add_chan").click()
 
 
+def modify_config(driver, chan_number, domain_name, channel_name):
+    driver.get(configure_url + str(chan_number))
+    input_domain_name = driver.find_element_by_name("slack_domain_name")
+    input_channel_name = driver.find_element_by_name("slack_channel_name")
+    input_domain_name.clear()
+    input_channel_name.clear()
+    input_domain_name.send_keys(domain_name)
+    input_channel_name.send_keys(channel_name)
+    driver.find_element_by_css_selector('button[type="submit"]').click()
+
+
 def add_authorization(driver, name, username, permission):
     driver.get(authorization_url)
 
@@ -108,7 +120,7 @@ def add_authorization(driver, name, username, permission):
     driver.find_element_by_css_selector('button[id="update"]').click()
 
 
-def add_new_post(driver, name, title, description, date_from, date_to, link=''):
+def add_new_post(driver, name_array, title, description, date_from, date_to, link=''):
     driver.get(new_post_url)
 
     input_title = driver.find_element_by_name("titlepost")
@@ -123,6 +135,8 @@ def add_new_post(driver, name, title, description, date_from, date_to, link=''):
     input_date_from.send_keys(date_from)
     input_date_to.send_keys(date_to)
 
-    driver.find_element_by_css_selector('input[data-namechan = "' + name + '"]').click()
+    for name in name_array:
+        driver.find_element_by_css_selector('input[data-namechan = "' + name + '"]').click()
+
     driver.find_element_by_css_selector('button[id="publish-button"]').click()
 
