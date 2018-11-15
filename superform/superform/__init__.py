@@ -11,6 +11,7 @@ from superform.authorizations import authorizations_page
 from superform.channels import channels_page
 from superform.posts import posts_page
 from superform.api import api_page
+from superform.edit import edit_page
 
 from superform.plugins import linkedin
 
@@ -26,6 +27,7 @@ app.register_blueprint(channels_page)
 app.register_blueprint(posts_page)
 app.register_blueprint(pub_page)
 app.register_blueprint(api_page)
+app.register_blueprint(edit_page)
 
 # Init dbs
 db.init_app(app)
