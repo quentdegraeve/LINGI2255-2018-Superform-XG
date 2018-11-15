@@ -54,7 +54,9 @@ def edit_post(post_id):
     return render_template('edit.html', post=post, publishing=publishing, l_chan=channels)
 
 
-@edit_page.route('/edited', methods=['POST'])
+@edit_page.route('/edit/publish_edit_post/<int:post_id>', methods=['POST'])
 @login_required()
-def publish_edit_post():
-    print()
+def publish_edit_post(post_id):
+    print(post_id)
+
+    return redirect(url_for('index'))
