@@ -1,5 +1,5 @@
 
-from superform.plugins import plugin_utils
+from superform.suputils import plugin_utils
 from superform import Post
 
 def test_pre_validate_post_title():

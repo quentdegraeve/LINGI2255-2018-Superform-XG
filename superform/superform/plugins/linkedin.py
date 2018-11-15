@@ -5,8 +5,7 @@ from flask import redirect, url_for, request, Blueprint, flash
 from linkedin import linkedin
 from superform.suputils import selenium_utils
 from datetime import datetime, timedelta
-from superform.plugins import plugin_utils
-
+from superform.suputils import plugin_utils
 from superform.suputils.keepass import keypass_error_callback_page
 
 from superform.models import db, Channel, Publishing

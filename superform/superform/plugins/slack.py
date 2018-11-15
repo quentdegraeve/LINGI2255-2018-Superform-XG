@@ -1,11 +1,10 @@
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta
 from flask import flash, Blueprint, redirect, url_for, request
 from slackclient import SlackClient
 import json
 from superform.models import Channel, Publishing, db
 from superform.utils import get_module_full_name
-from superform.suputils import keepass
-from superform.suputils import selenium_utils
+from superform.suputils import keepass, selenium_utils, plugin_utils
 
 FIELDS_UNAVAILABLE = ['Publication Date']
 CONFIG_FIELDS = ["channel_name", "slack_channel_name", "slack_domain_name", "slack_access_token",
@@ -21,7 +20,6 @@ POST_FORM_VALIDATIONS = {
 API_CLIENT_KEY = keepass.get_password_from_keepass('slack_client_key')
 API_SECRET = keepass.get_password_from_keepass('slack_secret')
 API_CLIENT_ID = keepass.get_password_from_keepass('slack_client_id')
-from superform.plugins import plugin_utils
 
 slack_error_callback_page = Blueprint('slack_error', 'channels')
 slack_verify_callback_page = Blueprint('slack', 'channels')
@@ -59,15 +57,20 @@ def set_access_token(channel_id, code):
     # Add
     channel = Channel.query.get(channel_id)
     channel_name = channel.name
-    slack_channel_name = json.loads(channel.config).get("slack_channel_name")
-    if (not slack_channel_name) or slack_channel_name is '':
-        slack_channel_name = "general"
+
+    conf = channel.config
+    if not conf or conf == '{}':
+        return redirect(url_for('slack_error.error_config_slack', chan_id=channel_id))
+
+    slack_channel_name = json.loads(conf)['slack_channel_name']
+
+    if slack_channel_name == 'None' or slack_channel_name == '':
+        return redirect(url_for('slack_error.error_config_slack', chan_id=channel_id))
 
     # add the configuration to the channel
     conf = json.loads(channel.config)
 
     conf["channel_name"] = channel_name
-    conf["slack_channel_name"] = slack_channel_name
     conf["slack_access_token"] = auth_response['access_token']
     conf["slack_token_expiration_date"] = (datetime.now() + timedelta(hours=24 * 365)).__str__()
 
@@ -123,11 +126,10 @@ def post_pre_validation(post):
     return plugin_utils.post_pre_validation_plugins(post,40000,40000)
 
 
-
 def share_post(channel_name, slack_channel_name, title, description, link, link_image):
     token = SlackTokens.get_token(SlackTokens, channel_name).__getitem__(0)
 
-    if not slack_channel_name or slack_channel_name == 'None':
+    if not slack_channel_name or slack_channel_name == 'None' or slack_channel_name == '':
         slack_channel_name = "general"
 
     print('slack_channel_nam  ', slack_channel_name)
