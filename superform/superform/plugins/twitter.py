@@ -39,8 +39,12 @@ def run(publishing, channel_config):
     image_url = publishing.image_url
     if image_url is '':
         try:
-            for tweet in reversed(tweets):
-                api.update_status(status=tweet)
+            tweet_id = None
+            for tweet in tweets:
+                if tweet_id is None:
+                    tweet_id = api.update_status(status=tweet)
+                else:
+                    tweet_id = api.update_status(tweet, tweet_id.id_str)
         except tweepy.TweepError as e:
             print(e.reason)
     else:
@@ -50,12 +54,15 @@ def run(publishing, channel_config):
             with open(filename, 'wb') as image:
                 for req in request:
                     image.write(req)
-
-            i = len(tweets)-1
-            while i > 0:
-                api.update_status(status=tweets[i])
-                i -= 1
-            api.update_with_media(filename, status=tweets[0])
+            try:
+                tweet_id = None
+                for tweet in tweets:
+                    if tweet_id is None:
+                        tweet_id = api.update_with_media(filename, status=tweet)
+                    else:
+                        tweet_id = api.update_status(tweet, tweet_id.id_str)
+            except tweepy.TweepError as e:
+                print(e.reason)
             os.remove(filename)
         else:
             print("Cant load the image")
