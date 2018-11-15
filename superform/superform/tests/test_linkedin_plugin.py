@@ -86,6 +86,7 @@ def session(db, request):
     request.addfinalizer(teardown)
     return session
 
+
 def test_authenticate(session):
     false_post_id = -1
     false_channel_id = -1

@@ -42,6 +42,7 @@ authorization_url = 'http://localhost:5000/authorizations'
 new_post_url = 'http://localhost:5000/new'
 index_url = 'http://localhost:5000'
 configure_url = 'http://localhost:5000/configure/'
+moderate_url = 'http://localhost:5000/moderate/'
 linkedin_url = 'https://www.linkedin.com/'
 
 
@@ -51,7 +52,7 @@ def wait_redirect(driver, url):
     while url in driver.current_url:
         time.sleep(.50)
         cpt += 1
-        if cpt == 10:
+        if cpt == 15:
             return False
     return True
 
@@ -140,3 +141,7 @@ def add_new_post(driver, name_array, title, description, date_from, date_to, lin
 
     driver.find_element_by_css_selector('button[id="publish-button"]').click()
 
+
+def moderate_post(driver, chan_number, post_number):
+    driver.get(moderate_url + str(post_number) + '/' + str(chan_number))
+    driver.find_element_by_css_selector('button[id="publish"]').click()
