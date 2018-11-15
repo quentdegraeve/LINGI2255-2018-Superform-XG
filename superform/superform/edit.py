@@ -56,7 +56,42 @@ def edit_post(post_id):
 
 @edit_page.route('/edit/publish_edit_post/<int:post_id>', methods=['POST'])
 @login_required()
-def publish_edit_post(post_id):
-    print(post_id)
+def publish_edit_post(post_id): # when we do a save and publish in edit
+    if request.method == "POST":
+        print(post_id)
+        p = db.session.query(Post).filter(Post.id == post_id)  # retrieve old post
+        pubs = (db.session.query(Publishing).filter((Publishing.post_id == post_id)))  # retrieve old publishings
+
+        print(p)
+        for pub in pubs:
+            if pub.state == 0:  # unpublished so we can always edit
+                db.session.delete(pub)
+                # remove this publication
+            else:
+                print('autre chose')
+
+        for elem in request.form:
+            if elem.startswith("chan_option_"):
+                def substr(elem):
+                    import re
+                    return re.sub('^chan\_option\_', '', elem)
+
+                c = Channel.query.get(substr(elem))
+                # for each selected channel options
+                # create the publication
+                print(p)
+                print(c)
+                print(request.form)
+                pub = create_a_publishing(p, c, request.form)
+
+                if pub == -1:
+                    flash("no module selected", "danger")
+                    return redirect(url_for('index'))
+                elif pub == 0:
+                    error = "error in post :", p.id, " title or description length not valid"
+                    flash(error, "danger")
+                    return redirect(url_for('index'))
+
+    db.session.commit()
 
     return redirect(url_for('index'))
