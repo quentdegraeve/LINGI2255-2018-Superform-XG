@@ -40,7 +40,7 @@ def authenticate(channel_id, publishing_id):
     """
     previous_token = LinkedinTokens.get_token(LinkedinTokens, channel_id)
 
-    channel_name = Channel.query.get(channel_id)
+    channel_name = Channel.query.get(channel_id).name
 
     if previous_token.__getitem__(0) is None or (datetime.now() > previous_token.__getitem__(1)):
         conf = dict()
@@ -111,7 +111,7 @@ def auto_auth(url, channel_id):
         print('Error : cant get keepass entry :', str(channel_id), 'for linkedin plugin')
         return redirect(url_for('keepass.error_channel_keepass', chan_id=channel_id))
 
-    driver = selenium_utils.get_chrome()
+    driver = selenium_utils.get_headless_chrome()
 
     driver.get(url)
     username = driver.find_element_by_name("session_key")

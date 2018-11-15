@@ -34,7 +34,7 @@ def authenticate(channel_id, publishing_id):
     :return: The authorization url if the channel token is absent or has expired else return 'AlreadyAuthenticated'
     """
     previous_token = SlackTokens.get_token(SlackTokens, channel_id)
-    channel_name = Channel.query.get(channel_id)
+    channel_name = Channel.query.get(channel_id).name
 
     if previous_token.__getitem__(0) is None or (datetime.now() > previous_token.__getitem__(1)):
 
@@ -97,7 +97,7 @@ def auto_auth(url, channel_id):
     if dom == 'None' or dom == '':
         return redirect(url_for('slack_error.error_config_slack', chan_id=channel_id))
 
-    driver = selenium_utils.get_chrome()
+    driver = selenium_utils.get_headless_chrome()
     driver.get(url)
     domain = driver.find_element_by_name("domain")
     domain.send_keys(dom)
