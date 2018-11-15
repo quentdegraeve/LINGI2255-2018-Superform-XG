@@ -1,19 +1,19 @@
-from flask import Flask, render_template, session,url_for, redirect
+from flask import Flask, render_template, session
 import pkgutil
 import importlib
-from flask import request
 
 import superform.plugins
 from superform.publishings import pub_page
-from superform.models import db, User, Post,Publishing,Channel
+from superform.models import db, User, Post, Publishing
 from superform.authentication import authentication_page
 from superform.authorizations import authorizations_page
 from superform.channels import channels_page
 from superform.posts import posts_page
+from superform.suputils.keepass import keypass_error_callback_page
+from superform.plugins.slack import slack_error_callback_page, slack_verify_callback_page
 from superform.users import get_moderate_channels_for_user, is_moderator
-from superform.utils import get_module_full_name
 
-from superform.plugins.linkedin import setAccessToken
+from superform.plugins.linkedin import linkedin_verify_callback_page
 
 app = Flask(__name__)
 app.config.from_json("config.json")
@@ -24,8 +24,12 @@ app.register_blueprint(authorizations_page)
 app.register_blueprint(channels_page)
 app.register_blueprint(posts_page)
 app.register_blueprint(pub_page)
+app.register_blueprint(linkedin_verify_callback_page)
+app.register_blueprint(keypass_error_callback_page)
+app.register_blueprint(slack_error_callback_page)
+app.register_blueprint(slack_verify_callback_page)
 
-# Init dbs
+# Init dbsx
 db.init_app(app)
 
 # List available channels in config
@@ -38,6 +42,7 @@ app.config["PLUGINS"] = {
 
 @app.route('/')
 def index():
+
     user = User.query.get(session.get("user_id", "")) if session.get("logged_in", False) else None
     posts=[]
     flattened_list_pubs =[]
@@ -50,26 +55,6 @@ def index():
 
     return render_template("index.html", user=user,posts=posts,publishings = flattened_list_pubs)
 
-
-@app.route('/linkedin/verify')
-def linkedin_verify_authorization():
-    code = request.args.get('code')
-    channel_name = request.args.get('state')
-    if code != None:
-        profile_email = setAccessToken(channel_name,code)
-
-        channel = Channel.query.filter_by(name=channel_name,module=get_module_full_name("linkedin")).first()
-        print(channel)
-        #add the configuration to the channel
-        str_conf = "{"
-        str_conf += "\"profile_email\" : \"" + profile_email + "\""
-        str_conf += "}"
-
-        channel.config = str_conf
-        db.session.commit()
-
-    #normally should redirect to the channel page or to the page that publish a post
-    return redirect(url_for('channels.channel_list'))
 
 @app.errorhandler(403)
 def forbidden(error):

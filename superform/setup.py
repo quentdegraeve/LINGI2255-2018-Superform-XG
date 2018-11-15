@@ -10,6 +10,8 @@ setup(
         'sqlalchemy',
         'flask-sqlalchemy',
         'python3-linkedin',
-        'pytest'
+        'pykeepass',
+        'slackclient',
+        'selenium', 'pytest'
     ],
 )
