@@ -18,6 +18,7 @@ from superform.utils import get_module_full_name
 from superform.models import db as _db
 from superform.plugins import linkedin
 
+
 API_KEY = keepass.get_password_from_keepass('linkedin_key')
 API_SECRET = keepass.get_password_from_keepass('linkedin_secret')
 RETURN_URL = 'http://localhost:5000'
@@ -84,33 +85,6 @@ def session(db, request):
 
     request.addfinalizer(teardown)
     return session
-
-
-def test_pre_validate_post_title():
-    chan = Channel
-    post = Post
-    post.title = "x" * 200
-    post.description = "x"
-    chan.module = "superform.plugins.linkedin"
-    assert posts.pre_validate_post(chan, post) == 1
-    post.title += "x"
-    assert posts.pre_validate_post(chan, post) == 0
-    post.title = ""
-    assert posts.pre_validate_post(chan, post) == 0
-
-
-def test_pre_validate_post_description():
-    chan = Channel
-    post = Post
-    post.title = "x"
-    post.description = "x" * 256
-    chan.module = "superform.plugins.linkedin"
-    assert posts.pre_validate_post(chan, post) == 1
-    post.description += "x"
-    assert posts.pre_validate_post(chan, post) == 0
-    post.description = ""
-    assert posts.pre_validate_post(chan, post) == 0
-
 
 def test_authenticate(session):
     false_post_id = -1

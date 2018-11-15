@@ -9,6 +9,8 @@ FIELDS_UNAVAILABLE = ['Title','Description']
 
 CONFIG_FIELDS = ["sender","receiver"]
 AUTH_FIELDS = False
+POST_FORM_VALIDATIONS = {}
+
 
 def run(publishing,channel_config):
     json_data = json.loads(channel_config)
@@ -32,6 +34,7 @@ def run(publishing,channel_config):
     except SMTPException as e:
         #TODO should add log here
         print(e)
+
 
 def authenticate(channel_name, publishing_id):
     return "AlreadyAuthenticated"

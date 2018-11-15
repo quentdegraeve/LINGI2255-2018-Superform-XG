@@ -168,6 +168,9 @@
 {% endblock %}
 
 {% block scripts %}
+    <script type="text/javascript">
+        var post_form_validations = {{ post_form_validations|tojson }}
+    </script>
     <script>
         // This manage if a channel is selected or not:
         //  it hides/shows a tab for a channel
@@ -263,5 +266,5 @@
                 .val(text);
         });
     </script>
-    <script src="{{ url_for('static', filename='js/post.js') }}" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/post.js') }}" crossorigin="anonymous">  </script>
 {% endblock %}

@@ -1,10 +1,11 @@
 import json
 import time
-import re
+
 from flask import redirect, url_for, request, Blueprint, flash
 from linkedin import linkedin
 from superform.suputils import selenium_utils
 from datetime import datetime, timedelta
+from superform.plugins import plugin_utils
 
 from superform.suputils.keepass import keypass_error_callback_page
 
@@ -15,10 +16,13 @@ from superform.suputils import keepass
 linkedin_verify_callback_page = Blueprint('linkedin', 'channels')
 
 FIELDS_UNAVAILABLE = []
-AUTH_FIELDS = True
-
 CONFIG_FIELDS = ["channel_name", "linkedin_access_token", "linkedin_token_expiration_date"]
-
+AUTH_FIELDS = True
+POST_FORM_VALIDATIONS = {
+    'title_max_length': 200,
+    'description_max_length': 256,
+    'image_type': 'url'
+}
 API_KEY = keepass.get_password_from_keepass('linkedin_key')
 API_SECRET = keepass.get_password_from_keepass('linkedin_secret')
 RETURN_URL = keepass.get_username_from_keepass('linkedin_return_url')
@@ -123,19 +127,7 @@ def run(publishing, channel_config):
 
 
 def post_pre_validation(post):
-    pattern = '^(?:(?:https?|http?|wwww?):\/\/)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/\S*)?$';
-    if len(post.title) > 200 or len(post.title) == 0:
-        return 0
-    if len(post.description) > 256 or len(post.description) == 0:
-        return 0
-    if not(post.link_url is None or len(post.link_url) == 0):
-         if( re.match(pattern,post.link_url,0) == None ):
-             return 0;
-    if not(post.image_url is None or len(post.image_url) == 0):
-        if (re.match(pattern, post.image_url, 0) == None):
-            return 0;
-    print(" prevalidation linkedin is ok")
-    return 1
+    return plugin_utils.post_pre_validation_plugins(post,200,256)
 
 
 class LinkedinTokens:
