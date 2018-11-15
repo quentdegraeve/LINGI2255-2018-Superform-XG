@@ -182,6 +182,7 @@ class LinkedinTokens:
         print("put token", config_json)
         db.session.commit()
 
+
 @linkedin_verify_callback_page.route("/linkedin/verify", methods=['GET'])
 def linkedin_verify_authorization():
     code = request.args.get('code')

@@ -5,9 +5,9 @@ from smtplib import SMTPException
 from flask import current_app
 import json
 
-FIELDS_UNAVAILABLE = ['Title','Description']
+FIELDS_UNAVAILABLE = ['Title', 'Description']
 
-CONFIG_FIELDS = ["sender","receiver"]
+CONFIG_FIELDS = ["sender", "receiver"]
 AUTH_FIELDS = False
 POST_FORM_VALIDATIONS = {}
 
@@ -36,9 +36,9 @@ def run(publishing,channel_config):
         print(e)
 
 
-def authenticate(channel_name, publishing_id):
+def authenticate(channel_id, publishing_id):
     return "AlreadyAuthenticated"
 
 
 def post_pre_validation(post):
-    return 1;
+    return 1
