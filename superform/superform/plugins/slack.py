@@ -3,7 +3,6 @@ from flask import flash, Blueprint, redirect, url_for, request
 from slackclient import SlackClient
 import json
 from superform.models import Channel, Publishing, db
-from superform.utils import get_module_full_name
 from superform.suputils import keepass, selenium_utils, plugin_utils
 
 FIELDS_UNAVAILABLE = ['Publication Date']
@@ -27,8 +26,9 @@ slack_verify_callback_page = Blueprint('slack', 'channels')
 slackClient = SlackClient()
 
 
-def authenticate(channel_name, publishing_id):
-    previous_token = SlackTokens.get_token(SlackTokens, channel_name)
+def authenticate(channel_id, publishing_id):
+    previous_token = SlackTokens.get_token(SlackTokens, channel_id)
+    channel_name = Channel.query.get(channel_id)
 
     if previous_token.__getitem__(0) is None or (datetime.now() > previous_token.__getitem__(1)):
 
@@ -74,7 +74,7 @@ def set_access_token(channel_id, code):
     conf["slack_access_token"] = auth_response['access_token']
     conf["slack_token_expiration_date"] = (datetime.now() + timedelta(hours=24 * 365)).__str__()
 
-    SlackTokens.put_token(SlackTokens, channel_name, conf)
+    SlackTokens.put_token(SlackTokens, channel_id, conf)
     return conf
 
 
@@ -123,14 +123,11 @@ def auto_auth(url, channel_id):
 
 
 def post_pre_validation(post):
-    return plugin_utils.post_pre_validation_plugins(post,40000,40000)
+    return plugin_utils.post_pre_validation_plugins(post, 40000, 40000)
 
 
-def share_post(channel_name, slack_channel_name, title, description, link, link_image):
-    token = SlackTokens.get_token(SlackTokens, channel_name).__getitem__(0)
-
-    if not slack_channel_name or slack_channel_name == 'None' or slack_channel_name == '':
-        slack_channel_name = "general"
+def share_post(channel_id, slack_channel_name, title, description, link, link_image):
+    token = SlackTokens.get_token(SlackTokens, channel_id).__getitem__(0)
 
     print('slack_channel_nam  ', slack_channel_name)
     sc = SlackClient(token)
@@ -163,8 +160,8 @@ def run(publishing, channel_config):
     channel_name = channel_config['channel_name']
     slack_channel_name = channel_config['slack_channel_name']
 
-    authenticate(channel_name, (publishing.post_id, publishing.channel_id))
-    if share_post(channel_name, slack_channel_name, publishing.title, publishing.description, publishing.link_url,
+    authenticate(publishing.channel_id, (publishing.post_id, publishing.channel_id))
+    if share_post(publishing.channel_id, slack_channel_name, publishing.title, publishing.description, publishing.link_url,
                   publishing.image_url):
         publishing.state = 1
         db.session.commit()
@@ -195,13 +192,9 @@ def slack_verify_authorization():
 
 class SlackTokens:
 
-    def get_token(self, channel_name):
+    def get_token(self, channel_id):
 
-        print('channel_name', channel_name)
-
-        channel = Channel.query.filter_by(name=channel_name, module=get_module_full_name("slack")).first()
-
-        print('channel', channel)
+        channel = Channel.query.get(channel_id)
 
         if channel and channel.config:
             print('channel.config', channel.config)
@@ -217,9 +210,9 @@ class SlackTokens:
 
         return (None, None)
 
-    def put_token(self, channel_name, config_json):
+    def put_token(self, channel_id, config_json):
         print("type config json : -> ", type(config_json))
-        c = Channel.query.filter_by(name=channel_name, module=get_module_full_name("slack")).first()
+        c = Channel.query.get(channel_id)
         c.config = json.dumps(config_json)
         print("put token", config_json)
         db.session.commit()

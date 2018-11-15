@@ -1,22 +1,13 @@
 import importlib
 import pkgutil
-
 import superform
-from superform.plugins import linkedin
 import os
-import tempfile
-
-from superform.suputils import keepass
-from datetime import datetime, timedelta
-
 import pytest
 
+from superform.suputils import keepass, plugin_utils
 from flask import Flask
 from superform.models import Channel
-from superform import app, db, Post, posts
-from superform.utils import get_module_full_name
 from superform.models import db as _db
-from superform.plugins import linkedin
 
 
 API_KEY = keepass.get_password_from_keepass('linkedin_key')
@@ -86,30 +77,22 @@ def session(db, request):
     request.addfinalizer(teardown)
     return session
 
-def test_authenticate(session):
-    false_post_id = -1
-    false_channel_id = -1
-    channel_name = "name_test"
-    c_test = Channel(name=channel_name, module=get_module_full_name("linkedin"), config="{}")
+def test_pre_validate_post_title():
+    chan = Channel
+    chan.module = "superform.plugins.linkedin"
+    plugin_utils.test_pre_validate_post_title(chan,200)
 
-    session.add(c_test)
-    url = linkedin.authenticate(channel_name, (false_post_id, false_channel_id))
-    assert url != 'AlreadyAuthenticated'
+def test_pre_validate_post_description():
+    chan = Channel
+    chan.module = "superform.plugins.linkedin"
+    plugin_utils.test_pre_validate_post_description(chan,256)
 
+def test_prevalidate_post_link_url():
+    chan = Channel
+    chan.module = "superform.plugins.linkedin"
+    plugin_utils.test_pre_validate_post_Link_url(chan)
 
-def test_authenticate2(session):
-    linkedin_access_token = "test_token"
-    linkedin_token_expiration_date = datetime.now() + timedelta(seconds=60)
-    channel_name = "channel_test"
-    c_test = Channel(name=channel_name, module=get_module_full_name("linkedin"), config="{}")
-
-    session.add(c_test)
-    conf = dict()
-    conf["channel_name"] = channel_name
-    conf["linkedin_access_token"] = linkedin_access_token
-    conf["linkedin_token_expiration_date"] = linkedin_token_expiration_date.__str__()
-    linkedin.LinkedinTokens.put_token(linkedin.LinkedinTokens, "channel_test", conf)
-    false_post_id = -1
-    false_channel_id = -1
-    url = linkedin.authenticate(channel_name, (false_post_id, false_channel_id))
-    assert url == 'AlreadyAuthenticated'
+def test_prevalidate_post_img_url():
+    chan = Channel
+    chan.module = "superform.plugins.linkedin"
+    plugin_utils.test_pre_validate_post_img_url(chan)
