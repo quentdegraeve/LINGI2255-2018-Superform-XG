@@ -21,6 +21,7 @@ def edit_post(post_id):
         return redirect(url_for('index'))
 
     post = db.session.query(Post).filter(Post.id == post_id, Post.user_id == user_id).first()
+    print(post)
 
     if post is None:
         return redirect(url_for('index'))
@@ -56,7 +57,55 @@ def edit_post(post_id):
 
 @edit_page.route('/edit/publish_edit_post/<int:post_id>', methods=['POST'])
 @login_required()
-def publish_edit_post(post_id):
-    print(post_id)
+def publish_edit_post(post_id): # when we do a save and publish in edit
+    if request.method == "POST":
+        p = db.session.query(Post).filter((Post.id == post_id)).first()  # retrieve old post
 
+        form = request.form
+
+        p.title = form.get('titlepost')
+        p.description = form.get('descriptionpost')
+        p.link = form.get('linkurlpost')
+        p.image = form.get('imagepost')
+        if form.get('datefrompost') is '':
+            # set default date if no date was chosen
+            p.date_from = date.today()
+        else:
+            p.date_from = datetime_converter(form.get('datefrompost'))
+        if form.get('dateuntilpost') is '':
+            p.date_until = date.today() + timedelta(days=7)
+        else:
+            p.date_until = datetime_converter(form.get('dateuntilpost'))
+
+        db.session.commit()
+
+        pubs = (db.session.query(Publishing).filter((Publishing.post_id == post_id)))  # retrieve old publishings
+        for pub in pubs:
+            if pub.state == 0:  # unpublished so we can always edit
+                # remove this publication and create a new one
+                db.session.delete(pub)
+            else:
+                print('autre chose')
+
+        db.session.commit()
+
+        for elem in request.form:
+            if elem.startswith("chan_option_"):
+                def substr(elem):
+                    import re
+                    return re.sub('^chan\_option\_', '', elem)
+
+                c = Channel.query.get(substr(elem))
+                # for each selected channel options
+                # create the publication
+                pu = create_a_publishing(p, c, request.form)
+
+                if pu == -1:
+                    flash("no module selected", "danger")
+                    return redirect(url_for('index'))
+                elif pu == 0:
+                    error = "error in post :", p.id, " title or description length not valid"
+                    flash(error, "danger")
+                    return redirect(url_for('index'))
+    db.session.commit()
     return redirect(url_for('index'))
