@@ -81,11 +81,7 @@ def publish_edit_post(post_id): # when we do a save and publish in edit
 
         pubs = (db.session.query(Publishing).filter((Publishing.post_id == post_id)))  # retrieve old publishings
         for pub in pubs:
-            if pub.state == 0:  # unpublished so we can always edit
-                # remove this publication and create a new one
-                db.session.delete(pub)
-            else:
-                print('autre chose')
+               db.session.delete(pub)
 
         db.session.commit()
 
