@@ -81,27 +81,18 @@ def publish_edit_post(post_id): # when we do a save and publish in edit
 
         pubs = (db.session.query(Publishing).filter((Publishing.post_id == post_id)))  # retrieve old publishings
         for pub in pubs:
-               db.session.delete(pub)
+            if pub.state == -1 or pub.state == 0:  # incomplete or unpublished so we can always edit
+                # remove this publication and create a new one
+                channel = Channel.query.get(pub.channel_id)
+                db.session.delete(pub)
+                create_a_publishing(p, channel, request.form)
+            elif pub.state == 1:
+                previous_pub = pub
+                channel = Channel.query.get(previous_pub.channel_id)
+                db.session.delete(pub)
+                create_a_publishing(p, channel, request.form)
+                pur = (db.session.query(Publishing).filter((Publishing.post_id == post_id) & (Publishing.channel_id == previous_pub.channel_id))).first()
+                pur.state = 3
 
         db.session.commit()
-
-        for elem in request.form:
-            if elem.startswith("chan_option_"):
-                def substr(elem):
-                    import re
-                    return re.sub('^chan\_option\_', '', elem)
-
-                c = Channel.query.get(substr(elem))
-                # for each selected channel options
-                # create the publication
-                pu = create_a_publishing(p, c, request.form)
-
-                if pu == -1:
-                    flash("no module selected", "danger")
-                    return redirect(url_for('index'))
-                elif pu == 0:
-                    error = "error in post :", p.id, " title or description length not valid"
-                    flash(error, "danger")
-                    return redirect(url_for('index'))
-    db.session.commit()
     return redirect(url_for('index'))
