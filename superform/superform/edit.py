@@ -59,7 +59,10 @@ def edit_post(post_id):
 @login_required()
 def publish_edit_post(post_id): # when we do a save and publish in edit
     if request.method == "POST":
-        p = db.session.query(Post).filter((Post.id == post_id)).first()  # retrieve old post
+        current_user_id = session.get("user_id", "")
+        p = db.session.query(Post).filter(Post.id == post_id,Post.user_id == current_user_id).first()  # retrieve old post
+        if p is None:
+            return redirect('/403')
 
         form = request.form
 
