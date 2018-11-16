@@ -1,5 +1,8 @@
 {% extends "layout.html" %}
+{% import "macro/modal.html" as modal %}
 {% block title %}New Post{% endblock %}
+{% block stylesheet %}
+{% endblock %}
 {% block content %}
     <h1 xmlns="http://www.w3.org/1999/html">New Post</h1>
     <ul class="nav nav-tabs">
@@ -68,7 +71,7 @@
                                 </div>
                                 <div class="card-body">
                                     {% if l_chan|length == 0 %}
-                                        <p>No channel available for this user</p>
+                                        <span>No channel available for this user</span>
                                     {% else %}
                                         {% for chan in l_chan %}
                                             <div class="form-check">
@@ -80,6 +83,8 @@
                                                         <i class="fas fa-envelope"></i>
                                                     {% elif chan.plugin_name == 'superform.plugins.ICTV' %}
                                                         <i class="fas fa-tv"></i>
+                                                    {% elif chan.plugin_name == 'superform.plugins.gcal' %}
+                                                        <i class="far fa-calendar"></i>
                                                     {% else %}
                                                         <i class="fas fa-question"></i>
                                                     {% endif %}
@@ -96,13 +101,15 @@
                 {% for chan in l_chan %}
                     <div class="tab-pane container-fluid fade" id="menu{{ chan.id }}">
                         <div class="row">
-                            <div class="col-md-8">
-                                <div class="row">
-                                    <div class="col-md-12">
+                                <div class="col-md-12">
+                                        <div class="form-group">
+                                        {% if not "Title" in chan.unavailablefields %}
                                         <div class="form-group">
                                             <label for="{{ chan.name }}_titlepost">Title</label><br>
                                             <input type="text" name="{{ chan.name }}_titlepost" id="{{ chan.name }}_titlepost" class="form-control">
                                         </div>
+                                        {% endif %}
+                                        {% if not "Description" in chan.unavailablefields %}
                                         <div class="form-group">
                                             <label for="{{ chan.name }}_descriptionpost">Description</label><br>
                                             {% if chan.plugin_name == 'superform.plugins.twitter' %}
@@ -111,22 +118,43 @@
                                                     Warning : Your message will be split in several part
                                                 </div>
                                                 <textarea class="form-control" rows="5" id="{{ chan.name }}_descriptionpost" name="{{ chan.name }}_descriptionpost"></textarea>
-
                                                 <div class="row" >
                                                     <div class="col-6">
                                                         Numbers of Characters : <span class="counter">?</span>
                                                     </div>
-                                                    
+                                                    <div class="col-6" style="text-align: right">
+                                                        <button id="js-twitter-open-preview" type="button" class="btn btn-secondary">
+                                                            Preview Tweets
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
                                             {% else %}
                                             <textarea class="form-control" rows="5" id="{{ chan.name }}_descriptionpost" name="{{ chan.name }}_descriptionpost"></textarea>
                                             {% endif %}
                                         </div>
+                                        {% endif %}
+                                        {% if not "Link" in chan.unavailablefields %}
                                         <div class="form-group">
                                             <label for="{{ chan.name }}_linkurlpost">Link</label><br>
                                             <input type="text" name="{{ chan.name }}_linkurlpost" id="{{ chan.name }}_linkurlpost" class="form-control">
                                         </div>
+                                        {% endif %}
+                                    {% if not "Image" in chan.unavailablefields %}
+                                    <div class="form-group">
+                                            <label for="{{ chan.name }}_imagepost">Image</label><br>
+                                        <div class="input-group">
+                                            <input type="text" name="{{ chan.name }}_linkurlpost" id="{{ chan.name }}_imagepost" class="form-control">
+                                            <button id="js-open-preview-test" type="button" class="btn btn-secondary" onclick="PreviewFunction()">
+                                                Preview
+                                            </button>
+
+
+                                        </div>
+                                    </div>
+                                    {% endif %}
+
+
                                         {% if chan.module == "superform.plugins.gcal" %}
                                             <div class="row">
                                                 <div class="col-md-6">
@@ -195,10 +223,6 @@
                                                 <input type="text" name="{{ chan.name }}_guests" id="{{ chan.name }}_guests" class="form-control">
                                             </div>
                                         {% endif %}
-                                        <div class="form-group">
-                                            <label for="{{ chan.name }}_imagepost">Image</label><br>
-                                            <input type="text" name="{{ chan.name }}_imagepost" id="{{ chan.name }}_imagepost" class="form-control">
-                                        </div>
                                         {% if chan.module != "superform.plugins.gcal" %}
                                             <div class="row">
                                                 <div class="col-md-6">
@@ -217,7 +241,7 @@
                                             </div>
                                         {% endif %}
                                     </div>
-                                </div>
+
                             </div>
                             <div class="col-md-4">
                                 <div class="card">
@@ -246,47 +270,16 @@
             </div>
         </form>
 
-        <!-- Modal -->
-        <div class="modal fade" id="previewModal" tabindex="-1" role="dialog" aria-labelledby="previewModalLabel"
-             aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Image preview</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body"></div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                            Close
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Modals -->
 
-        <!-- Modal -->
-        <div class="modal fade" id="previewTweetsModal" tabindex="-1" role="dialog" aria-labelledby="previewTweetsModalLabel"
-             aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Tweets preview</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body"></div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                            Close
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {%  call modal.modal_block(id='previewModal', title='Image preview') %}
+            <div>Preview</div>
+        {%  endcall %}
+
+        {%  call modal.modal_block(id='previewTweetsModal', title='Tweets preview') %}
+            <div>Modal</div>
+        {%  endcall %}
+
     {% else %}
         Your are not logged in.
     {% endif %}
@@ -296,25 +289,123 @@
 {% block scripts %}
     <script>
 
-        // Preview tweet button :
 
-        $("#js-twitter-open-preview").click(function () {
+        function PreviewFunction() {
+            var protocol = /^http[s]?:\/{2}/i;
+            var pattern = /(?:https?:\/{2})?(?:w{3}\.)?(?:\w+\.)+(com|fr|be|io|gov|net|tv|uk|ch|de|nl|lu)(?:\/[^\s]+)?/g;
 
-            var message = $("<div>");
+            var url = $("#imagepost").val();
             var preview = $("#previewModal");
             var container = preview.find(".modal-body");
 
-            message.addClass("alert");
+            if (url.match(pattern)) {
 
-            message.text(document.getElementById("descriptionpost").value);
+                if (!url.match(protocol)) {
+                    url = "http://" + url;
+                }
 
-            container.empty();
-            container.append(message);
-            preview.modal("toggle");
+                var image = preview.find("img");
+
+                if (image.length === 1) {
+                    if (image.attr("src") === url) {
+                        preview.modal("toggle");
+                        return;
+                    }
+                    image.attr("src", url);
+                } else {
+                    image = $("<img>");
+                    image.attr("src", url);
+                    image.addClass("img-fluid");
+                }
+
+                var loader = $("<div>");
+                loader.text("Loading...");
+
+                container.empty();
+                container.append(loader);
+                preview.modal("toggle");
+
+                image.on("load", function () {
+                    container.empty();
+                    container.append(image);
+                });
+
+                image.on("error", function () {
+
+                    var message = $("<div>");
+                    message.addClass("alert");
+                    message.addClass("alert-danger");
+                    message.text("Could not load the given image :(");
+
+                    container.empty();
+                    container.append(message);
+                });
+
+            } else {
+
+                var message = $("<div>");
+                message.addClass("alert");
+                message.addClass("alert-danger");
+                message.text("Please, enter a valid url for the image");
+
+                container.empty();
+                container.append(message);
+                preview.modal("toggle");
+            }
+        }
+
+
+        // Preview tweet button :
+        var address = "{{ url_for('api.get_split')}}";
+
+        $("#js-twitter-open-preview").click(function () {
+
+            var parent = $("#js-twitter-open-preview").parent().parent().parent();
+            var textarea = parent.find("textarea");
+            var text = textarea.val();
+
+            $.getJSON(address, {
+                "descr": text
+            }, function(json) {
+
+                var preview = $("#previewTweetsModal");
+                var container = preview.find(".modal-body");
+
+                if (typeof json["tweetpreview"] === 'undefined') {
+                    var message = $("<div>");
+                    message.addClass("alert");
+                    message.addClass("alert-danger");
+                    message.text("Error");
+                    container.append(message);
+                    preview.modal("toggle");
+                    return;
+                }
+                if (json["tweetpreview"].length === 0) {
+                    var message = $("<div>");
+                    message.addClass("alert");
+                    message.addClass("alert-danger");
+                    message.text("Error");
+                    container.append(message);
+                    preview.modal("toogle");
+                    return;
+                }
+
+                // https://getbootstrap.com/docs/4.1/components/card/#list-groups
+                var tweets = $("<div>");
+                for (var k = 0; k < json["tweetpreview"].length; k++) {
+                    var tweet = $("<div>");
+                    tweet.text(json["tweetpreview"][k]);
+                    tweets.append(tweet);
+                }
+
+                var container = preview.find(".modal-body");
+                container.empty();
+                container.append(tweets);
+                preview.modal("toggle");
+            });
         });
 
         // Preview image button :
-
         $("#js-open-preview").click(function () {
 
             var protocol = /^http[s]?:\/{2}/i;
@@ -439,7 +530,8 @@
         });
         // From here, I copy a field ONCE from general to all the equivalent fields of each channel
         //It works but it's not really sexy to rewrite this for all fields of general tab
-        $('#titlepost').one("change", function (event) {
+
+        $('#titlepost').on("change", function (event) {
             text = ($(this).val());
             //This is a subselect of input that match with the regex .*titlepost
             $('input')
@@ -448,7 +540,7 @@
                 })
                 .val(text);
         });
-        $('#descriptionpost').one("change", function (event) {
+        $('#descriptionpost').on("change", function (event) {
             text = ($(this).val());
             //This is a subselect of input that match with the regex .*descriptionpost
             $('textarea')
@@ -456,8 +548,9 @@
                     return this.id.match(/.*descriptionpost/);
                 })
                 .val(text);
+            $(".js-counter textarea").trigger('keyup')
         });
-        $('#linkurlpost').one("change", function (event) {
+        $('#linkurlpost').on("change", function (event) {
             text = ($(this).val());
             //This is a subselect of input that match with the regex .*linkurlpost
             $('input')
@@ -466,7 +559,7 @@
                 })
                 .val(text);
         });
-        $('#imagepost').one("change", function (event) {
+        $('#imagepost').on("change", function (event) {
             text = ($(this).val());
             //This is a subselect of input that match with the regex .*imagepost
             $('input')
@@ -474,8 +567,11 @@
                     return this.id.match(/.*imagepost/);
                 })
                 .val(text);
+
+
         });
-        $('#dateuntilpost').one("change", function (event) {
+
+        $('#dateuntilpost').on("change", function (event) {
             text = ($(this).val());
             //This is a subselect of input that match with the regex .*dateuntilpost
             $('input')
@@ -484,7 +580,7 @@
                 })
                 .val(text);
         });
-        $('#datefrompost').one("change", function (event) {
+        $('#datefrompost').on("change", function (event) {
             text = ($(this).val());
             //This is a subselect of input that match with the regex .*datefrompost
             $('input')

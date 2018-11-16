@@ -16,6 +16,7 @@ def run(publishing, channel_config):
             print("Missing : {0}".format(field))
             return
 
+
     try:
         response = requests.post(json_data.get("api_url"), data={
             "image_url": publishing.image_url,

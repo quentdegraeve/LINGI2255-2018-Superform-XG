@@ -5,9 +5,9 @@ from smtplib import SMTPException
 from flask import current_app
 import json
 
-FIELDS_UNAVAILABLE = ['Title','Description']
-
+FIELDS_UNAVAILABLE = ["Image"]
 CONFIG_FIELDS = ["sender","receiver"]
+
 
 def run(publishing,channel_config):
     json_data = json.loads(channel_config)
