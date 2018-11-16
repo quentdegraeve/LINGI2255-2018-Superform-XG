@@ -357,10 +357,12 @@
 
         $("#js-twitter-open-preview").click(function () {
 
-            var value = document.getElementById("descriptionpost").value;
+            var parent = $("#js-twitter-open-preview").parent().parent().parent();
+            var textarea = parent.find("textarea");
+            var text = textarea.val();
 
             $.getJSON(address, {
-                "descr": value
+                "descr": text
             }, function(json) {
 
                 var preview = $("#previewTweetsModal");

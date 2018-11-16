@@ -30,22 +30,9 @@ def search():
 
 @api_page.route('/api/get_split', methods=["GET"])
 @login_required()
-def get_split(): # how to make a post ?
-    print('here')
-    form = request.args.get("form")
-    for elem in form:
-        if elem.startswith("chan_option_"):
-            def substr(elem):
-                import re
-                return re.sub('^chan\_option\_', '', elem)
-
-            c = Channel.query.get(substr(elem))
-            chan = str(c.name)
-
-            descr = form.get(chan + '_descriptionpost')
-            print(descr)
-
-    tweets = tweet_split(descr, (',', '!', '?', ':', ';', '\n'))
+def get_split():
+    description = request.args.get("descr")
+    tweets = tweet_split(description, (',', '!', '?', ':', ';', '\n'))
     return jsonify(
         tweetpreview=tweets
     )
