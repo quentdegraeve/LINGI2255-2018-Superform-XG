@@ -548,6 +548,7 @@
                     return this.id.match(/.*descriptionpost/);
                 })
                 .val(text);
+            $(".js-counter textarea").trigger('keyup')
         });
         $('#linkurlpost').on("change", function (event) {
             text = ($(this).val());
