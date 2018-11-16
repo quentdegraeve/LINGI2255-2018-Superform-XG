@@ -103,13 +103,14 @@
                         <div class="row">
                             <div class="col-md-8">
                                 <div class="row">
-                                {% if chan.plugin_name == 'superform.plugins.mail' %}
-                                    <div class="form-group">
+                                    <div class="col-md-12">
+                                        {% if not "Title" in chan.unavailablefields %}
+                                        <div class="form-group">
                                             <label for="{{ chan.name }}_titlepost">Title</label><br>
                                             <input type="text" name="{{ chan.name }}_titlepost" id="{{ chan.name }}_titlepost" class="form-control">
-                                    </div>
-                                {% endif %}
-                                    <div class="col-md-12">
+                                        </div>
+                                        {% endif %}
+                                        {% if not "Description" in chan.unavailablefields %}
                                         <div class="form-group">
                                             <label for="{{ chan.name }}_descriptionpost">Description</label><br>
                                             {% if chan.plugin_name == 'superform.plugins.twitter' %}
@@ -133,10 +134,14 @@
                                             <textarea class="form-control" rows="5" id="{{ chan.name }}_descriptionpost" name="{{ chan.name }}_descriptionpost"></textarea>
                                             {% endif %}
                                         </div>
+                                        {% endif %}
+                                        {% if not "Link" in chan.unavailablefields %}
                                         <div class="form-group">
                                             <label for="{{ chan.name }}_linkurlpost">Link</label><br>
                                             <input type="text" name="{{ chan.name }}_linkurlpost" id="{{ chan.name }}_linkurlpost" class="form-control">
                                         </div>
+                                        {% endif %}
+                                    {% if not "Image" in chan.unavailablefields %}
                                     <div class="form-group">
                                             <label for="{{ chan.name }}_imagepost">Image</label><br>
                                         <div class="input-group">
@@ -147,7 +152,10 @@
 
 
                                         </div>
-                                        </div>
+                                    </div>
+                                    {% endif %}
+
+
                                         {% if chan.module == "superform.plugins.gcal" %}
                                             <div class="row">
                                                 <div class="col-md-6">
@@ -216,10 +224,6 @@
                                                 <input type="text" name="{{ chan.name }}_guests" id="{{ chan.name }}_guests" class="form-control">
                                             </div>
                                         {% endif %}
-                                        <div class="form-group">
-                                            <label for="{{ chan.name }}_imagepost">Image</label><br>
-                                            <input type="text" name="{{ chan.name }}_imagepost" id="{{ chan.name }}_imagepost" class="form-control">
-                                        </div>
                                         {% if chan.module != "superform.plugins.gcal" %}
                                             <div class="row">
                                                 <div class="col-md-6">
@@ -285,24 +289,17 @@
 
 {% block scripts %}
     <script>
-
-
         function PreviewFunction() {
             var protocol = /^http[s]?:\/{2}/i;
             var pattern = /(?:https?:\/{2})?(?:w{3}\.)?(?:\w+\.)+(com|fr|be|io|gov|net|tv|uk|ch|de|nl|lu)(?:\/[^\s]+)?/g;
-
             var url = $("#imagepost").val();
             var preview = $("#previewModal");
             var container = preview.find(".modal-body");
-
             if (url.match(pattern)) {
-
                 if (!url.match(protocol)) {
                     url = "http://" + url;
                 }
-
                 var image = preview.find("img");
-
                 if (image.length === 1) {
                     if (image.attr("src") === url) {
                         preview.modal("toggle");
@@ -314,60 +311,44 @@
                     image.attr("src", url);
                     image.addClass("img-fluid");
                 }
-
                 var loader = $("<div>");
                 loader.text("Loading...");
-
                 container.empty();
                 container.append(loader);
                 preview.modal("toggle");
-
                 image.on("load", function () {
                     container.empty();
                     container.append(image);
                 });
-
                 image.on("error", function () {
-
                     var message = $("<div>");
                     message.addClass("alert");
                     message.addClass("alert-danger");
                     message.text("Could not load the given image :(");
-
                     container.empty();
                     container.append(message);
                 });
-
             } else {
-
                 var message = $("<div>");
                 message.addClass("alert");
                 message.addClass("alert-danger");
                 message.text("Please, enter a valid url for the image");
-
                 container.empty();
                 container.append(message);
                 preview.modal("toggle");
             }
         }
-
-
         // Preview tweet button :
         var address = "{{ url_for('api.get_split')}}";
-
         $("#js-twitter-open-preview").click(function () {
-
             var parent = $("#js-twitter-open-preview").parent().parent().parent();
             var textarea = parent.find("textarea");
             var text = textarea.val();
-
             $.getJSON(address, {
                 "descr": text
             }, function(json) {
-
                 var preview = $("#previewTweetsModal");
                 var container = preview.find(".modal-body");
-
                 if (typeof json["tweetpreview"] === 'undefined') {
                     var message = $("<div>");
                     message.addClass("alert");
@@ -386,7 +367,6 @@
                     preview.modal("toogle");
                     return;
                 }
-
                 // https://getbootstrap.com/docs/4.1/components/card/#list-groups
                 var tweets = $("<div>");
                 for (var k = 0; k < json["tweetpreview"].length; k++) {
@@ -394,32 +374,24 @@
                     tweet.text(json["tweetpreview"][k]);
                     tweets.append(tweet);
                 }
-
                 var container = preview.find(".modal-body");
                 container.empty();
                 container.append(tweets);
                 preview.modal("toggle");
             });
         });
-
         // Preview image button :
         $("#js-open-preview").click(function () {
-
             var protocol = /^http[s]?:\/{2}/i;
             var pattern = /(?:https?:\/{2})?(?:w{3}\.)?(?:\w+\.)+(com|fr|be|io|gov|net|tv|uk|ch|de|nl|lu)(?:\/[^\s]+)?/g;
-
             var url = $("#imagepost").val();
             var preview = $("#previewModal");
             var container = preview.find(".modal-body");
-
             if (url.match(pattern)) {
-
                 if (!url.match(protocol)) {
                     url = "http://" + url;
                 }
-
                 var image = preview.find("img");
-
                 if (image.length === 1) {
                     if (image.attr("src") === url) {
                         preview.modal("toggle");
@@ -431,63 +403,46 @@
                     image.attr("src", url);
                     image.addClass("img-fluid");
                 }
-
                 var loader = $("<div>");
                 loader.text("Loading...");
-
                 container.empty();
                 container.append(loader);
                 preview.modal("toggle");
-
                 image.on("load", function () {
                     container.empty();
                     container.append(image);
                 });
-
                 image.on("error", function () {
-
                     var message = $("<div>");
                     message.addClass("alert");
                     message.addClass("alert-danger");
                     message.text("Could not load the given image :(");
-
                     container.empty();
                     container.append(message);
                 });
-
             } else {
-
                 var message = $("<div>");
                 message.addClass("alert");
                 message.addClass("alert-danger");
                 message.text("Please, enter a valid url for the image");
-
                 container.empty();
                 container.append(message);
                 preview.modal("toggle");
             }
         });
-
-
         $(".js-counter textarea").on("keyup", function () {
-
             var container = $(this).parent();
             var text = $(this).val();
             var count = text.length;
-
             var counter = container.find(".counter");
             counter.text(count);
-
             var message = container.find(".alert");
-
             if (count > 280) {
                 message.show();
             } else {
                 message.hide();
             }
         });
-
-
         // This manage if a channel is selected or not:
         //  it hides/shows a tab for a channel
         //  it adds an information bullet to unavailable fields for each channel
@@ -498,7 +453,6 @@
             } else {
                 $("#publish-button").prop('disabled', false);
             }
-
             nameC = $(this).attr('data-namechan');
             fields = $(this).attr('data-unavailablefields');
             split = fields.split(',');
@@ -508,9 +462,7 @@
                 for (var i = 0; i < split.length; i++) {
                     $("input[id='" + nameC + "_" + $('#' + split[i].toLowerCase() + 'post').attr('id') + "']").prop('disabled', true);
                     $("textarea[id='" + nameC + "_" + $('#' + split[i].toLowerCase() + 'post').attr('id') + "']").prop('disabled', true);
-
                     $("label[for='" + nameC + "_" + $('#' + split[i].toLowerCase() + 'post').attr('id') + "']").append('<a href="#" data-toggle="popover" title="Unavailable field" data-content="This field is unavailable for channel ' + nameC + '"><i class="fas fa-exclamation-circle" style="color:orange"></i></a>');
-
                 }
                 $('[data-toggle="popover"]').popover();
                 $('#li_' + nameC).show();
@@ -527,7 +479,6 @@
         });
         // From here, I copy a field ONCE from general to all the equivalent fields of each channel
         //It works but it's not really sexy to rewrite this for all fields of general tab
-
         $('#titlepost').on("change", function (event) {
             text = ($(this).val());
             //This is a subselect of input that match with the regex .*titlepost
@@ -563,10 +514,7 @@
                     return this.id.match(/.*imagepost/);
                 })
                 .val(text);
-
-
         });
-
         $('#dateuntilpost').on("change", function (event) {
             text = ($(this).val());
             //This is a subselect of input that match with the regex .*dateuntilpost
@@ -585,8 +533,6 @@
                 })
                 .val(text);
         });
-
-
     </script>
 
 {% endblock %}

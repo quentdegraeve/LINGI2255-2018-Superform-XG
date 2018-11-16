@@ -31,11 +31,11 @@ def run(publishing, channel_config):
     api = get_api(cfg)
     link_url = publishing.link_url
     text = publishing.description
+
     if link_url is not '':
         text = text + ' '
         text = text + link_url
     tweets = tweet_split(text, (',', '!', '?', ':', ';', '\n'))
-
     image_url = publishing.image_url
     if image_url is '':
         try:
@@ -140,7 +140,6 @@ def tweet_split(text, separators):
                                 if limit - count <= i - index + 1:  # no room to add until start of url then start a new one
                                     tweets += [temp]
                                     nbTweet += 1
-                                    count = 0
                                     temp = ""
                                 # enough room in this tweet to add until start of url
                                 if text[index] == ' ':
