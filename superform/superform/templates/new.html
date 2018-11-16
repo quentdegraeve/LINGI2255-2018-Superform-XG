@@ -101,16 +101,12 @@
                 {% for chan in l_chan %}
                     <div class="tab-pane container-fluid fade" id="menu{{ chan.id }}">
                         <div class="row">
-                            <div class="col-md-8">
-                                <div class="row">
-                                    <div class="col-md-12">
+                                <div class="col-md-12">
                                         <div class="form-group">
-                                    <div class="col-md-12">
                                         {% if not "Title" in chan.unavailablefields %}
                                         <div class="form-group">
                                             <label for="{{ chan.name }}_titlepost">Title</label><br>
                                             <input type="text" name="{{ chan.name }}_titlepost" id="{{ chan.name }}_titlepost" class="form-control">
-                                        </div>
                                         </div>
                                         {% endif %}
                                         {% if not "Description" in chan.unavailablefields %}
@@ -245,7 +241,7 @@
                                             </div>
                                         {% endif %}
                                     </div>
-                                </div>
+
                             </div>
                             <div class="col-md-4">
                                 <div class="card">
