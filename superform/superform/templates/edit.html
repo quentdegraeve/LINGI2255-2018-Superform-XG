@@ -211,6 +211,7 @@
         });
         // From here, I copy a field ONCE from general to all the equivalent fields of each channel
         //It works but it's not really sexy to rewrite this for all fields of general tab
+
         $('#titlepost').one("change", function (event) {
             text = ($(this).val());
             //This is a subselect of input that match with the regex .*titlepost

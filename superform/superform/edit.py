@@ -60,14 +60,11 @@ def edit_post(post_id):
 def publish_edit_post(post_id): # when we do a save and publish in edit
     if request.method == "POST":
         p = db.session.query(Post).filter((Post.id == post_id)).first()  # retrieve old post
-        pubs = (db.session.query(Publishing).filter((Publishing.post_id == post_id)))  # retrieve old publishings
 
         form = request.form
 
         p.title = form.get('titlepost')
-        p.descr = form.get('descriptionpost')
-        print(p.descr)
-        print(form.get('descriptionpost'))
+        p.description = form.get('descriptionpost')
         p.link = form.get('linkurlpost')
         p.image = form.get('imagepost')
         if form.get('datefrompost') is '':
@@ -82,12 +79,15 @@ def publish_edit_post(post_id): # when we do a save and publish in edit
 
         db.session.commit()
 
+        pubs = (db.session.query(Publishing).filter((Publishing.post_id == post_id)))  # retrieve old publishings
         for pub in pubs:
             if pub.state == 0:  # unpublished so we can always edit
                 # remove this publication and create a new one
                 db.session.delete(pub)
             else:
                 print('autre chose')
+
+        db.session.commit()
 
         for elem in request.form:
             if elem.startswith("chan_option_"):
@@ -98,19 +98,14 @@ def publish_edit_post(post_id): # when we do a save and publish in edit
                 c = Channel.query.get(substr(elem))
                 # for each selected channel options
                 # create the publication
-                print(p)
-                print(c)
-                print(request.form)
-                pub = create_a_publishing(p, c, request.form)
+                pu = create_a_publishing(p, c, request.form)
 
-                if pub == -1:
+                if pu == -1:
                     flash("no module selected", "danger")
                     return redirect(url_for('index'))
-                elif pub == 0:
+                elif pu == 0:
                     error = "error in post :", p.id, " title or description length not valid"
                     flash(error, "danger")
                     return redirect(url_for('index'))
-
     db.session.commit()
-
     return redirect(url_for('index'))
