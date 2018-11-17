@@ -57,13 +57,7 @@ def new_post():
 
     if request.method == "GET":
 
-        mods = get_modules_names(current_app.config["PLUGINS"].keys())
         post_form_validations = dict()
-        for m in mods:
-            full_name = get_module_full_name(m)
-            clas = get_instance_from_module_path(full_name)
-            fields = clas.POST_FORM_VALIDATIONS
-            post_form_validations[m] = fields
 
         print(post_form_validations)
         return render_template('new.html', l_chan=list_of_channels, post_form_validations=post_form_validations)

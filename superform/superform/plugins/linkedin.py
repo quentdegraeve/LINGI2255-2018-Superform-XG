@@ -7,7 +7,6 @@ from datetime import datetime, timedelta
 from superform.suputils import plugin_utils
 
 from superform.models import db, Channel, Publishing
-from superform.suputils import keepass
 
 linkedin_verify_callback_page = Blueprint('linkedin', 'channels')
 
@@ -19,16 +18,6 @@ POST_FORM_VALIDATIONS = {
     'description_max_length': 256,
     'image_type': 'url'
 }
-API_KEY = keepass.get_password_from_keepass('linkedin_key')
-API_SECRET = keepass.get_password_from_keepass('linkedin_secret')
-RETURN_URL = keepass.get_username_from_keepass('linkedin_return_url')
-
-authentication = linkedin.LinkedInAuthentication(
-    API_KEY,
-    API_SECRET,
-    RETURN_URL,
-    ['r_basicprofile', 'r_emailaddress', 'w_share', 'rw_company_admin']
-)
 
 
 def authenticate(channel_id, publishing_id):
@@ -42,28 +31,18 @@ def authenticate(channel_id, publishing_id):
         conf["channel_name"] = channel_name
         conf["publishing_id"] = publishing_id
 
-        authentication.state = json.dumps(conf)
-        print("authorization_url", authentication.authorization_url)
-        return authentication.authorization_url  # open this url on your browser
     else:
         return 'AlreadyAuthenticated'
 
 
 def set_access_token(channel_id, code):
-    authentication.authorization_code = code
 
-    print(authentication.authorization_code)
-    result = authentication.get_access_token()
-
-    print("Access Token:", result.access_token)
-    print("Expires in (seconds):", result.expires_in)
     #Add
     channel = Channel.query.get(channel_id)
     channel_name = channel.name
     # add the configuration to the channel
     conf = json.loads(channel.config)
     conf["channel_name"] = channel_name
-    conf["linkedin_access_token"] = result.access_token
     conf["linkedin_token_expiration_date"] = (datetime.now() + timedelta(seconds=result.expires_in)).__str__()
     
     LinkedinTokens.put_token(LinkedinTokens, channel_id, conf)
@@ -88,18 +67,11 @@ def share_post(channel_id, comment, title, submitted_url,submitted_image_url,vis
 
 def auto_auth(url, channel_id):
 
-    if keepass.set_entry_from_keepass(str(channel_id)) is 0:
-        print('Error : cant get keepass entry :', str(channel_id), 'for linkedin plugin')
-        return redirect(url_for('keepass.error_channel_keepass', chan_id=channel_id))
-
     driver = selenium_utils.get_chrome()
 
     driver.get(url)
     username = driver.find_element_by_name("session_key")
     password = driver.find_element_by_name("session_password")
-
-    username.send_keys(keepass.KeepassEntry.username)
-    password.send_keys(keepass.KeepassEntry.password)
 
     driver.find_element_by_name("signin").click()
 

@@ -8,7 +8,6 @@ from superform.suputils import selenium_utils, plugin_utils
 FIELDS_UNAVAILABLE = ['Publication Date']
 CONFIG_FIELDS = ["channel_name", "slack_channel_name", "slack_domain_name", "slack_access_token",
                  "slack_token_expiration_date"]
-AUTH_FIELDS = True
 
 POST_FORM_VALIDATIONS = {
     'title_max_length': 40000,
@@ -59,8 +58,6 @@ def set_access_token(channel_id, code):
     conf = json.loads(channel.config)
 
     conf["channel_name"] = channel_name
-    conf["slack_access_token"] = auth_response['access_token']
-    conf["slack_token_expiration_date"] = (datetime.now() + timedelta(hours=24 * 365)).__str__()
 
     SlackTokens.put_token(SlackTokens, channel_id, conf)
     return conf
@@ -155,7 +152,6 @@ def run(publishing, channel_config):
         db.session.commit()
 
 
-@slack_verify_callback_page.route("/slack/verify", methods=['GET'])
 def slack_verify_authorization():
     # Retrieve the auth code from the request params
     auth_code = request.args['code']

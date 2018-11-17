@@ -10,6 +10,7 @@ def get_headless_chrome():
     options = webdriver.ChromeOptions()
     options.add_argument('headless')
     try:
+        print(sys.path[0])
         if platform.system() == 'Windows':
             return webdriver.Chrome(sys.path[0] + '\superform\selenium_drivers\chromedriver.exe',
                                     chrome_options=options)
