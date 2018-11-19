@@ -11,6 +11,7 @@ setup(
         'flask-sqlalchemy',
         'python3-linkedin',
         'pykeepass',
+        'rfeed',
         'pycrypto',
         'slackclient',
         'selenium', 'pytest'
