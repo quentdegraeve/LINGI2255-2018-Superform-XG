@@ -43,7 +43,7 @@ def run(publishing, channel_config):
 
     generated_file = feed.rss()
 
-    rss = Rss(channel_id="15", xml_file=generated_file)
+    rss = Rss(channel_id="16", xml_file=generated_file)
     db.session.add(rss)
 
     print(generated_file)
