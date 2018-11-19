@@ -1,8 +1,7 @@
 from datetime import datetime, timedelta
 from flask import flash, Blueprint, redirect, url_for, request
-from slackclient import SlackClient
 import json
-from superform.models import Channel, Publishing, db
+from superform.models import Publishing, db, Rss
 from superform.suputils import selenium_utils, plugin_utils
 from rfeed import *
 
@@ -43,6 +42,9 @@ def run(publishing, channel_config):
         items=[item1])
 
     generated_file = feed.rss()
+
+    rss = Rss(channel_id="15", xml_file=generated_file)
+    db.session.add(rss)
 
     print(generated_file)
 
