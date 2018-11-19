@@ -1,6 +1,5 @@
-from flask import Blueprint, url_for, request, redirect, render_template, send_file
-from superform.utils import datetime_converter, str_converter
-from superform.models import db, Publishing, Channel, Rss
+from flask import Blueprint, send_file
+from superform.models import db, Rss
 import io
 
 
@@ -11,19 +10,20 @@ rss_page = Blueprint('rss', __name__)
 def display_rss_feed(id):
 
     RSSdb = db.session.query(Rss).filter(Rss.channel_id == id).first()
+    feed = RSSdb.xml_file
 
-    feed = bytearray(RSSdb.xml_file, 'utf-8')
+    proxy = io.StringIO()
+    proxy.write(feed)
 
-    return send_file(io.BytesIO(feed))
-    #strIO = io.StringIO()
-    #strIO.write(str(RSSdb.xml_file))
-    #strIO.seek(0)
-    #return send_file(strIO,
-     #                attachment_filename="testing.xml",
-      #               as_attachment=True)
+    mem = io.BytesIO()
+    mem.write(proxy.getvalue().encode('utf-8'))
 
-    #return send_file(RSSdb.xml_file)
-        #render_template('rss.html', xml=RSSdb.xml_file)
+    mem.seek(0)
+    proxy.close()
 
-
-
+    return send_file(
+        mem,
+        as_attachment=True,
+        attachment_filename='test.xml',
+        mimetype='text/xml'
+    )
