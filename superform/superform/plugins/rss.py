@@ -28,7 +28,7 @@ def run(publishing, channel_config):
     print(channel_config)
     item1 = Item(
         title=publishing.title,
-        link=publishing.link_url,
+        link=publishing.image_url,
         description=publishing.description,
         author="Superform", #channel_config['channel_author'],
         guid=Guid("https://www.cyberciti.biz/tips/my-10-unix-command-line-mistakes.html"),
@@ -36,7 +36,7 @@ def run(publishing, channel_config):
 
     feed = Feed(
         title="Superform",
-        link="localhost:5000",
+        link=publishing.link_url, #channel_config['channel_location'],
         description="Posts", #channel_config['channel_decription'],
         language="en-US",
         lastBuildDate=datetime.now(),
