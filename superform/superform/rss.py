@@ -24,6 +24,6 @@ def display_rss_feed(id):
     return send_file(
         mem,
         as_attachment=True,
-        attachment_filename='test.xml',
+        attachment_filename='feed.xml',
         mimetype='text/xml'
     )
