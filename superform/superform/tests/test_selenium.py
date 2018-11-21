@@ -25,6 +25,9 @@ def prepare():
     selenium_utils.create_channel(pytest.driver, 'test_slack', keepass.KeepassEntry.username, keepass.KeepassEntry.password, 'slack')
     selenium_utils.modify_config(pytest.driver, 2, 'testlingi2255team8', 'general')
 
+    keepass.set_entry_from_keepass('account_rss')
+    selenium_utils.create_channel(pytest.driver, 'test_rss', keepass.KeepassEntry.username, keepass.KeepassEntry.password, 'rss')
+
     selenium_utils.add_authorization(pytest.driver, 'test_linkedin', 'superego', 2)
     selenium_utils.add_authorization(pytest.driver, 'test_slack', 'superego', 2)
 
