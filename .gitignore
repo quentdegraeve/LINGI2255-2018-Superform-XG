@@ -9,10 +9,6 @@ __pycache__/
 /superform/superform/config.json
 /superform/superform/superform.db
 /venv/
-
-superform/superform/suputils/NewKey\.key
-
-superform/superform/suputils/Superform\.kdbx
-
-
-superform/superform/selenium_drivers/
+/superform/superform/suputils/NewKey.key
+/superform/superform/suputils/Superform.kdbx
+/superform/superform/selenium_drivers/chromedriver

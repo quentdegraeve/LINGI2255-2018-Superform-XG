@@ -30,7 +30,7 @@
             {% endfor %}
         </tbody>
     </table>
-    <form class="form-inline" method="post">
+    <form class="form-inline" method="post" onsubmit="Correction()">
         <input type="hidden" name="@action" value="new">
         <label class="sr-only" for="inlineFormInputText">Username</label>
         <label class="sr-only" for="inlineFormCustomSelectModule">Module</label>
@@ -45,13 +45,12 @@
             </select>
         </div>
         <div class="input-group mr-sm-2">
-            <input name="name" type="text" class="form-control" id="inlineFormInputText" placeholder="New channel name">
-            <input name="username" type="text" class="form-control" id="inlineFormInputText" placeholder="New channel username">
-            <input name="password" type="password" class="form-control" id="inlineFormInputText" placeholder="New channel password">
+            <input name="name" type="text" class="form-control" id="inlineFormInputName" placeholder="New channel name">
+            <input name="username" type="text" hidden class="form-control" id="inlineFormInputTextUserName" placeholder="New channel username">
+            <input name="password" type="password" hidden class="form-control" id="inlineFormInputTextPassword" placeholder="New channel password">
         </div>
 
-        <button name="add_chan" type="submit" class="btn btn-primary">
-
+        <button id="add_chan_button" name="add_chan" type="submit" class="btn btn-primary">
             <i class="fas fa-fw fa-plus"></i>Add a new channel
         </button>
     </form>
@@ -109,6 +108,14 @@
 {% endblock %}
 {% block scripts %}
     <script>
+
+
+        function Correction() {
+            var corr_prov = $("#inlineFormInputText").val();
+            corr= corr_prov.replace(/([,:;.?!")'{}(^+=~%$ ])/g, "_");
+            $("#inlineFormInputText").val(corr);
+        }
+
         $('#deleteModal').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget); // Button that triggered the modal
             $(this).find('#channel-name').text(button.data('name'));
@@ -119,5 +126,10 @@
             $(this).find('#channel-name').text(button.data('name'));
             $(this).find('#channel-id').val(button.data('id'));
         });
+    </script>
+    <script src="{{ url_for('static', filename='js/channel.js') }}" crossorigin="anonymous">  </script>
+    <script type="text/javascript">
+        var auth_fields = {{ auth_fields|tojson }}
+
     </script>
 {% endblock %}

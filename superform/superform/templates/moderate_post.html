@@ -4,7 +4,7 @@
     <h1>Moderate this publication</h1>
     {% if session.logged_in %}
         <form method="POST" action="">
-            <div class="row"  module-namechan="{{chan.module }}">
+            <div class="row"  module-namechan="{{channel.module }}">
                 <div class="col-md-12">
                     <div class="form-group">
                         <label for="titlepost">Title</label><br>
@@ -93,10 +93,9 @@
             <button id="publish" class="btn btn-success">Publish</button>
         </form>
     {% else %}
-        Your are not logged in.
+        You are not logged in.
     {% endif %}
 {% endblock %}
 {% block scripts %}
     <script src="{{ url_for('static', filename='js/moderate.js') }}" crossorigin="anonymous"></script>
 {% endblock %}
-

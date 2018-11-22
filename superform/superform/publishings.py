@@ -1,9 +1,21 @@
-from flask import Blueprint, url_for, request, redirect, render_template
+from flask import Blueprint, url_for, request, redirect, session, render_template
 from superform.utils import login_required, datetime_converter, str_converter
-from superform.models import db, Publishing, Channel, PubGCal
+from superform.models import db, User, Publishing, Channel, PubGCal
+from superform.users import get_moderate_channels_for_user
 
 pub_page = Blueprint('publishings', __name__)
 
+@pub_page.route('/moderate', methods=["GET"])
+@login_required()
+def moderate():
+    user = User.query.get(session.get("user_id", "")) if session.get("logged_in", False) else None
+    flattened_list_pubs = []
+    if user is not None:
+        chans = get_moderate_channels_for_user(user)
+        pubs_per_chan = (db.session.query(Publishing).filter((Publishing.channel_id == c.id) & (Publishing.state == 0))
+                         for c in chans)
+        flattened_list_pubs = [y for x in pubs_per_chan for y in x]
+    return render_template("moderate.html", publishings=flattened_list_pubs)
 
 @pub_page.route('/moderate/<int:id>/<string:idc>', methods=["GET", "POST"])
 @login_required()
@@ -21,7 +33,6 @@ def moderate_publishing(id, idc):
 
     if request.method == "GET":
         return render_template('moderate_post.html', pub=pub, channel=chn)
-
     else:
         pub.title = request.form.get('titlepost')
         pub.description = request.form.get('descrpost')
@@ -53,7 +64,7 @@ def moderate_publishing(id, idc):
         # every plugin should implement the autheticate method that redirect to the plugin authentication process
         # if it is required or necessary (no token available or expired)!
 
-        url = plugin.authenticate(c.name, (id, idc))
+        url = plugin.authenticate(c.id, (id, idc))
         if url != "AlreadyAuthenticated":
             print("url", url)
             return plugin.auto_auth(url, pub.channel_id)

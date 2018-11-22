@@ -1,7 +1,11 @@
 $("input[type='checkbox']").each(function(){
-     if($(this).attr("module-namechan") == "superform.plugins.linkedin" || $(this).attr("module-namechan") == "superform.plugins.slack" ){
-         $(this).on("click",adapt_post_to_channel($(this).attr('data-namechan')));
-     }
+
+    let mod = $(this).attr("module-namechan").split('.')[2];
+    if(mod != undefined){
+        if(post_form_validations[mod]['image_type'] != undefined && post_form_validations[mod]['image_type'].toLocaleLowerCase() =="url"){
+             $(this).on("click",adapt_post_to_channel($(this).attr('data-namechan')));
+        }
+    }
 });
 
 function adapt_post_to_channel(chan_name){
@@ -11,18 +15,25 @@ function adapt_post_to_channel(chan_name){
 $("#publish-button").click(function(event){
     var toReturn = true;
      $("input[type='checkbox']:checked").each(function(){
-        if($(this).attr("module-namechan") == "superform.plugins.linkedin"){
-            if((!prevalidate_post($(this).attr("data-namechan"),200,256))){
-                document.getElementById("li_"+$(this).attr("data-namechan")).children[0].style.color = "red";
-                toReturn = false;
-                return toReturn;
-            }
-        }else if($(this).attr("module-namechan") == "superform.plugins.slack"){
-            if((!prevalidate_post($(this).attr("data-namechan"),40000,40000))){
-                toReturn = false
-                return toReturn;
-            }
+         let mod = $(this).attr("module-namechan").split('.')[2];
+         let title_max_length=100000;
+         let descr_max_length=100000;
+         if(mod != undefined){
+             console.log(post_form_validations[mod]);
+             if(post_form_validations[mod]['title_max_length'] != undefined){
+                 title_max_length = post_form_validations[mod]['title_max_length'] ;
+             }
+             if(post_form_validations[mod]['description_max_length'] != undefined){
+                 descr_max_length = post_form_validations[mod]['description_max_length'] ;
+             }
+         }
+
+        if((!prevalidate_post($(this).attr("data-namechan"),title_max_length,descr_max_length))){
+            document.getElementById("li_"+$(this).attr("data-namechan")).children[0].style.color = "red";
+            toReturn = false;
+            return toReturn;
         }
+
       });
      return toReturn;
 });
@@ -32,6 +43,7 @@ function createErrorMessage (element,error_message,id){
     var message = document.getElementById(id);
     if(message) {
         message.textContent =  error_message;
+        message.hidden = false;
     }else{
         var new_elem = document.createElement('div');
         new_elem.setAttribute('id', id);
@@ -56,7 +68,7 @@ function prevalidate_post (chan_name,title_length,descr_length){
     }else{
         elementToRemove = document.getElementById("error_title");;
         if(elementToRemove){
-            elementToRemove.remove();
+            elementToRemove.hidden = true;
         }
         input_title.classList.remove("invalid");
     }
@@ -72,7 +84,7 @@ function prevalidate_post (chan_name,title_length,descr_length){
     }else{
         elementToRemove = document.getElementById("error_desc");
         if(elementToRemove){
-            elementToRemove.remove();
+            elementToRemove.hidden = true;
         }
         input_descrip.classList.remove("invalid");
     }
@@ -86,7 +98,7 @@ function prevalidate_post (chan_name,title_length,descr_length){
     }else{
         elementToRemove = document.getElementById("error_linkUrlPost");
         if(elementToRemove){
-            elementToRemove.remove();
+            elementToRemove.hidden = true;
         }
          input_linkUrlPost.classList.remove("invalid");
     }
@@ -99,7 +111,7 @@ function prevalidate_post (chan_name,title_length,descr_length){
     }else{
         elementToRemove = document.getElementById("error_linkImgUrlPost");
         if(elementToRemove){
-            elementToRemove.remove();
+            elementToRemove.hidden = true;
         }
          input_linkImgUrlPost.classList.remove("invalid");
     }
@@ -112,7 +124,7 @@ function prevalidate_post (chan_name,title_length,descr_length){
     }else{
         elementToRemove = document.getElementById("error_datefrompost");
         if(elementToRemove){
-            elementToRemove.remove();
+            elementToRemove.hidden = true;
         }
         input_datefrompost.classList.remove("invalid");
     }
@@ -125,21 +137,25 @@ function prevalidate_post (chan_name,title_length,descr_length){
     }else{
         elementToRemove = document.getElementById("error_dateuntilpost");
         if(elementToRemove){
-            elementToRemove.remove();
+            elementToRemove.hidden = true;
         }
         input_dateuntilpost.classList.remove("invalid");
     }
+    if(input_datefrompost.value != "" && input_dateuntilpost.value != "") {
+        var a = new Date(input_datefrompost.value);
+        var b = new Date(input_dateuntilpost.value);
 
-    var a = new Date(input_datefrompost.value);
-    var b = new Date(input_dateuntilpost.value);
-    if( b < a){
-        createErrorMessage(input_dateuntilpost,"the date until post is more big that date from post","error_dateuntilpost");
-        input_dateuntilpost.classList.add("invalid");
-        toReturn = false;
-    }else if(a < new Date.now()){
-        createErrorMessage(input_datefrompost,"the date is more old that now","error_datefrompost");
-        input_dateuntilpost.classList.add("invalid");
-        toReturn = false;
+        if (b < a) {
+            createErrorMessage(input_dateuntilpost, "the date until post is greater that date from post", "error_dateuntilpost");
+            input_dateuntilpost.classList.add("invalid");
+            toReturn = false;
+        } else {
+            elementToRemove = document.getElementById("error_dateuntilpost");
+            if (elementToRemove) {
+                elementToRemove.hidden = true;
+            }
+            input_dateuntilpost.classList.remove("invalid");
+        }
     }
     return toReturn;
 }

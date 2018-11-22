@@ -1,18 +1,16 @@
-from superform.plugins import linkedin
+import importlib
+import pkgutil
+import superform
 import os
-import tempfile
-
-from superform.suputils import keepass
-from datetime import datetime, timedelta
-
 import pytest
 
+from superform.suputils import keepass, plugin_utils
 from flask import Flask
 from superform.models import Channel
-from superform import app, db, Post, posts
-from superform.utils import get_module_full_name
 from superform.models import db as _db
-from superform.plugins import linkedin
+from superform.posts import pre_validate_post
+from superform.models import Post
+
 
 API_KEY = keepass.get_password_from_keepass('linkedin_key')
 API_SECRET = keepass.get_password_from_keepass('linkedin_secret')
@@ -29,7 +27,11 @@ def app(request):
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = TEST_DATABASE_URI
     app.config['TESTING'] = True
-
+    app.config["PLUGINS"] = {
+        name: importlib.import_module(name)
+        for finder, name, ispkg
+        in pkgutil.iter_modules(superform.plugins.__path__, superform.plugins.__name__ + ".")
+    }
     # Establish an application context before running the tests.
     ctx = app.app_context()
     ctx.push()
@@ -79,49 +81,72 @@ def session(db, request):
 
 def test_pre_validate_post_title():
     chan = Channel
-    post = Post
-    post.title = "x" * 200
-    post.description = "x"
     chan.module = "superform.plugins.linkedin"
-    assert posts.pre_validate_post(chan, post) == 1
-    post.title += "x"
-    assert posts.pre_validate_post(chan, post) == 0
-    post.title = ""
-    assert posts.pre_validate_post(chan, post) == 0
+    pre_validate_post_title(chan,200)
 
 def test_pre_validate_post_description():
     chan = Channel
+    chan.module = "superform.plugins.linkedin"
+    pre_validate_post_description(chan,256)
+
+def test_prevalidate_post_link_url():
+    chan = Channel
+    chan.module = "superform.plugins.linkedin"
+    pre_validate_post_Link_url(chan)
+
+def test_prevalidate_post_img_url():
+    chan = Channel
+    chan.module = "superform.plugins.linkedin"
+    pre_validate_post_img_url(chan)
+
+
+def pre_validate_post_title(channel,maxLengthTitle):
+
+    post = Post
+    post.title = "x" * maxLengthTitle
+    post.description = "x"
+    post.link_url = "https://www.test.com"
+    post.image_url ="https://www.test.com"
+    assert pre_validate_post(channel, post) == 1
+    post.title += "x"
+    assert  pre_validate_post(channel,post) == 0
+    post.title = ""
+    assert  pre_validate_post(channel,post) == 0
+
+
+def pre_validate_post_description(channel, maxLengthDescription):
     post = Post
     post.title = "x"
-    post.description = "x" * 256
-    chan.module = "superform.plugins.linkedin"
-    assert posts.pre_validate_post(chan, post) == 1
+    post.description = "x" * maxLengthDescription
+    post.link_url = "https://www.test.com"
+    post.image_url = "https://www.test.com"
+    assert  pre_validate_post(channel,post) == 1
     post.description += "x"
-    assert posts.pre_validate_post(chan, post) == 0
+    assert  pre_validate_post(channel,post) == 0
     post.description = ""
-    assert posts.pre_validate_post(chan, post) == 0
+    assert  pre_validate_post(channel,post) == 0
 
+def pre_validate_post_Link_url(channel):
+    post = Post
+    post.title = "x"
+    post.description = "x"
+    post.link_url = "https://www.test.com"
+    post.image_url = "https://www.test.com"
+    assert  pre_validate_post(channel,post) == 1
+    post.link_url = "test error link"
+    assert  pre_validate_post(channel,post) == 0
+    post.link_url = ""
+    assert pre_validate_post(channel,post) == 1
 
-def test_authenticate(session):
-    false_post_id = -1
-    false_channel_id = -1
-    url = linkedin.authenticate("name_test", (false_post_id, false_channel_id))
-    assert url != 'AlreadyAuthenticated'
+def pre_validate_post_img_url(channel):
+    post = Post
+    post.title = "x"
+    post.description = "x"
+    post.link_url = "https://www.test.com"
+    post.image_url = "https://www.test.com"
+    assert  pre_validate_post(channel,post) == 1
+    post.image_url = "test error link"
+    assert  pre_validate_post(channel,post) == 0
+    post.image_url = ""
+    assert pre_validate_post(channel,post) == 1
 
-
-def test_authenticate2(session):
-    linkedin_access_token = "test_token"
-    linkedin_token_expiration_date = datetime.now() + timedelta(seconds=60)
-    channel_name = "channel_test"
-    c_test = Channel(name=channel_name, module=get_module_full_name("linkedin"), config="{}", linkedin_access_token=linkedin_access_token, linkedin_token_expiration_date=linkedin_token_expiration_date)
-
-    session.add(c_test)
-    conf = dict()
-    conf["channel_name"] = channel_name
-    conf["linkedin_access_token"] = linkedin_access_token
-    conf["linkedin_token_expiration_date"] = linkedin_token_expiration_date.__str__()
-    linkedin.LinkedinTokens.put_token(linkedin.LinkedinTokens, "channel_test", conf)
-    false_post_id = -1
-    false_channel_id = -1
-    url = linkedin.authenticate(channel_name, (false_post_id, false_channel_id))
-    assert url == 'AlreadyAuthenticated'
