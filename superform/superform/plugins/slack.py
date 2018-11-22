@@ -97,7 +97,7 @@ def auto_auth(url, channel_id):
     if dom == 'None' or dom == '':
         return redirect(url_for('slack_error.error_config_slack', chan_id=channel_id))
 
-    driver = selenium_utils.get_chrome()
+    driver = selenium_utils.get_headless_chrome()
     driver.get(url)
     domain = driver.find_element_by_name("domain")
     domain.send_keys(dom)
