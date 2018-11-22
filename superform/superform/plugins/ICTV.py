@@ -16,6 +16,7 @@ def run(publishing, channel_config):
             print("Missing : {0}".format(field))
             return
 
+
     try:
         response = requests.post(json_data.get("api_url"), data={
             "image_url": publishing.image_url,
@@ -26,3 +27,11 @@ def run(publishing, channel_config):
         print("Status code of the request : {0}".format(response.status_code))
     except requests.exceptions.RequestException as e:
         print("Connection error")
+
+# Methods from other groups :
+
+def post_pre_validation(post):
+    return 1;
+
+def authenticate(channel_name, publishing_id):
+    return 'AlreadyAuthenticated'

@@ -6,7 +6,7 @@ import requests
 import tweepy
 
 
-FIELDS_UNAVAILABLE = ['Title']
+FIELDS_UNAVAILABLE = ["Title"]
 CONFIG_FIELDS = ["consumer_key", "consumer_secret", "access_token_key", "access_token_secret"]
 
 
@@ -27,21 +27,24 @@ def run(publishing, channel_config):
         "access_token": str(json_data['access_token_key']),
         "access_token_secret": str(json_data['access_token_secret'])
     }
+
     api = get_api(cfg)
     link_url = publishing.link_url
-    print(link_url)
     text = publishing.description
+
     if link_url is not '':
         text = text + ' '
         text = text + link_url
-    print(text)
     tweets = tweet_split(text, (',', '!', '?', ':', ';', '\n'))
-
     image_url = publishing.image_url
     if image_url is '':
         try:
-            for tweet in reversed(tweets):
-                api.update_status(status=tweet)
+            tweet_id = None
+            for tweet in tweets:
+                if tweet_id is None:
+                    tweet_id = api.update_status(status=tweet)
+                else:
+                    tweet_id = api.update_status(tweet, tweet_id.id_str)
         except tweepy.TweepError as e:
             print(e.reason)
     else:
@@ -51,12 +54,15 @@ def run(publishing, channel_config):
             with open(filename, 'wb') as image:
                 for req in request:
                     image.write(req)
-
-            i = len(tweets)-1
-            while i > 0:
-                api.update_status(status=tweets[i])
-                i -= 1
-            api.update_with_media(filename, status=tweets[0])
+            try:
+                tweet_id = None
+                for tweet in tweets:
+                    if tweet_id is None:
+                        tweet_id = api.update_with_media(filename, status=tweet)
+                    else:
+                        tweet_id = api.update_status(tweet, tweet_id.id_str)
+            except tweepy.TweepError as e:
+                print(e.reason)
             os.remove(filename)
         else:
             print("Cant load the image")
@@ -66,6 +72,11 @@ def get_api(cfg):
     auth = tweepy.OAuthHandler(cfg['consumer_key'], cfg['consumer_secret'])
     auth.set_access_token(cfg['access_token'], cfg['access_token_secret'])
     return tweepy.API(auth)
+
+
+def get_urls(text):
+    pattern = r'((?:http[s]?:/{2})?(?:w{3}\.)?(?:\w+\.)+(?:com|fr|be|io|gov|net|tv|uk|ch|de|nl|lu)(?:/[^\s]+)?)'
+    return re.findall(pattern, text)
 
 
 def tweet_split(text, separators):
@@ -78,8 +89,7 @@ def tweet_split(text, separators):
         tweets += [text]
     else:
         limit -= 4
-
-        urls = re.findall(r'((?:http[s]?://)?(?:w{3}\.)?(?:\w+\.)+(?:com|fr|be|io|gov|net|tv|uk)(?:/[^\s]+)?)', text)
+        urls = get_urls(text)
         url_index = []
         url_len = []
         for url in urls:
@@ -94,12 +104,18 @@ def tweet_split(text, separators):
         nbTweet = 0  # nombre de tweets
         count = 0  # taille du tweet actuel
         temp = ""  # tweet temporaire
+
         for s in sentences:
+            done = False
             if (len(s) + 1) > limit:
-                print("sentence longer than limit")
-                # cut between words
+                if separators == ' ':
+                    print("Split between characters")
+                    return [text[i:i+280] for i in range(0, len(text), 280)]
+                else:
+                    print("Split between words")
+                    return tweet_split(text, ' ')
             else:
-                if not url_index:  # si pas d'url
+                if not url_index:  # if no url in text
                     if (count + len(s) + 1) < limit:  # tweet small enough
                         temp += text[index: index + len(s) + 1]
                         count += len(s) + 1
@@ -115,10 +131,19 @@ def tweet_split(text, separators):
                             count = len(s) + 1
                             index += len(s) + 1
                         nbTweet += 1
-                else:  # si url
+                else:  # if url in text
                     for (i, l) in zip(url_index, url_len):
-                        if (i <= index <= i + l) or (i <= index + len(s) + 1 <= i + l):  # url in this part
-                            if limit - count <= l + i - index + 1:  # no room in this tweet to put entire url
+                        # url in this sentence :
+                        if (i <= index <= i + l) or (i <= index + len(s) + 1 <= i + l):
+                            done = True
+                            if limit - count <= l + i - index + 1:  # no room in this tweet to add until end of url
+                                if limit - count <= i - index + 1:  # no room to add until start of url then start a new one
+                                    tweets += [temp]
+                                    nbTweet += 1
+                                    temp = ""
+                                # enough room in this tweet to add until start of url
+                                if text[index] == ' ':
+                                    index += 1
                                 temp += text[index: i]
                                 tweets += [temp]
                                 nbTweet += 1
@@ -126,7 +151,8 @@ def tweet_split(text, separators):
                                 temp = text[i: index]  # start of a new tweet
                                 count = index - i
                             else:  # url can be put in full in this tweet
-                                if len(s) > limit - count:  # full sentence can't be put in tweet
+                                if len(s) > limit - count:
+                                    # full sentence can't be put in this tweet, so take until end of url, then start new one
                                     temp += text[index: i + l]
                                     tweets += [temp]
                                     nbTweet += 1
@@ -137,22 +163,24 @@ def tweet_split(text, separators):
                                     temp += text[index: index + len(s) + 1]
                                     count += len(s) + 1
                                     index += len(s) + 1
-                        else:  # url not in this part
-                            if (count + len(s) + 1) < limit:  # tweet small enough to put a sentence
-                                temp += text[index: index + len(s) + 1]
-                                count += len(s) + 1
+
+                    # url not in this sentence
+                    if not done:
+                        if (count + len(s) + 1) < limit:  # tweet small enough to put a sentence
+                            temp += text[index: index + len(s) + 1]
+                            count += len(s) + 1
+                            index += len(s) + 1
+                        else:  # tweet too big
+                            tweets += [temp]
+                            if text[index] == ' ':
+                                temp = text[index + 1: index + len(s) + 1]
+                                count = len(s)
                                 index += len(s) + 1
-                            else:  # tweet too big
-                                tweets += [temp]
-                                if text[index] == ' ':
-                                    temp = text[index + 1: index + len(s) + 1]
-                                    count = len(s)
-                                    index += len(s) + 1
-                                else:
-                                    temp = text[index: index + len(s) + 1]
-                                    count = len(s) + 1
-                                    index += len(s) + 1
-                                nbTweet += 1
+                            else:
+                                temp = text[index: index + len(s) + 1]
+                                count = len(s) + 1
+                                index += len(s) + 1
+                            nbTweet += 1
 
         tweets += [temp]
 
@@ -162,3 +190,10 @@ def tweet_split(text, separators):
 
     return tweets
 
+# Methods from other groups :
+
+def post_pre_validation(post):
+    return 1;
+
+def authenticate(channel_name, publishing_id):
+    return 'AlreadyAuthenticated'

@@ -1,5 +1,6 @@
 from flask import Blueprint, current_app, url_for, request, make_response, redirect, session, render_template
 
+from superform.plugins.linkedin import authenticate
 
 from superform.utils import login_required, get_instance_from_module_path, get_modules_names, get_module_full_name
 from superform.models import db, Channel
@@ -12,7 +13,6 @@ channels_page = Blueprint('channels', __name__)
 @login_required(admin_required=True)
 def channel_list():
 
-    #linkedin.run(None,{})
     if request.method == "POST":
         action = request.form.get('@action', '')
         if action == "new":
@@ -22,6 +22,10 @@ def channel_list():
                 channel = Channel(name=name, module=get_module_full_name(module), config="{}")
                 db.session.add(channel)
                 db.session.commit()
+                if module == "linkedin":
+                    authorization_url = authenticate(name)  # channel's name
+                    if authorization_url != "alreadyAuthenticated":
+                        return redirect(authorization_url)
 
         elif action == "delete":
             channel_id = request.form.get("id")
@@ -37,8 +41,7 @@ def channel_list():
             db.session.commit()
 
     channels = Channel.query.all()
-    return render_template("channels.html", channels=channels,
-                           modules=get_modules_names(current_app.config["PLUGINS"].keys()))
+    return render_template("channels.html", channels=channels, modules=get_modules_names(current_app.config["PLUGINS"].keys()))
 
 
 @channels_page.route("/configure/<int:id>", methods=['GET', 'POST'])

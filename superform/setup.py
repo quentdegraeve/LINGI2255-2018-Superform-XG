@@ -11,8 +11,8 @@ setup(
         'flask-sqlalchemy',
         'tweepy',
         'python3-linkedin',
-        'googleapiclient',
-        'httplib2',
-        'oauth2client'
+        'pykeepass',
+        'linkedin',
+        'selenium'
     ],
 )

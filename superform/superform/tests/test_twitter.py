@@ -47,6 +47,30 @@ def test_send_tweet_bad_config(client):
     db.session.commit()
     assert 'Missing' in output
 
+def test_url_detection():
+
+    a = twitter.get_urls('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.')
+    assert len(a) == 0
+
+    b = twitter.get_urls('Lorem ipsum dolor sit amet, consectetur adipiscing elit, superform.be do eiusmod tempor incididunt ut labore et dolore magna aliqua.')
+    assert len(b) == 1
+    assert b[0] == 'superform.be'
+
+    c = twitter.get_urls('Lorem ipsum dolor http://www.superform.be, www.superform.be adipiscing elit, superform.be do incididunt ut https://www.superform.be ijoij.')
+    assert len(c) == 4
+    assert c[0] == 'http://www.superform.be'
+    assert c[1] == 'www.superform.be'
+    assert c[2] == 'superform.be'
+    assert c[3] == 'https://www.superform.be'
+
+    d = twitter.get_urls('http://www.superform.de, Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.')
+    assert len(d) == 1
+    assert d[0] == 'http://www.superform.de'
+
+    e = twitter.get_urls('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. http://www.superform.fr')
+    assert len(e) == 1
+    assert e[0] == 'http://www.superform.fr'
+
 
 def test_tweet_split_no_split():
     string_input = 'hello \t world! \n have a nice day.'
@@ -65,7 +89,7 @@ def test_tweet_split_3_split():
 def test_tweet_split_http_url_split():
     string_input = 'Repudiandae quam vel voluptatum voluptates. Rerum quas ut vel ipsum assumenda aut ab. Nam incidunt similique iure fugit animi quia eum sint. Eos voluptatem assumenda nemo repellendus non et nemo. Aliquam ut amet maiores repudiandae vel rerum distinctio. https://moodleucl.uclouvain.be/course/view.php?id=7599 Aut dolorem esse praesentium sunt. Quo molestiae est deserunt et sint voluptas. Ullam et pariatur voluptatem sint consequatur sapiente maiores voluptatem. Porro optio rerum natus sed voluptas.'
     string_output = twitter.tweet_split(string_input, (',', '!', '?', ':', ';'))
-    assert string_output[0] == '1/2 Repudiandae quam vel voluptatum voluptates. Rerum quas ut vel ipsum assumenda aut ab. Nam incidunt similique iure fugit animi quia eum sint. Eos voluptatem assumenda nemo repellendus non et nemo. Aliquam ut amet maiores repudiandae vel rerum distinctio. '
+    assert string_output[0] == '1/2 Repudiandae quam vel voluptatum voluptates. Rerum quas ut vel ipsum assumenda aut ab. Nam incidunt similique iure fugit animi quia eum sint. Eos voluptatem assumenda nemo repellendus non et nemo. Aliquam ut amet maiores repudiandae vel rerum distinctio.'
     assert string_output[1] == '2/2 https://moodleucl.uclouvain.be/course/view.php?id=7599 Aut dolorem esse praesentium sunt. Quo molestiae est deserunt et sint voluptas. Ullam et pariatur voluptatem sint consequatur sapiente maiores voluptatem. Porro optio rerum natus sed voluptas.'
 
 

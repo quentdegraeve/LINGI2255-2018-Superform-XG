@@ -77,13 +77,13 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="datefrompost">Publication Date</label><br>
-                                <input id="datefrompost" name="datefrompost" type="date" class="form-control" value="{{ pub.date_from }}" required>
+                                <input id="datefrompost" name="datefrompost" type="date" class="form-control" value="{{ pub.date_from }}">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="dateuntilpost">Publication Until</label><br>
-                                <input id="dateuntilpost" name="dateuntilpost" type="date" class="form-control" value="{{ pub.date_until }}" required>
+                                <input id="dateuntilpost" name="dateuntilpost" type="date" class="form-control" value="{{ pub.date_until }}">
                             </div>
                         </div>
                     </div>
@@ -93,7 +93,6 @@
             <button class="btn btn-success">Publish</button>
         </form>
     {% else %}
-        Your are not logged in.
+        You are not logged in.
     {% endif %}
-
 {% endblock %}
