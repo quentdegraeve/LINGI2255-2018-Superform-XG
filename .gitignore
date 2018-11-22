@@ -9,3 +9,5 @@ __pycache__/
 /superform/superform/config.json
 /superform/superform/superform.db
 /venv/
+/superform/superform/suputils/NewKey.key
+/superform/superform/suputils/Superform.kdbx

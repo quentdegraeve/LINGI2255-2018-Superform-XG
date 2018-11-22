@@ -2,6 +2,7 @@
 {% import "macro/modal.html" as modal %}
 {% block title %}New Post{% endblock %}
 {% block stylesheet %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/error.css') }}" crossorigin="anonymous">
 {% endblock %}
 {% block content %}
     <h1 xmlns="http://www.w3.org/1999/html">New Post</h1>
@@ -16,13 +17,12 @@
         {% endfor %}
     </ul>
     {% if session.logged_in %}
+        <p>{{ user }}</p>
         <form method="POST" action="">
             <div class="tab-content">
                 <div class="tab-pane container-fluid active" id="home">
+
                     <div class="row">
-
-                        <!-- Form of all channels -->
-
                         <div class="col-md-8">
                             <div class="row">
                                 <div class="col-md-12">
@@ -32,7 +32,8 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="descriptionpost">Description</label><br>
-                                        <textarea class="form-control" rows="5" id="descriptionpost" name="descriptionpost"></textarea>
+                                        <textarea class="form-control" rows="5" id="descriptionpost"
+                                                  name="descriptionpost"></textarea>
                                     </div>
                                     <div class="form-group">
                                         <label for="linkurlpost">Link</label><br>
@@ -51,205 +52,245 @@
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="datefrompost">Publication Date</label><br>
-                                                <input id="datefrompost" name="datefrompost" type="date" class="form-control" value="{{ date.from }}">
+                                                <input id="datefrompost" name="datefrompost" type="date"
+                                                       class="form-control">
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="dateuntilpost">Publication Until</label><br>
-                                                <input id="dateuntilpost" name="dateuntilpost" type="date" class="form-control" value="{{ date.until }}">
+                                                <input id="dateuntilpost" name="dateuntilpost" type="date"
+                                                       class="form-control">
                                             </div>
                                         </div>
                                     </div>
+
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-header">
-                                    <label for="publishpost">Channels</label>
-                                </div>
-                                <div class="card-body">
-                                    {% if l_chan|length == 0 %}
-                                        <span>No channel available for this user</span>
-                                    {% else %}
-                                        {% for chan in l_chan %}
-                                            <div class="form-check">
-                                                <label class="form-check-label">
-                                                    <input id="chan_option_{{ chan.id }}" data-namechan="{{ chan.name }}" data-unavailablefields="{{ chan.unavailablefields }}" name="chan_option_{{ chan.id }}" type="checkbox" class="form-check-input checkbox" value="{{ chan.id }}">
-                                                    {% if chan.plugin_name == 'superform.plugins.twitter' %}
-                                                        <i class="fab fa-twitter"></i>
-                                                    {% elif chan.plugin_name == 'superform.plugins.mail' %}
-                                                        <i class="fas fa-envelope"></i>
-                                                    {% elif chan.plugin_name == 'superform.plugins.ICTV' %}
-                                                        <i class="fas fa-tv"></i>
-                                                    {% elif chan.plugin_name == 'superform.plugins.gcal' %}
-                                                        <i class="far fa-calendar"></i>
-                                                    {% else %}
-                                                        <i class="fas fa-question"></i>
-                                                    {% endif %}
-                                                    <span>{{ chan.name }}</span>
-                                                </label>
-                                            </div>
-                                        {% endfor %}
-                                    {% endif %}
-                                </div>
+                            <div class="form-group">
+                                <label for="publishpost">Publish</label>
+                                {% if l_chan|length == 0 %}
+                                    <p>No channel available for this user</p>
+                                {% else %}
+                                    {% for chan in l_chan %}
+                                        <div class="form-check">
+
+                                            <label class="form-check-label">
+                                                <input id="chan_option_{{ chan.id }}"
+                                                       module-namechan="{{ chan.module }}"
+                                                       data-namechan="{{ chan.name }}"
+                                                       data-unavailablefields="{{ chan.unavailablefields }}"
+                                                       name="chan_option_{{ chan.id }}" type="checkbox"
+                                                       class="form-check-input checkbox" value="{{ chan.id }}">
+                                                <img width="20" height="20"
+                                                     src="static/logos/{{ chan.module.split('.')[2] }}_logo.png"
+                                                     alt="logo"/> {{ chan.name }}
+                                            </label>
+
+                                        </div>
+
+                                    {% endfor %}
+                                {% endif %}
                             </div>
+
+                            <div class="card">
+                                <div class="card-header">Status</div>
+                                <div class="card-body">Content</div>
+                            </div>
+
+
                         </div>
+
                     </div>
+
                 </div>
                 {% for chan in l_chan %}
                     <div class="tab-pane container-fluid fade" id="menu{{ chan.id }}">
+
                         <div class="row">
-                                <div class="col-md-12">
+                            <div class="col-md-8">
+                                <div class="row">
+                                    <div class="col-md-12">
                                         <div class="form-group">
-                                        {% if not "Title" in chan.unavailablefields %}
-                                        <div class="form-group">
-                                            <label for="{{ chan.name }}_titlepost">Title</label><br>
-                                            <input type="text" name="{{ chan.name }}_titlepost" id="{{ chan.name }}_titlepost" class="form-control">
-                                        </div>
-                                        {% endif %}
-                                        {% if not "Description" in chan.unavailablefields %}
-                                        <div class="form-group">
-                                            <label for="{{ chan.name }}_descriptionpost">Description</label><br>
-                                            {% if chan.plugin_name == 'superform.plugins.twitter' %}
-                                            <div class="js-counter">
-                                                <div class="alert alert-danger" style="display: none">
-                                                    Warning : Your message will be split in several part
+                                            {% if not "Title" in chan.unavailablefields %}
+                                                <div class="form-group">
+                                                    <label for="{{ chan.name }}_titlepost">Title</label><br>
+                                                    <input type="text" name="{{ chan.name }}_titlepost"
+                                                           id="{{ chan.name }}_titlepost" class="form-control">
                                                 </div>
-                                                <textarea class="form-control" rows="5" id="{{ chan.name }}_descriptionpost" name="{{ chan.name }}_descriptionpost"></textarea>
-                                                <div class="row" >
-                                                    <div class="col-6">
-                                                        Numbers of Characters : <span class="counter">?</span>
-                                                    </div>
-                                                    <div class="col-6" style="text-align: right">
-                                                        <button id="js-twitter-open-preview" type="button" class="btn btn-secondary">
-                                                            Preview Tweets
+                                            {% endif %}
+                                            {% if not "Description" in chan.unavailablefields %}
+                                                <div class="form-group">
+                                                    <label for="{{ chan.name }}_descriptionpost">Description</label><br>
+                                                    {% if chan.plugin_name == 'superform.plugins.twitter' %}
+                                                        <div class="js-counter">
+                                                            <div class="alert alert-danger" style="display: none">
+                                                                Warning : Your message will be split in several part
+                                                            </div>
+                                                            <textarea class="form-control" rows="5"
+                                                                      id="{{ chan.name }}_descriptionpost"
+                                                                      name="{{ chan.name }}_descriptionpost"></textarea>
+                                                            <div class="row">
+                                                                <div class="col-6">
+                                                                    Numbers of Characters : <span
+                                                                        class="counter">?</span>
+                                                                </div>
+                                                                <div class="col-6" style="text-align: right">
+                                                                    <button id="js-twitter-open-preview" type="button"
+                                                                            class="btn btn-secondary">
+                                                                        Preview Tweets
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    {% else %}
+                                                        <textarea class="form-control" rows="5"
+                                                                  id="{{ chan.name }}_descriptionpost"
+                                                                  name="{{ chan.name }}_descriptionpost"></textarea>
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
+                                            {% if not "Link" in chan.unavailablefields %}
+                                                <div class="form-group">
+                                                    <label for="{{ chan.name }}_linkurlpost">Link</label><br>
+                                                    <input type="text" name="{{ chan.name }}_linkurlpost"
+                                                           id="{{ chan.name }}_linkurlpost" class="form-control">
+                                                </div>
+                                            {% endif %}
+                                            {% if not "Image" in chan.unavailablefields %}
+                                                <div class="form-group">
+                                                    <label for="{{ chan.name }}_imagepost">Image</label><br>
+                                                    <div class="input-group">
+                                                        <input type="text" name="{{ chan.name }}_linkurlpost"
+                                                               id="{{ chan.name }}_imagepost" class="form-control">
+                                                        <button id="js-open-preview-test" type="button"
+                                                                class="btn btn-secondary" onclick="PreviewFunction()">
+                                                            Preview
                                                         </button>
+
+
                                                     </div>
                                                 </div>
-                                            </div>
-                                            {% else %}
-                                            <textarea class="form-control" rows="5" id="{{ chan.name }}_descriptionpost" name="{{ chan.name }}_descriptionpost"></textarea>
+                                            {% endif %}
+
+
+                                            {% if chan.module == "superform.plugins.gcal" %}
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="{{ chan.name }}_datedebut">Starting date</label><br>
+                                                            <input id="{{ chan.name }}_datedebut"
+                                                                   name="{{ chan.name }}_datedebut" type="date"
+                                                                   class="form-control">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="{{ chan.name }}_heuredebut">Starting
+                                                                time</label><br>
+                                                            <input type="time" name="{{ chan.name }}_heuredebut"
+                                                                   id="{{ chan.name }}_heuredebut" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="{{ chan.name }}_datefin">Ending date</label><br>
+                                                            <input type="date" name="{{ chan.name }}_datefin"
+                                                                   id="{{ chan.name }}_datefin" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="{{ chan.name }}_heurefin">Ending
+                                                                time</label><br>
+                                                            <input type="time" name="{{ chan.name }}_heurefin"
+                                                                   id="{{ chan.name }}_heurefin" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="{{ chan.name }}_location">Location</label><br>
+                                                    <input type="text" name="{{ chan.name }}_location"
+                                                           id="{{ chan.name }}_location" class="form-control">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="{{ chan.name }}_color">Color</label><br>
+                                                    <select name="{{ chan.name }}_color" id="{{ chan.name }}_color"
+                                                            class="form-control">
+                                                        <option value="1">Lavender</option>
+                                                        <option value="2">Sage</option>
+                                                        <option value="3">Grape</option>
+                                                        <option value="4">Flamingo</option>
+                                                        <option value="5">Banana</option>
+                                                        <option value="6">Tangerine</option>
+                                                        <option value="7">Peacock</option>
+                                                        <option value="8">Graphite</option>
+                                                        <option value="9">Blueberry</option>
+                                                        <option value="10">Basil</option>
+                                                        <option value="11">Tomato</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="{{ chan.name }}_visibility">Visibility</label><br>
+                                                    <select name="{{ chan.name }}_visibility"
+                                                            id="{{ chan.name }}_visibility" class="form-control">
+                                                        <option value="true">Public</option>
+                                                        <option value="false">Private</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="{{ chan.name }}_availability">Availability</label><br>
+                                                    <select name="{{ chan.name }}_availability"
+                                                            id="{{ chan.name }}_availability" class="form-control">
+                                                        <option value="true">Free</option>
+                                                        <option value="false">Busy</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="{{ chan.name }}_guests">Guests emails (split them with a
+                                                        comma)</label><br>
+                                                    <input type="text" name="{{ chan.name }}_guests"
+                                                           id="{{ chan.name }}_guests" class="form-control">
+                                                </div>
+                                            {% endif %}
+                                            {% if chan.module != "superform.plugins.gcal" %}
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="{{ chan.name }}_datefrompost">Publication
+                                                                Date</label><br>
+                                                            <input id="{{ chan.name }}_datefrompost"
+                                                                   name="{{ chan.name }}_datefrompost" type="date"
+                                                                   class="form-control" value="{{ date.from }}">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="{{ chan.name }}_dateuntilpost">Publication
+                                                                Until</label><br>
+                                                            <input id="{{ chan.name }}_dateuntilpost"
+                                                                   name="{{ chan.name }}_dateuntilpost" type="date"
+                                                                   class="form-control" value="{{ date.until }}">
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             {% endif %}
                                         </div>
-                                        {% endif %}
-                                        {% if not "Link" in chan.unavailablefields %}
-                                        <div class="form-group">
-                                            <label for="{{ chan.name }}_linkurlpost">Link</label><br>
-                                            <input type="text" name="{{ chan.name }}_linkurlpost" id="{{ chan.name }}_linkurlpost" class="form-control">
+
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <label for="publishpost">Channels</label>
+                                            </div>
+                                            <div class="card-body">
+                                                <span>{{ chan.name }}</span>
+                                            </div>
                                         </div>
-                                        {% endif %}
-                                    {% if not "Image" in chan.unavailablefields %}
-                                    <div class="form-group">
-                                            <label for="{{ chan.name }}_imagepost">Image</label><br>
-                                        <div class="input-group">
-                                            <input type="text" name="{{ chan.name }}_linkurlpost" id="{{ chan.name }}_imagepost" class="form-control">
-                                            <button id="js-open-preview-test" type="button" class="btn btn-secondary" onclick="PreviewFunction()">
-                                                Preview
-                                            </button>
-
-
-                                        </div>
-                                    </div>
-                                    {% endif %}
-
-
-                                        {% if chan.module == "superform.plugins.gcal" %}
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="{{ chan.name }}_datedebut">Starting date</label><br>
-                                                        <input id="{{ chan.name }}_datedebut" name="{{ chan.name }}_datedebut" type="date" class="form-control">
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="{{ chan.name }}_heuredebut">Starting time</label><br>
-                                                        <input type="time" name="{{ chan.name }}_heuredebut" id="{{ chan.name }}_heuredebut" class="form-control">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="{{ chan.name }}_datefin">Ending date</label><br>
-                                                        <input type="date" name="{{ chan.name }}_datefin" id="{{ chan.name }}_datefin" class="form-control">
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="{{ chan.name }}_heurefin">Ending time</label><br>
-                                                        <input type="time" name="{{ chan.name }}_heurefin" id="{{ chan.name }}_heurefin" class="form-control">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="{{ chan.name }}_location">Location</label><br>
-                                                <input type="text" name="{{ chan.name }}_location" id="{{ chan.name }}_location" class="form-control">
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="{{ chan.name }}_color">Color</label><br>
-                                                <select name="{{ chan.name }}_color" id="{{ chan.name }}_color" class="form-control">
-                                                    <option value="1">Lavender</option>
-                                                    <option value="2">Sage</option>
-                                                    <option value="3">Grape</option>
-                                                    <option value="4">Flamingo</option>
-                                                    <option value="5">Banana</option>
-                                                    <option value="6">Tangerine</option>
-                                                    <option value="7">Peacock</option>
-                                                    <option value="8">Graphite</option>
-                                                    <option value="9">Blueberry</option>
-                                                    <option value="10">Basil</option>
-                                                    <option value="11">Tomato</option>
-                                                </select>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="{{ chan.name }}_visibility">Visibility</label><br>
-                                                <select name="{{ chan.name }}_visibility" id="{{ chan.name }}_visibility" class="form-control">
-                                                    <option value="true">Public</option>
-                                                    <option value="false">Private</option>
-                                                </select>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="{{ chan.name }}_availability">Availability</label><br>
-                                                <select name="{{ chan.name }}_availability" id="{{ chan.name }}_availability" class="form-control">
-                                                    <option value="true">Free</option>
-                                                    <option value="false">Busy</option>
-                                                </select>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="{{ chan.name }}_guests">Guests emails (split them with a comma)</label><br>
-                                                <input type="text" name="{{ chan.name }}_guests" id="{{ chan.name }}_guests" class="form-control">
-                                            </div>
-                                        {% endif %}
-                                        {% if chan.module != "superform.plugins.gcal" %}
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="{{ chan.name }}_datefrompost">Publication
-                                                            Date</label><br>
-                                                        <input id="{{ chan.name }}_datefrompost" name="{{ chan.name }}_datefrompost" type="date" class="form-control" value="{{ date.from }}">
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="{{ chan.name }}_dateuntilpost">Publication Until</label><br>
-                                                        <input id="{{ chan.name }}_dateuntilpost" name="{{ chan.name }}_dateuntilpost" type="date" class="form-control" value="{{ date.until }}">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        {% endif %}
-                                    </div>
-
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <label for="publishpost">Channels</label>
-                                    </div>
-                                    <div class="card-body">
-                                        <span>{{ chan.name }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -257,10 +298,13 @@
                     </div>
                 {% endfor %}
                 <div align="right" style="margin-top: 1rem; ">
-                    <button class="btn btn-primary" formaction="{{ url_for('posts.new_post') }}" formmethod="post" type="submit">
+                    <button class="btn btn-primary" formaction="{{ url_for('posts.new_post') }}" formmethod="post"
+                            type="submit">
                         Save as draft
                     </button>
-                    <button id="publish-button" class="btn btn-success" formaction="{{ url_for('posts.publish_from_new_post') }}" formmethod="post" type="submit" disabled>
+                    <button id="publish-button" class="btn btn-success"
+                            formaction="{{ url_for('posts.publish_from_new_post') }}" formmethod="post" type="submit"
+                            disabled>
                         Save & Publish
                     </button>
                     <button class="btn btn-outline-primary" type="reset">
@@ -272,13 +316,13 @@
 
         <!-- Modals -->
 
-        {%  call modal.modal_block(id='previewModal', title='Image preview') %}
+        {% call modal.modal_block(id='previewModal', title='Image preview') %}
             <div>Preview</div>
-        {%  endcall %}
+        {% endcall %}
 
-        {%  call modal.modal_block(id='previewTweetsModal', title='Tweets preview') %}
+        {% call modal.modal_block(id='previewTweetsModal', title='Tweets preview') %}
             <div>Modal</div>
-        {%  endcall %}
+        {% endcall %}
 
     {% else %}
         Your are not logged in.
@@ -287,6 +331,10 @@
 {% endblock %}
 
 {% block scripts %}
+    <script type="text/javascript">
+        var post_form_validations =
+        {{ post_form_validations|tojson }}
+    </script>
     <script>
 
 
@@ -366,7 +414,7 @@
 
             $.getJSON(address, {
                 "descr": text
-            }, function(json) {
+            }, function (json) {
 
                 var preview = $("#previewTweetsModal");
                 var container = preview.find(".modal-body");
@@ -589,8 +637,6 @@
                 })
                 .val(text);
         });
-
-
     </script>
-
+    <script src="{{ url_for('static', filename='js/post.js') }}" crossorigin="anonymous"></script>
 {% endblock %}

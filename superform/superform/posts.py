@@ -1,7 +1,7 @@
-from flask import Blueprint, url_for, request, redirect, session, render_template, flash
+from flask import Blueprint, url_for, current_app, request, redirect, session, render_template, flash
 
 from superform.users import channels_available_for_user
-from superform.utils import login_required, datetime_converter, str_converter, get_instance_from_module_path
+from superform.utils import login_required, datetime_converter, str_converter, get_instance_from_module_path, get_modules_names, get_module_full_name
 from superform.models import db, Post, Publishing, Channel, PubGCal
 
 from importlib import import_module
@@ -99,8 +99,17 @@ def new_post():
     if request.method == "GET":  # when clicking on the new post tab
         # set default date
         default_date = {'from': date.today(), 'until': date.today() + timedelta(days=7)}
-        return render_template('new.html', l_chan=list_of_channels, date=default_date)
-    else:  # when we click on 'save as draft' button
+        mods = get_modules_names(current_app.config["PLUGINS"].keys())
+        post_form_validations = dict()
+        for m in mods:
+            full_name = get_module_full_name(m)
+            clas = get_instance_from_module_path(full_name)
+            fields = clas.POST_FORM_VALIDATIONS
+            post_form_validations[m] = fields
+
+        print(post_form_validations)
+        return render_template('new.html', l_chan=list_of_channels, post_form_validations=post_form_validations,date=default_date)
+    else:
         create_a_post(request.form)
         return redirect(url_for('index'))
 
@@ -112,24 +121,26 @@ def publish_from_new_post():  # when clicking on 'save and publish' button
     p = create_a_post(request.form)
     # then treat the publish part
     if request.method == "POST":
+        error_id  = "";
+        state_error = False;
         for elem in request.form:
             if elem.startswith("chan_option_"):
                 def substr(elem):
                     import re
                     return re.sub('^chan\_option\_', '', elem)
-
                 c = Channel.query.get(substr(elem))
+                validate = pre_validate_post(c, p)
+                if validate == 0:
+                    state_error = True
+                    error_id = str(p.id) + ","
                 # for each selected channel options
                 # create the publication
-                pub = create_a_publishing(p, c, request.form)
-                if pub == -1:
-                    flash("no module selected", "danger")
-                    return redirect(url_for('index'))
-                elif pub == 0:
-                    error = "error in post :", p.id, " title or description length not valid"
-                    flash(error, "danger")
-                    return redirect(url_for('index'))
-
+                create_a_publishing(p, c, request.form)
+        if state_error:
+            error_id = error_id[:-1]
+            error = "error in post :", error_id, " field(s) not valid"
+            flash(error, "danger")
+            return redirect(url_for('index'))
     db.session.commit()
     return redirect(url_for('index'))
 
