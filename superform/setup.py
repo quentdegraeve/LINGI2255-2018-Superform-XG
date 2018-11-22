@@ -9,10 +9,10 @@ setup(
         'python3-saml',
         'sqlalchemy',
         'flask-sqlalchemy',
-	    'tweepy',
+        'tweepy',
         'python3-linkedin',
         'pykeepass',
-        'linkedin',
-        'selenium'
+        'slackclient',
+        'selenium', 'pytest'
     ],
 )
