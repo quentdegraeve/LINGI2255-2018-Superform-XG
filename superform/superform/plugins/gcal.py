@@ -5,13 +5,8 @@ from oauth2client import file, client, tools
 from flask import current_app
 import json
 
-from superform import db
-
 SCOPES = 'https://www.googleapis.com/auth/calendar'
 FIELDS_UNAVAILABLE = []
-
-AUTH_FIELDS = False
-POST_FORM_VALIDATIONS = {}
 
 CONFIG_FIELDS = ['token']
 
@@ -45,8 +40,6 @@ def run(gcal_publishing,channel_config):
     except Exception as e:
         #TODO should add log here
         print(e)
-    gcal_publishing.state = 1
-    db.session.commit()
 
 # Methods from other groups :
 

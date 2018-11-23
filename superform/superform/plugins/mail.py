@@ -5,14 +5,9 @@ from smtplib import SMTPException
 from flask import current_app
 import json
 
-from superform import db
+FIELDS_UNAVAILABLE = ['Title','Description']
 
-FIELDS_UNAVAILABLE = ["Image"]
-
-CONFIG_FIELDS = ["sender", "receiver"]
-AUTH_FIELDS = False
-POST_FORM_VALIDATIONS = {}
-
+CONFIG_FIELDS = ["sender","receiver"]
 
 def run(publishing,channel_config):
     json_data = json.loads(channel_config)
@@ -36,8 +31,6 @@ def run(publishing,channel_config):
     except SMTPException as e:
         # TODO should add log here
         print(e)
-    publishing.state = 1
-    db.session.commit()
 
 # Methods from other groups :
 

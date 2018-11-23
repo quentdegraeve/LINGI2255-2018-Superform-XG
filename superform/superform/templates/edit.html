@@ -35,19 +35,19 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="imagepost">Image</label><br>
-                                        <input type="text" name="imagepost" id="imagepost" class="form-control" value="{{ post.image_url }}">
+                                        <input type="file" name="imagepost" id="imagepost" class="form-control">
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="datefrompost">Publication Date</label><br>
-                                                <input id="datefrompost" name="datefrompost" type="date" class="form-control" value="{{ post.date_from }}">
+                                                <input id="datefrompost" name="datefrompost" type="date" class="form-control">
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="dateuntilpost">Publication Until</label><br>
-                                                <input id="dateuntilpost" name="dateuntilpost" type="date" class="form-control" value="{{ post.date_until }}">
+                                                <input id="dateuntilpost" name="dateuntilpost" type="date" class="form-control">
                                             </div>
                                         </div>
                                     </div>
@@ -56,49 +56,40 @@
                         </div>
                         <aside class="col-md-4">
                             <div class="form-group">
-                                <div class="card">
-                                    <div class="card-header">
-                                        Channels
-                                    </div>
-                                    <div class="card-body">
-                                        {% if l_chan|length == 0 %}
-                                            <p>No channel available for this user</p>
-                                        {% else %}
-                                            {% for chan in l_chan %}
-                                                <div class="form-check">
-                                                    <label class="form-check-label">
-                                                        <input id="chan_option_{{ chan.id }}" data-namechan="{{ chan.name }}" data-unavailablefields="{{ chan.unavailablefields }}" name="chan_option_{{ chan.id }}" type="checkbox" class="form-check-input checkbox" value="{{ chan.id }}">{{ chan.name }}
-                                                        {% if chan.new %}
-                                                            <span class="badge badge-secondary">New</span>
-                                                        {% endif %}
-                                                    </label>
-                                                </div>
-                                            {% endfor %}
-                                        {% endif %}
-                                    </div>
-                                </div>
+                                <label for="publishpost">Publish</label>
+                                {% if l_chan|length == 0 %}
+                                    <p>No channel available for this user</p>
+                                {% else %}
+                                    {% for chan in l_chan %}
+                                        <div class="form-check">
+                                            <label class="form-check-label">
+                                                <input id="chan_option_{{ chan.id }}" data-namechan="{{ chan.name }}" data-unavailablefields="{{ chan.unavailablefields }}" name="chan_option_{{ chan.id }}" type="checkbox" class="form-check-input checkbox" value="{{ chan.id }}">{{ chan.name }}
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
                             </div>
                             <ul class="list-group">
                                 {% for pub in publishing %}
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     {{ pub.channel.name }}
                                     {% if pub.state == -1 %}
-                                        <span class="badge badge-danger badge-pill">
-                                            Incomplete
-                                        </span>
+                                    <span class="badge badge-danger badge-pill">
+                                        Incomplete
+                                    </span>
                                     {% elif pub.state == 0%}
-                                        <span class="badge badge-warning badge-pill">
-                                            Not validated
-                                        </span>
+                                    <span class="badge badge-warning badge-pill">
+                                        Not validated
+                                    </span>
                                     {% elif pub.state == 1%}
-                                        <span class="badge badge-primary badge-pill">
-                                            Validated
-                                        </span>
+                                    <span class="badge badge-primary badge-pill">
+                                        Validated
+                                    </span>
                                     {% elif pub.state == 2%}
-                                        <span class="badge badge-success badge-pill">
-                                            Archived
-                                        </span>
+                                    <span class="badge badge-success badge-pill">
+                                        Archived
                                     {% endif %}
+                                    </span>
                                 </li>
                                 {% endfor %}
                             </ul>
@@ -125,12 +116,13 @@
                                         </div>
                                         <div class="form-group">
                                             <label for="{{ chan.name }}_imagepost">Image</label><br>
-                                            <input type="text" name="{{ chan.name }}_imagepost" id="{{ chan.name }}_imagepost" class="form-control">
+                                            <input type="file" name="{{ chan.name }}_imagepost" id="{{ chan.name }}_imagepost" class="form-control">
                                         </div>
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="{{ chan.name }}_datefrompost">Publication Date</label><br>
+                                                    <label for="{{ chan.name }}_datefrompost">Publication
+                                                        Date</label><br>
                                                     <input id="{{ chan.name }}_datefrompost" name="{{ chan.name }}_datefrompost" type="date"  class="form-control" required>
                                                 </div>
                                             </div>
@@ -145,12 +137,20 @@
                                 </div>
                             </div>
                             <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="publishpost">Publish</label>
+                                    <div>
+                                        <label class="form-check-label">
+                                            {{ chan.name }}
+                                        </label>
+                                    </div>
+                                </div>
                                 <div class="card">
                                     <div class="card-header">
-                                        <label for="publishpost">Channels</label>
+                                        Status
                                     </div>
                                     <div class="card-body">
-                                        <span>{{ chan.name }}</span>
+                                        Content
                                     </div>
                                 </div>
                             </div>
@@ -159,9 +159,13 @@
                 {% endfor %}
             </div>
             <div align="right" style="margin-top: 1rem; ">
-               <button id="publish-edit-button" class="btn btn-success" formaction="{{ url_for('edit.publish_edit_post', post_id=post.id) }}" formmethod="post" type="submit">
-                        Save & Publish
-               </button>
+                <button class="btn btn-primary" formaction="{{ url_for('posts.new_post') }}" formmethod="post"
+                        type="submit">Save as draft
+                </button>
+                <button id="publish-button" class="btn btn-success"
+                        formaction="{{ url_for('posts.publish_from_new_post') }}" formmethod="post" type="submit"
+                        disabled>Save & Publish
+                </button>
                 <button class="btn btn-outline-primary" type="reset">Abort</button>
             </div>
         </form>
@@ -211,7 +215,6 @@
         });
         // From here, I copy a field ONCE from general to all the equivalent fields of each channel
         //It works but it's not really sexy to rewrite this for all fields of general tab
-
         $('#titlepost').one("change", function (event) {
             text = ($(this).val());
             //This is a subselect of input that match with the regex .*titlepost

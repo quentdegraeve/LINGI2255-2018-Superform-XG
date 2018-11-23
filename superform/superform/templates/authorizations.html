@@ -1,7 +1,5 @@
 {% extends "layout.html" %}
 {% block title %}Authorizations{% endblock %}
-{% block stylesheet %}
-{% endblock %}
 {% block content %}
     <h1>Authorizations</h1>
     {% if rw_channels|length==0 %}
@@ -14,7 +12,7 @@
                         <div class="card-header" id="heading{{ loop.index }}">
                             <h5 class="mb-0">
                                 <i class="fas fa-fw fa-chevron-right"></i>
-                                <button name="{{ channel.name }}" type=button class="btn btn-link" data-toggle="collapse" data-target="#collapse{{ loop.index }}" aria-expanded="true" aria-controls="collapseOne">
+                                <button type=button class="btn btn-link" data-toggle="collapse" data-target="#collapse{{ loop.index }}" aria-expanded="true" aria-controls="collapseOne">
                                     {{ channel.name }}
                                 </button>
                             </h5>
@@ -69,12 +67,11 @@
                     </div>
                 {% endfor %}
             </div>
-            <button id="update" class="btn btn-warning">Update</button>
+            <button class="btn btn-warning">Update</button>
         </form>
     {% endif %}
 {% endblock %}
 {% block scripts %}
-    <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
     <script>
         var address = "{{ url_for('api.search')}}";
 
@@ -92,36 +89,27 @@
                 "name": value
             }, function(json) {
 
-                if (typeof json === 'undefined') {
+                if (typeof json["names"] === 'undefined') {
                     input.attr("data-content", "Error");
                     input.data("bs.popover").show();
                     return;
                 }
-                if (json.length === 0) {
+                if (json["names"].length === 0) {
                     input.attr("data-content", "No result");
                     input.data("bs.popover").show();
                     return;
                 }
 
-                var container = $("<div>");
-
-                for (var k = 0; k < json.length; k++) {
-
-                    var a = $("<a>");
-                    a.text(json[k]["id"]);
-                    a.attr("href", "#");
-
-                    var span = $("<span>");
-                    span.text("(" + json[k]["first_name"] + " " + json[k]["name"] + ")");
-                    span.addClass("text-muted");
-
-                    var div = $("<div>");
-                    div.append(a);
-                    div.append(span);
-                    container.append(div);
+                var div = document.createElement("div");
+                for (var k = 0; k < json["names"].length; k++) {
+                    var a = document.createElement("a");
+                    a.href = "#";
+                    a.innerText = json["names"][k];
+                    a.style.display = "block";
+                    div.appendChild(a)
                 }
 
-                input.attr("data-content", container.html());
+                input.attr("data-content", div.outerHTML);
                 input.data("bs.popover").show();
             });
         }
@@ -140,9 +128,9 @@
             input.popover({
                 html: true
             });
-            input.on("keyup", debounce(function() {
+            input.on("keyup", function() {
                 searchUser($(this));
-            }, 300));
+            });
             input.on('shown.bs.popover', function() {
                 addPopoverEvents($(this));
             });

@@ -1,27 +1,25 @@
 import json
-
-from flask import redirect, url_for, request, Blueprint
-from linkedin import linkedin
-from superform.suputils import selenium_utils
+import time
+import platform
+import os
+import sys
 from datetime import datetime, timedelta
-from superform.suputils import plugin_utils
+from flask import redirect, url_for
+from linkedin import linkedin
+from selenium import webdriver, common
+from datetime import datetime, timedelta
 
-from superform.models import db, Channel, Publishing
+from superform.models import db, Channel
+from superform.utils import get_module_full_name
 from superform.suputils import keepass
 
-linkedin_verify_callback_page = Blueprint('linkedin', 'channels')
-
 FIELDS_UNAVAILABLE = []
-CONFIG_FIELDS = ["channel_name", "linkedin_access_token", "linkedin_token_expiration_date"]
-AUTH_FIELDS = True
-POST_FORM_VALIDATIONS = {
-    'title_max_length': 200,
-    'description_max_length': 256,
-    'image_type': 'url'
-}
-API_KEY = keepass.get_password_from_keepass('linkedin_key')
-API_SECRET = keepass.get_password_from_keepass('linkedin_secret')
-RETURN_URL = keepass.get_username_from_keepass('linkedin_return_url')
+
+CONFIG_FIELDS = ["profile_email", "channel_name", "linkedin_access_token", "linkedin_token_expiration_date"]
+
+API_KEY = keepass.get_password_from_keepass('superform_key')
+API_SECRET = keepass.get_password_from_keepass('superform_secret')
+RETURN_URL = 'http://localhost:5000/linkedin/verify'
 
 authentication = linkedin.LinkedInAuthentication(
     API_KEY,
@@ -31,18 +29,11 @@ authentication = linkedin.LinkedInAuthentication(
 )
 
 
-def authenticate(channel_id, publishing_id):
-    """
-    Try to authenticate a channel based on channel_id
-    :param channel_id: Channel we try to authenticate
-    :param publishing_id: Publishing we want to publish on channel
-    :return: The authorization url if the channel token is absent or has expired else return 'AlreadyAuthenticated'
-    """
-    previous_token = LinkedinTokens.get_token(LinkedinTokens, channel_id)
+def authenticate(channel_name, publishing_id):
 
-    channel_name = Channel.query.get(channel_id).name
+    previous_token = LinkedinTokens.get_token(LinkedinTokens, channel_name)
 
-    if previous_token.__getitem__(0) is None or (datetime.now() > previous_token.__getitem__(1)):
+    if previous_token.__getitem__(0) is None or (datetime.now() > previous_token.__getitem__(1)) :
         conf = dict()
         conf["channel_name"] = channel_name
         conf["publishing_id"] = publishing_id
@@ -54,40 +45,29 @@ def authenticate(channel_id, publishing_id):
         return 'AlreadyAuthenticated'
 
 
-def set_access_token(channel_id, code):
-    """
-    Bind access token with channel based on code and channel_id
-    :param channel_id: Channel we want to bind the token to
-    :param code: Contained in the callback response from linkedin
-    :return: channel_id config containing the token and expiration date
-    """
+def set_access_token(channel_name, code):
     authentication.authorization_code = code
+
+    print(authentication.authorization_code)
     result = authentication.get_access_token()
 
-    channel = Channel.query.get(channel_id)
-    channel_name = channel.name
+    print("Access Token:", result.access_token)
+    print("Expires in (seconds):", result.expires_in)
+    #Add
+    #channel = Channel.query.filter_by(name=channel_name, module=get_module_full_name("linkedin")).first()
     # add the configuration to the channel
-    conf = json.loads(channel.config)
+    conf = dict()
+    conf["profile_email"] = "" #Do api call to have the profile email
     conf["channel_name"] = channel_name
     conf["linkedin_access_token"] = result.access_token
-    conf["linkedin_token_expiration_date"] = (datetime.now() + timedelta(seconds=result.expires_in)).__str__()
-    
-    LinkedinTokens.put_token(LinkedinTokens, channel_id, conf)
+    conf["linkedin_token_expiration_date"] = (datetime.now() +timedelta(seconds=result.expires_in)).__str__()
+
+    LinkedinTokens.put_token(LinkedinTokens, channel_name, conf)
     return conf
 
+def share_post(channel_name, comment, title, submitted_url,submitted_image_url,visibility_code):
 
-def share_post(channel_id, comment, title, submitted_url, submitted_image_url, visibility_code):
-    """
-    Publish a message on a linkedin channel,
-    :param channel_id: The id of the channel we want to publish to
-    :param comment:  The description of the post
-    :param title: The title of the post
-    :param submitted_url: The link contained in the post
-    :param submitted_image_url: The image contained in the post
-    :param visibility_code: Describe who can see this post
-    :return: True if the message is published else False
-    """
-    token = LinkedinTokens.get_token(LinkedinTokens, channel_id).__getitem__(0)
+    token = LinkedinTokens.get_token(LinkedinTokens, channel_name).__getitem__(0)
     print('share_post token ', token)
     application = linkedin.LinkedInApplication(token=token)
     print('submitted_url', submitted_url)
@@ -98,20 +78,30 @@ def share_post(channel_id, comment, title, submitted_url, submitted_image_url, v
 
     application.submit_share(comment=comment, title=title, submitted_url=submitted_url,
                              submitted_image_url=submitted_image_url, description="This is a sharing from Superform",visibility_code=visibility_code)
-    return True
 
 
 def auto_auth(url, channel_id):
-    """
-    :param url: url of the authentication page
-    :param channel_id: channel we try to authenticate
-    :return: A redirection to home if successful otherwise a redirection to an error page
-    """
     if keepass.set_entry_from_keepass(str(channel_id)) is 0:
-        print('Error : cant get keepass entry :', str(channel_id), 'for linkedin plugin')
-        return redirect(url_for('keepass.error_channel_keepass', chan_id=channel_id))
+        return redirect(url_for('error_keepass'))
+    dir_path = os.path.dirname(os.path.realpath(__file__))
 
-    driver = selenium_utils.get_headless_chrome()
+    options = webdriver.ChromeOptions()
+    options.add_argument('headless')
+
+    chrome = 'chromedriver'
+    if platform.system() == 'Windows':
+        chrome += '.exe'
+
+    try:
+        if platform.system() == 'Windows':
+            driver = webdriver.Chrome(dir_path + '\chrome\\' + chrome, chrome_options=options)
+        else:
+            driver = webdriver.Chrome(dir_path + '/chrome/' + chrome, chrome_options=options)
+
+    except common.exceptions.WebDriverException:
+        sys.exit('Can not find a valid chrome driver. it should be named cheromedriver on linux or cheromedriver.exe '
+                 'on windows and it should be located in the plugins/chrome folder see this page for download : '
+                 'https://sites.google.com/a/chromium.org/chromedriver/downloads')
 
     driver.get(url)
     username = driver.find_element_by_name("session_key")
@@ -122,52 +112,39 @@ def auto_auth(url, channel_id):
 
     driver.find_element_by_name("signin").click()
 
-    if not selenium_utils.wait_redirect(driver, 'linkedin'):
-        driver.close()
-        return redirect(url_for('keepass.error_channel_keepass', chan_id=channel_id))
-
+    while 'linkedin' in driver.current_url:
+        time.sleep(.50)
     driver.close()
     return redirect(url_for('index'))
 
 
 def run(publishing, channel_config):
-    """
-    Publish a Publishing on a channel
-    :param publishing: The publishing we want to publish
-    :param channel_config: The channel config of the channel we want to publish on
-    :return:
-    """
     print("publishing Linkedin", publishing)
     print("channel-conf", type(channel_config), channel_config)
     print("conf run", channel_config, type(channel_config))
-    authenticate(publishing.channel_id, (publishing.post_id, publishing.channel_id))
-
-    if share_post(publishing.channel_id, publishing.description, publishing.title, publishing.link_url, publishing.image_url, "anyone"):
-        publishing.state = 1
-        db.session.commit()
+    channel_name = channel_config['channel_name']
+    authenticate(channel_name, (publishing.post_id, publishing.channel_id))
+    share_post(channel_name, publishing.description, publishing.title, publishing.link_url, publishing.image_url, "anyone")
 
 
 def post_pre_validation(post):
-    """
-    Validate a post to be published with this linkedin
-    :param post: The Post we try to validate
-    :return: True if the post is valid for this module else False
-    """
-    return plugin_utils.post_pre_validation_plugins(post,200,256)
+    if len(post.title) > 200 or len(post.title) == 0: return 0;
+    if len(post.description) > 256 or len(post.description) == 0: return 0;
+    return 1;
 
 
 class LinkedinTokens:
 
-    def get_token(self, channel_id):
+    def get_token(self, channel_name):
 
-        channel = Channel.query.get(channel_id)
+        channel = Channel.query.filter_by(name=channel_name, module=get_module_full_name("linkedin")).first()
 
         if channel and channel.config:
             print("put token", channel.config)
             conf = json.loads(channel.config)
             date_string = conf.get("linkedin_token_expiration_date")
 
-            if date_string == "None" or date_string is None:
+            if not date_string :
                 return (None, None)
 
             date_expiration = datetime.strptime(date_string, '%Y-%m-%d %H:%M:%S.%f')
@@ -176,29 +153,8 @@ class LinkedinTokens:
 
         return (None, None)
 
-    def put_token(self, channel_id, config_json):
-        c = Channel.query.get(channel_id)
+    def put_token(self, channel_name, config_json):
+        c = Channel.query.filter_by(name=channel_name, module=get_module_full_name("linkedin")).first()
         c.config = json.dumps(config_json)
         print("put token", config_json)
         db.session.commit()
-
-
-@linkedin_verify_callback_page.route("/linkedin/verify", methods=['GET'])
-def linkedin_verify_authorization():
-    code = request.args.get('code')
-    conf_publishing = json.loads(request.args.get('state'))
-    channel_name = conf_publishing['channel_name']
-    publishing_id = conf_publishing['publishing_id']
-    post_id = publishing_id.__getitem__(0)
-    channel_id = publishing_id.__getitem__(1)
-    print("code", code)
-    print("post id, channel id", post_id, channel_id)
-    channel_config = {}
-    if code:
-        channel_config = set_access_token(channel_id,code)
-    print("channel_config", channel_config)
-    #normally should redirect to the channel page or to the page that publish a post
-    publishing = Publishing.query.filter_by(post_id=post_id, channel_id=channel_id).first()
-    print("init publishing", publishing)
-    run(publishing, json.dumps(channel_config))
-    return redirect(url_for('index'))
