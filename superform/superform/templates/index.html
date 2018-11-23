@@ -11,8 +11,6 @@
     </style>
 {% endblock %}
 {% block content %}
-    <h1>Index</h1>
-
     {% if session.logged_in %}
         {% with messages = get_flashed_messages() %}
          {% if messages %}
@@ -116,7 +114,5 @@
     {% else %}
         <img src="https://moodleucl.uclouvain.be/pluginfile.php/2/course/section/13/Logo%20UCLouvain.png?time=1535961389826" alt="logo ucl" class="center">
         <h2>Please, log in </h2>
-
-
     {% endif %}
 {% endblock %}

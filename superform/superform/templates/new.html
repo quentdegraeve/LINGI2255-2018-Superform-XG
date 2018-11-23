@@ -21,7 +21,6 @@
         <form method="POST" action="">
             <div class="tab-content">
                 <div class="tab-pane container-fluid active" id="home">
-
                     <div class="row">
                         <div class="col-md-8">
                             <div class="row">
@@ -64,7 +63,6 @@
                                             </div>
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
@@ -76,7 +74,6 @@
                                 {% else %}
                                     {% for chan in l_chan %}
                                         <div class="form-check">
-
                                             <label class="form-check-label">
                                                 <input id="chan_option_{{ chan.id }}"
                                                        module-namechan="{{ chan.module }}"
@@ -88,27 +85,15 @@
                                                      src="static/logos/{{ chan.module.split('.')[2] }}_logo.png"
                                                      alt="logo"/> {{ chan.name }}
                                             </label>
-
                                         </div>
-
                                     {% endfor %}
                                 {% endif %}
                             </div>
-
-                            <div class="card">
-                                <div class="card-header">Status</div>
-                                <div class="card-body">Content</div>
-                            </div>
-
-
                         </div>
-
                     </div>
-
                 </div>
                 {% for chan in l_chan %}
                     <div class="tab-pane container-fluid fade" id="menu{{ chan.id }}">
-
                         <div class="row">
                             <div class="col-md-8">
                                 <div class="row">
@@ -169,13 +154,9 @@
                                                                 class="btn btn-secondary" onclick="PreviewFunction()">
                                                             Preview
                                                         </button>
-
-
                                                     </div>
                                                 </div>
                                             {% endif %}
-
-
                                             {% if chan.module == "superform.plugins.gcal" %}
                                                 <div class="row">
                                                     <div class="col-md-6">
@@ -280,17 +261,16 @@
                                                 </div>
                                             {% endif %}
                                         </div>
-
                                     </div>
-                                    <div class="col-md-4">
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <label for="publishpost">Channels</label>
-                                            </div>
-                                            <div class="card-body">
-                                                <span>{{ chan.name }}</span>
-                                            </div>
-                                        </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <label for="publishpost">Channels</label>
+                                    </div>
+                                    <div class="card-body">
+                                        <span>{{ chan.name }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -336,8 +316,6 @@
         {{ post_form_validations|tojson }}
     </script>
     <script>
-
-
         function PreviewFunction() {
             var protocol = /^http[s]?:\/{2}/i;
             var pattern = /(?:https?:\/{2})?(?:w{3}\.)?(?:\w+\.)+(com|fr|be|io|gov|net|tv|uk|ch|de|nl|lu)(?:\/[^\s]+)?/g;
