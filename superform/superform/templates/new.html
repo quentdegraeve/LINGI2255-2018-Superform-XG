@@ -416,10 +416,11 @@
                     return;
                 }
 
-                // https://getbootstrap.com/docs/4.1/components/card/#list-groups
-                var tweets = $("<div>");
+                var tweets = $("<ul>");
+                tweets.addClass("list-group list-group-flush");
                 for (var k = 0; k < json["tweetpreview"].length; k++) {
-                    var tweet = $("<div>");
+                    var tweet = $("<li>");
+                    tweet.addClass("list-group-item");
                     tweet.text(json["tweetpreview"][k]);
                     tweets.append(tweet);
                 }
