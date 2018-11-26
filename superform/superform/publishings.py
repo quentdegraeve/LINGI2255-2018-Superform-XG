@@ -27,7 +27,7 @@ def moderate_publishing(id, idc):
         pub.date_start = str_converter(pub.date_start)
         pub.date_end = str_converter(pub.date_end)
     else:
-        pub = db.session.query(Publishing).filter(Publishing.post_id == id, Publishing.channel_id == idc).first()
+        pub = db.session.query(Publishing).filter(Publishing.post_id == id, Publishing.channel_id == idc).order_by(Publishing.num_version.desc()).first()
         pub.date_from = str_converter(pub.date_from)
         pub.date_until = str_converter(pub.date_until)
 
