@@ -1,6 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
 from enum import Enum
 import datetime
+import json
+from lxml.html._diffcommand import description
 
 db = SQLAlchemy()
 
@@ -70,6 +72,12 @@ class Publishing(db.Model):
 
     def get_author(self):
         return db.session.query(Post).get(self.post_id).user_id
+
+    def get_desc(self):
+        print(self.description)
+        j = json.loads(self.description)
+        desc = j['description']
+        return desc
 
 '''
 class PubGCal(Publishing):
