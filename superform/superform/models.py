@@ -71,7 +71,7 @@ class Publishing(db.Model):
     def get_author(self):
         return db.session.query(Post).get(self.post_id).user_id
 
-
+'''
 class PubGCal(Publishing):
 
     date_start = db.Column(db.DateTime, nullable=False)
@@ -82,7 +82,7 @@ class PubGCal(Publishing):
     hour_end = db.Column(db.Text)
     guests = db.Column(db.Text)
     visibility = db.Column(db.Text)
-    availability = db.Column(db.Text)
+    availability = db.Column(db.Text)'''
 
 class Channel(db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)

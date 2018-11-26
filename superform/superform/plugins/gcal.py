@@ -40,3 +40,22 @@ def run(gcal_publishing,channel_config):
     except Exception as e:
         #TODO should add log here
         print(e)
+
+# this function should put the descr + all extra fields inside a json file and return it.
+# if there are no extra fields, just return descr.
+def saveExtraFields(channel, descr, form):
+    fields = {}
+    fields["description"] = descr
+    fields["date_start"] = form.get(channel + 'datedebut')
+    fields["date_end"] = form.get(channel + 'datefin')
+    fields["time_start"] = form.get(channel + 'heuredebut')
+    fields["time_end"] = form.get(channel + 'heurefin')
+    fields["location"] = form.get(channel + 'location')
+    fields["color"] = form.get(channel + 'color')
+    fields["visibility"] = form.get(channel + 'visibility')
+    fields["availability"] = form.get(channel + 'availability')
+    fields["guests"] = form.get(channel + 'guests')
+    return json.dumps(fields)
+
+def post_pre_validation(post):
+    return 1
