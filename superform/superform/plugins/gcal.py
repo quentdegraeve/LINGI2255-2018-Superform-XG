@@ -2,6 +2,7 @@ import datetime
 from googleapiclient.discovery import build
 from httplib2 import Http
 from oauth2client import file, client, tools
+from superform.suputils import plugin_utils
 from flask import current_app
 import json
 
@@ -40,3 +41,7 @@ def run(gcal_publishing,channel_config):
     except Exception as e:
         #TODO should add log here
         print(e)
+
+
+def post_pre_validation(post):
+    return plugin_utils.post_pre_validation_plugins(post, 40000, 40000)
