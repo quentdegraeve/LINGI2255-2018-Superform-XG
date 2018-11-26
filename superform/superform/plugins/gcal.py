@@ -2,7 +2,8 @@ import datetime
 from googleapiclient.discovery import build
 from httplib2 import Http
 from oauth2client import file, client, tools
-from flask import current_app, app
+from superform.suputils import plugin_utils
+from flask import current_app
 import json
 
 SCOPES = 'https://www.googleapis.com/auth/calendar'
@@ -94,3 +95,6 @@ def make_template_html():
                "<option value=\"available\">available</option>" \
                "</select></p>"
     return template
+
+def post_pre_validation(post):
+    return plugin_utils.post_pre_validation_plugins(post, 40000, 40000)
