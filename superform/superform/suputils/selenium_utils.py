@@ -12,6 +12,8 @@ def get_headless_chrome():
     try:
         print(sys.path[0])
         if platform.system() == 'Windows':
+            print("CAROTTE")
+            print(sys.path[0] + '\superform\selenium_drivers\chromedriver.exe')
             return webdriver.Chrome(sys.path[0] + '\superform\selenium_drivers\chromedriver.exe',
                                     chrome_options=options)
         else:
