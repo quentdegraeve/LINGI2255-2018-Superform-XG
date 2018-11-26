@@ -66,3 +66,6 @@ def run(publishing, channel_config):
     print(generated_file)
 
     db.session.commit()
+
+def saveExtraFields(channel, descr, form):
+    return descr
