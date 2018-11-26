@@ -18,10 +18,6 @@ class User(db.Model):
     def __repr__(self):
         return '<User {}>'.format(repr(self.id))
 
-class Rss(db.Model):
-    channel_id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
-    xml_file = db.Column(db.Text)
-
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
     user_id = db.Column(db.String(80), db.ForeignKey("user.id"), nullable=False)
