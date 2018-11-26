@@ -1,7 +1,8 @@
 from flask import Blueprint, url_for, request, redirect, session, render_template
 from superform.utils import login_required, datetime_converter, str_converter
-from superform.models import db, User, Publishing, Channel, PubGCal
+from superform.models import db, User, Publishing, Channel, PubGCal, Comment, State
 from superform.users import get_moderate_channels_for_user
+from sqlalchemy import desc
 
 pub_page = Blueprint('publishings', __name__)
 
@@ -71,4 +72,18 @@ def moderate_publishing(id, idc):
         print('publishing publishings.py', pub)
         plugin.run(pub, c_conf)
 
+    return redirect(url_for('index'))
+
+
+@pub_page.route('/moderate/unvalidate/<int:id>/<int:idc>', methods=["GET", "POST"])
+@login_required()
+def unvalidate_publishing(id, idc):
+    """SAVOIR SI ON FAIT POST_ID ET CHANNEL_ID OU PUBLISHING_ID DIRECTLY"""
+    pub = db.session.query(Publishing).filter(Publishing.post_id == id, Publishing.channel_id == idc).order_by(desc(Publishing.num_version)).first()
+    pub.state = State.NOT_VALIDATED
+    """TESTER SI MODERATOR_COMMENT EST NONE"""
+    moderator_comment = request.form.get('moderator_comment')
+    comm = Comment(publishing_id=pub.publishing_id, moderator_comment=moderator_comment)
+    db.session.add(comm)
+    db.session.commit()
     return redirect(url_for('index'))

@@ -6,7 +6,7 @@ from superform.suputils import selenium_utils
 from datetime import datetime, timedelta
 from superform.suputils import plugin_utils
 
-from superform.models import db, Channel, Publishing
+from superform.models import db, Channel, Publishing, State
 from superform.suputils import keepass
 
 linkedin_verify_callback_page = Blueprint('linkedin', 'channels')
@@ -143,7 +143,7 @@ def run(publishing, channel_config):
     authenticate(publishing.channel_id, (publishing.post_id, publishing.channel_id))
 
     if share_post(publishing.channel_id, publishing.description, publishing.title, publishing.link_url, publishing.image_url, "anyone"):
-        publishing.state = 1
+        publishing.state = State.PUBLISHED
         db.session.commit()
 
 

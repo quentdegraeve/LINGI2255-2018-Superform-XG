@@ -44,6 +44,7 @@ app.config["PLUGINS"] = {
     in pkgutil.iter_modules(superform.plugins.__path__, superform.plugins.__name__ + ".")
 }
 
+
 @app.route('/', methods=["GET"])
 def index():
     page = request.args.get("page")
