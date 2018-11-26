@@ -34,8 +34,6 @@ def display_rss_feed(id):
                 guid=Guid(Publi.link_url),
                 pubDate=Publi.date_from)  # datetime(2017, 8, 1, 4, 0))
             items.append(item1)
-    if len(items)==0:
-        return render_template("404.html")
 
     feed = Feed(
         title=d['channel_title'],  # channel name
