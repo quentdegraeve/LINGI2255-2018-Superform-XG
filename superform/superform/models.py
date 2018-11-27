@@ -68,7 +68,7 @@ class Publishing(db.Model):
     __table_args__ = ({"sqlite_autoincrement": True},)
 
     def __repr__(self):
-        return '<Publishing {} {}>'.format(repr(self.post_id), repr(self.channel_id))
+        return '<Publishing {} ({} {})>'.format(repr(self.publishing_id), repr(self.post_id), repr(self.channel_id))
 
     def get_author(self):
         return db.session.query(Post).get(self.post_id).user_id

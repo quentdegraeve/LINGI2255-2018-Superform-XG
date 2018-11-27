@@ -93,3 +93,9 @@ def unvalidate_publishing(id):
     db.session.add(comm)
     db.session.commit()
     return redirect(url_for('index'))
+
+
+@pub_page.route('/moderate/resubmit<int:id>', methods=["GET", "POST"])
+@login_required()
+def resubmit_publishing(id):
+    print("resubmit_publishing", id)

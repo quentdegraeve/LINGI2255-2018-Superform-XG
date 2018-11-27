@@ -56,13 +56,23 @@ def index():
     posts = []
     if user_id != -1:
         posts = Post.query.order_by(Post.date_created.desc()).paginate(page, 5, error_out=False)
+        pubs_unvalidated = Publishing.query.order_by(Publishing.post_id).order_by(Publishing.channel_id).all()
+        print('pubs_unv', pubs_unvalidated)
         for post in posts.items:
             publishings = db.session.query(Publishing).filter(Publishing.post_id == post.id).all()
             channels = []
             for publishing in publishings:
                 channels.append(db.session.query(Channel).filter(Channel.id == publishing.channel_id).first())
             setattr(post, "channels", channels)
-    return render_template("index.html", posts=posts)
+
+        for pub_unvalidated in pubs_unvalidated:
+            publishings = db.session.query(Publishing).filter(Publishing.post_id == post.id).all()
+            channels = []
+            for publishing in publishings:
+                channels.append(db.session.query(Channel).filter(Channel.id == publishing.channel_id).first())
+            setattr(pub_unvalidated, "channels", channels)
+        print('pubs_unv2', pubs_unvalidated[1].channels)
+    return render_template("index.html", posts=posts, pubs_unvalidated=pubs_unvalidated)
 
 @app.errorhandler(403)
 def forbidden(error):
