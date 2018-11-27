@@ -97,7 +97,13 @@ def unvalidate_publishing(id):
     if request.form.get('moderator_comment'):
         moderator_comment = request.form.get('moderator_comment')
 
-    comm = Comment(publishing_id=pub.publishing_id, moderator_comment=moderator_comment)
-    db.session.add(comm)
+    comm = db.session.query(Comment).filter(Comment.publishing_id == pub.publishing_id).first()
+
+    if comm :
+        comm.moderator_comment=moderator_comment
+    else :
+        comm = Comment(publishing_id=pub.publishing_id, moderator_comment=moderator_comment)
+        db.session.add(comm)
+
     db.session.commit()
     return redirect(url_for('index'))

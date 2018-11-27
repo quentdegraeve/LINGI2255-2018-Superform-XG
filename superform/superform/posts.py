@@ -171,13 +171,14 @@ def resubmit_publishing(id):
 
         new_pub = create_a_resubmit_publishing(pub, chn, request.form)
         db.session.add(new_pub)
+        pub.state = State.OLD_VERSION.value
         db.session.commit()
 
-        moderator_comment = ""
+        user_comment = ""
         if request.form.get('moderator_comment'):
-            moderator_comment = request.form.get('moderator_comment')
+            user_comment = request.form.get('user_comment')
         print("pub", new_pub.publishing_id)
-        comm = Comment(publishing_id=new_pub.publishing_id, moderator_comment=moderator_comment)
+        comm = Comment(publishing_id=new_pub.publishing_id, user_comment=user_comment)
         db.session.add(comm)
         db.session.commit()
         return redirect(url_for('index'))
