@@ -115,7 +115,7 @@ class Authorization(db.Model):
 
 
 class Comment(db.Model):
-    publishing_id = db.Column(db.Integer, db.ForeignKey("publishing.publishing_id"), nullable=False)
+    publishing_id = db.Column(db.Integer, db.ForeignKey("publishing.publishing_id"), primary_key=True, nullable=False)
     user_comment = db.Column(db.Text, nullable=True)
     moderator_comment = db.Column(db.Text, nullable= True)
 
@@ -135,3 +135,4 @@ class State(Enum):
     NOT_VALIDATED = 0
     PUBLISHED = 1
     ARCHIVED = 2
+    REFUSED = 3

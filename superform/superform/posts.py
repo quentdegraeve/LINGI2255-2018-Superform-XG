@@ -2,7 +2,7 @@ from flask import Blueprint, url_for, current_app, request, redirect, session, r
 
 from superform.users import channels_available_for_user
 from superform.utils import login_required, datetime_converter, str_converter, get_instance_from_module_path, get_modules_names, get_module_full_name
-from superform.models import db, Post, Publishing, Channel, Comment, PubGCal
+from superform.models import db, Post, Publishing, Channel, Comment, PubGCal, State
 
 from importlib import import_module
 from datetime import date, timedelta
@@ -59,7 +59,7 @@ def create_a_publishing(post, chn, form):  # called in publish_from_new_post()
         visibility = form.get(chan + '_visibility')
         # availability = form.get(chan + '_availability')
 
-        pub = PubGCal(post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
+        pub = PubGCal(post_id=post.id, channel_id=chn.id, state=State.NOT_VALIDATED.value, title=title_post, description=descr_post,
                       link_url=link_post, image_url=image_post,
                       date_from=None, date_until=None, date_start=date_start, date_end=date_end,
                       location=location, color_id=color_id, hour_start=hour_start, hour_end=hour_end,
@@ -79,11 +79,11 @@ def create_a_publishing(post, chn, form):  # called in publish_from_new_post()
     latest_version_publishing = db.session.query(Publishing).filter(Publishing.post_id == post.id, Publishing.channel_id == chn.id).order_by(Publishing.num_version.desc()).first()
     print( " last publishing + ", latest_version_publishing)
     if latest_version_publishing is None:
-        pub = Publishing(num_version=1, post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
+        pub = Publishing(num_version=1, post_id=post.id, channel_id=chn.id, state=State.NOT_VALIDATED.value, title=title_post, description=descr_post,
                      link_url=link_post, image_url=image_post,
                      date_from=date_from, date_until=date_until)
     else:
-        pub = Publishing(num_version=latest_version_publishing.num_version+1, post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
+        pub = Publishing(num_version=latest_version_publishing.num_version+1, post_id=post.id, channel_id=chn.id, state=State.NOT_VALIDATED.value, title=title_post, description=descr_post,
                          link_url=link_post, image_url=image_post,
                          date_from=date_from, date_until=date_until)
 
@@ -169,12 +169,14 @@ def resubmit_publishing(id):
 
     if request.method == "POST":
 
-        new_pub = create_a_publishing(pub, chn, request.form)
+        new_pub = create_a_resubmit_publishing(pub, chn, request.form)
+        db.session.add(new_pub)
+        db.session.commit()
 
         moderator_comment = ""
         if request.form.get('moderator_comment'):
             moderator_comment = request.form.get('moderator_comment')
-
+        print("pub", new_pub.publishing_id)
         comm = Comment(publishing_id=new_pub.publishing_id, moderator_comment=moderator_comment)
         db.session.add(comm)
         db.session.commit()
@@ -182,6 +184,40 @@ def resubmit_publishing(id):
     else:
         return render_template('resubmit_post.html', pub=pub, chan=chn)
 
+
+def create_a_resubmit_publishing(pub, chn, form):
+
+    validate = pre_validate_post(chn, pub)
+    if validate == -1 or validate == 0:
+        return validate
+
+    title_post = form.get('titlepost')
+    descr_post = form.get('descrpost')
+    link_post = form.get('linkurlpost')
+    image_post = form.get('imagepost')
+    if chn.module == 'superform.plugins.gcal':
+        pub.date_start = datetime_converter(form.get('datedebut'))
+        pub.hour_start = form.get('heuredebut')
+        pub.date_end = datetime_converter(form.get('datefin'))
+        pub.hour_end = form.get('heurefin')
+        pub.location = form.get('location')
+        pub.color = form.get('color')
+        pub.visibility = form.get('visibility')
+        pub.availability = form.get('availability')
+    else:
+        date_from = datetime_converter(form.get('datefrompost'))
+        date_until = datetime_converter(form.get('dateuntilpost'))
+
+    latest_version_publishing = db.session.query(Publishing).filter(Publishing.post_id == pub.post_id,
+                                                                    Publishing.channel_id == chn.id).order_by(
+        Publishing.num_version.desc()).first()
+    print(" last publishing + ", latest_version_publishing)
+    new_pub = Publishing(num_version=latest_version_publishing.num_version + 1, post_id=pub.post_id, channel_id=chn.id,
+                     state=State.NOT_VALIDATED.value, title=title_post, description=descr_post,
+                     link_url=link_post, image_url=image_post,
+                     date_from=date_from, date_until=date_until)
+    print("new Pub",new_pub)
+    return new_pub
 
 def pre_validate_post(channel, post):
     plugin = import_module(channel.module)

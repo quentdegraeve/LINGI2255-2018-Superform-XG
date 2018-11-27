@@ -32,15 +32,16 @@ def moderate_publishing(id, idc):
         pub.date_until = str_converter(pub.date_until)
 
     if request.method == "GET":
-
-        pub_versions = db.session.query(Publishing).filter(Publishing.post_id == id, Publishing.channel_id == idc).order_by(Publishing.num_version.desc()).all();
-
+        """
+        pub_versions = db.session.query(Publishing).filter(Publishing.post_id == id, Publishing.channel_id == idc).\
+            order_by(Publishing.num_version.desc()).first()
+        print("pub", pub_versions)
         pub_comments = []
         for pub_ver in pub_versions :
             com = db.session.query(Comment).filter(Comment.id == pub_ver.publishing_id).first()
             pub_comments.insert(0, com)
-
-        return render_template('moderate_post.html', pub=pub, channel=chn, pub_versions=pub_versions, comments=pub_comments)
+        """
+        return render_template('moderate_post.html', pub=pub, channel=chn)#, pub_versions=pub_versions, comments=pub_comments)
     else:
         pub.title = request.form.get('titlepost')
         pub.description = request.form.get('descrpost')
@@ -89,7 +90,7 @@ def unvalidate_publishing(id):
 
     print("pub-id to unvalidate ", id)
     pub = db.session.query(Publishing).filter(Publishing.publishing_id == id).first()
-    pub.state = State.NOT_VALIDATED.value
+    pub.state = State.REFUSED.value
 
     """TESTER SI MODERATOR_COMMENT EST NONE"""
     moderator_comment = ""
@@ -100,9 +101,3 @@ def unvalidate_publishing(id):
     db.session.add(comm)
     db.session.commit()
     return redirect(url_for('index'))
-
-
-@pub_page.route('/moderate/resubmit<int:id>', methods=["GET", "POST"])
-@login_required()
-def resubmit_publishing(id):
-    print("resubmit_publishing", id)

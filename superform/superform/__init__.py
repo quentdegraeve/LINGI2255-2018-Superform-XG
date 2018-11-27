@@ -5,7 +5,7 @@ from flask import request
 
 import superform.plugins
 from superform.publishings import pub_page
-from superform.models import db, Post, Publishing, Channel
+from superform.models import db, Post, Publishing, Channel, State
 from superform.authentication import authentication_page
 from superform.authorizations import authorizations_page
 from superform.channels import channels_page
@@ -54,10 +54,10 @@ def index():
         page = int(page)
     user_id = session.get("user_id", "") if session.get("logged_in", False) else -1
     posts = []
+    pubs_unvalidated = []
     if user_id != -1:
+        # AJOUTER Post.user_id == user_id dans posts DANS QUERY?
         posts = Post.query.order_by(Post.date_created.desc()).paginate(page, 5, error_out=False)
-        pubs_unvalidated = Publishing.query.order_by(Publishing.post_id).order_by(Publishing.channel_id).all()
-        print('pubs_unv', pubs_unvalidated)
         for post in posts.items:
             publishings = db.session.query(Publishing).filter(Publishing.post_id == post.id).all()
             channels = []
@@ -65,14 +65,21 @@ def index():
                 channels.append(db.session.query(Channel).filter(Channel.id == publishing.channel_id).first())
             setattr(post, "channels", channels)
 
+        posts_user = db.session.query(Post).filter(Post.user_id == user_id).all()
+        print("posts_user", posts_user)
+        pubs_unvalidated = db.session.query(Publishing).filter(Publishing.state == State.REFUSED.value).\
+            order_by(Publishing.post_id).order_by(Publishing.channel_id).all()
+        print('pubs_unv', pubs_unvalidated)
+        post_ids = [p.id for p in posts_user]
+        pubs = []
+
         for pub_unvalidated in pubs_unvalidated:
-            publishings = db.session.query(Publishing).filter(Publishing.post_id == post.id).all()
-            channels = []
-            for publishing in publishings:
-                channels.append(db.session.query(Channel).filter(Channel.id == publishing.channel_id).first())
-            setattr(pub_unvalidated, "channels", channels)
-        print('pubs_unv2', pubs_unvalidated[1].channels)
+            if pub_unvalidated.post_id in post_ids:
+                channels = [db.session.query(Channel).filter(Channel.id == publishing.channel_id).first()]
+                setattr(pub_unvalidated, "channels", channels)
+                pubs.append(pubs_unvalidated)
     return render_template("index.html", posts=posts, pubs_unvalidated=pubs_unvalidated)
+
 
 @app.errorhandler(403)
 def forbidden(error):

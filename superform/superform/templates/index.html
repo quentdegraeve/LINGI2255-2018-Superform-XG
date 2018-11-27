@@ -117,7 +117,7 @@
             <!--Add publishing that we can rebsumit-->
             <div class="row">
                 <div class="col-md-12">
-                    <h1>Publishings unvalidated</h1>
+                    <h1>Publishings refused</h1>
                 </div>
             </div>
             <div class="row">
@@ -140,7 +140,7 @@
                                         {{ item.description }}
                                     </p>
                                 </div>
-                                <a class="btn btn-outline-primary" role="button" href="{{ url_for('publishings.resubmit_publishing', id=item.publishing_id) }}">Resubmit</a>
+                                    <a class="btn btn-outline-primary" role="button" href="{{ url_for('posts.resubmit_publishing', id=item.publishing_id) }}">Resubmit</a>
                                 <a class="btn btn-outline-warning" role="button" href="#">Delete</a>
                             </div>
                         </div>

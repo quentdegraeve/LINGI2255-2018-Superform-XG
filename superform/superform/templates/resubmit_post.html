@@ -4,7 +4,7 @@
     <h1>resubmit this publication</h1>
     {% if session.logged_in %}
         <form method="POST" action="">
-            <div class="row"  module-namechan="{{channel.module }}">
+            <div class="row"  module-namechan="{{chan.module }}">
                 <div class="col-md-12">
                     <div class="form-group">
                         <label for="titlepost">Title</label><br>
@@ -18,7 +18,7 @@
                         <label for="linkurlpost">Link</label><br>
                         <input type="text" name="linkurlpost" id="linkurlpost" class="form-control" value="{{ pub.link_url }}">
                     </div>
-                    {% if channel.module == "superform.plugins.gcal" %}
+                    {% if chan.module == "superform.plugins.gcal" %}
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -72,7 +72,7 @@
                         <label for="imagepost">Image</label><br>
                         <input type="file" name="imagepost" id="imagepost" class="form-control" value="{{ pub.image_url }}">
                     </div>
-                    {% if channel.module != "superform.plugins.gcal" %}
+                    {% if chan.module != "superform.plugins.gcal" %}
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -90,7 +90,7 @@
                     {% endif %}
                 </div>
             </div>
-            <a formaction="{{ url_for('posts.resubmit_publishing') }}" formmethod="post" type="submit">re-submit</a>
+            <button id="publish-button" class="btn btn-success" type="submit" formaction="{{ url_for('posts.resubmit_publishing', id=pub.publishing_id) }}" formmethod="post">re-submit</>
         </form>
     {% else %}
         You are not logged in.
