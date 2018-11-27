@@ -75,7 +75,9 @@ def create_a_publishing(post, chn, form):  # called in publish_from_new_post()
         else:
             date_until = datetime_converter(form.get(chan + '_dateuntilpost')) if datetime_converter(
                 form.get(chan + '_dateuntilpost')) is not None else post.date_until
+
     check_last_publishing = db.session.query(Publishing).filter(Publishing.post_id == post.id, Publishing.channel_id == chn.id).order_by(Publishing.num_version.desc()).first()
+    print( " last publishing + ", check_last_publishing)
     if check_last_publishing is None:
         pub = Publishing(num_version=1, post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
                      link_url=link_post, image_url=image_post,

@@ -91,6 +91,7 @@
                 </div>
             </div>
             <button id="publish" class="btn btn-success">Publish</button>
+            <a href="{{ url_for('publishings.unvalidate_publishing',id=pub.publishing_id) }}" class="btn btn-secondary" type="button">Non-Validate</a>
         </form>
     {% else %}
         You are not logged in.

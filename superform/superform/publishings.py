@@ -75,14 +75,20 @@ def moderate_publishing(id, idc):
     return redirect(url_for('index'))
 
 
-@pub_page.route('/moderate/unvalidate/<int:id>/<int:idc>', methods=["GET", "POST"])
+@pub_page.route('/moderate/unvalidate/<int:id>', methods=["GET", "POST"])
 @login_required()
-def unvalidate_publishing(id, idc):
+def unvalidate_publishing(id):
     """SAVOIR SI ON FAIT POST_ID ET CHANNEL_ID OU PUBLISHING_ID DIRECTLY"""
-    pub = db.session.query(Publishing).filter(Publishing.post_id == id, Publishing.channel_id == idc).order_by(desc(Publishing.num_version)).first()
-    pub.state = State.NOT_VALIDATED
+
+    print("pub-id to unvalidate ", id)
+    pub = db.session.query(Publishing).filter(Publishing.publishing_id == id).first()
+    pub.state = State.NOT_VALIDATED.value
+
     """TESTER SI MODERATOR_COMMENT EST NONE"""
-    moderator_comment = request.form.get('moderator_comment')
+    moderator_comment = ""
+    if request.form.get('moderator_comment'):
+        moderator_comment = request.form.get('moderator_comment')
+
     comm = Comment(publishing_id=pub.publishing_id, moderator_comment=moderator_comment)
     db.session.add(comm)
     db.session.commit()
