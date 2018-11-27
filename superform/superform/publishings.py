@@ -2,7 +2,6 @@ from flask import Blueprint, url_for, request, redirect, session, render_templat
 from superform.utils import login_required, datetime_converter, str_converter
 from superform.models import db, User, Publishing, Channel, PubGCal, Comment, State
 from superform.users import get_moderate_channels_for_user
-from sqlalchemy import desc
 
 pub_page = Blueprint('publishings', __name__)
 
@@ -33,7 +32,15 @@ def moderate_publishing(id, idc):
         pub.date_until = str_converter(pub.date_until)
 
     if request.method == "GET":
-        return render_template('moderate_post.html', pub=pub, channel=chn)
+
+        pub_versions = db.session.query(Publishing).filter(Publishing.post_id == id, Publishing.channel_id == idc).order_by(Publishing.num_version.desc()).all();
+
+        pub_comments = []
+        for pub_ver in pub_versions :
+            com = db.session.query(Comment).filter(Comment.id == pub_ver.publishing_id).first()
+            pub_comments.insert(0, com)
+
+        return render_template('moderate_post.html', pub=pub, channel=chn, pub_versions=pub_versions, comments=pub_comments)
     else:
         pub.title = request.form.get('titlepost')
         pub.description = request.form.get('descrpost')
