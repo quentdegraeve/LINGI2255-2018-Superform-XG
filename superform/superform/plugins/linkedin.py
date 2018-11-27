@@ -143,7 +143,7 @@ def run(publishing, channel_config):
     authenticate(publishing.channel_id, (publishing.post_id, publishing.channel_id))
 
     if share_post(publishing.channel_id, publishing.description, publishing.title, publishing.link_url, publishing.image_url, "anyone"):
-        publishing.state = State.PUBLISHED
+        publishing.state = State.PUBLISHED.value
         db.session.commit()
 
 

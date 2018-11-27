@@ -112,6 +112,41 @@
                     Add filter here
                 </div>
             </div>
+
+
+            <!--Add publishing that we can rebsumit-->
+            <div class="row">
+                <div class="col-md-12">
+                    <h1>Publishings unvalidated</h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-8">
+                    {% for item in pubs_unvalidated %}
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <span class="font-weight-bold">{{ item.title }}</span>
+                                </div>
+                                <div class="card-text">
+                                    <div class="tags">
+                                        {% for channel in item.channels %}
+                                            <a href="#" class="badge badge-primary">
+                                                {{ channel.name }}
+                                            </a>
+                                        {% endfor %}
+                                    </div>
+                                    <p class="preview">
+                                        {{ item.description }}
+                                    </p>
+                                </div>
+                                <a class="btn btn-outline-primary" role="button" href="{{ url_for('publishings.resubmit_publishing', id=item.publishing_id) }}">Resubmit</a>
+                                <a class="btn btn-outline-warning" role="button" href="#">Delete</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
     {% else %}
         <img src="https://moodleucl.uclouvain.be/pluginfile.php/2/course/section/13/Logo%20UCLouvain.png?time=1535961389826" alt="logo ucl" class="center">
