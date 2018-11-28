@@ -29,6 +29,11 @@ def edit_post(post_id):
     channels = channels_available_for_user(user_id)
     publishing = db.session.query(Publishing).filter(Publishing.post_id == post.id).all()
 
+    print(publishing)
+
+    post.date_from = str_converter(post.date_from)
+    post.date_until = str_converter(post.date_until)
+
     for i in range(len(publishing)):
         j = 0
         exists = False
