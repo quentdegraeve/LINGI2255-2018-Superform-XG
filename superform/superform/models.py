@@ -53,7 +53,7 @@ class Post(db.Model):
 
 class Publishing(db.Model):
     publishing_id = db.Column(db.Integer, autoincrement=True, primary_key=True, unique=True, nullable=False)
-    num_version = db.Column(db.Integer, nullable=False)
+    num_version = db.Column(db.Integer, nullable=False, default=1)
     post_id = db.Column(db.Integer, db.ForeignKey("post.id"), nullable=False)
     channel_id = db.Column(db.Integer, db.ForeignKey("channel.id"), nullable=False)
     state = db.Column(db.Integer, nullable=False, default=-1)

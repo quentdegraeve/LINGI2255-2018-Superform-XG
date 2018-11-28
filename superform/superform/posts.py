@@ -79,7 +79,7 @@ def create_a_publishing(post, chn, form):  # called in publish_from_new_post()
     latest_version_publishing = db.session.query(Publishing).filter(Publishing.post_id == post.id, Publishing.channel_id == chn.id).order_by(Publishing.num_version.desc()).first()
     print( " last publishing + ", latest_version_publishing)
     if latest_version_publishing is None:
-        pub = Publishing(num_version=1, post_id=post.id, channel_id=chn.id, state=State.NOT_VALIDATED.value, title=title_post, description=descr_post,
+        pub = Publishing(post_id=post.id, channel_id=chn.id, state=State.NOT_VALIDATED.value, title=title_post, description=descr_post,
                      link_url=link_post, image_url=image_post,
                      date_from=date_from, date_until=date_until)
     else:
