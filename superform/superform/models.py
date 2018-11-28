@@ -2,6 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from enum import Enum
 import datetime
 import json
+from sqlalchemy.orm import sessionmaker
 from lxml.html._diffcommand import description
 
 db = SQLAlchemy()
@@ -78,6 +79,11 @@ class Publishing(db.Model):
         j = json.loads(self.description)
         desc = j['description']
         return desc
+
+
+    def get_chan_module(self):  #Return the name of the plugin used by the publication
+        chn = db.session.query(Channel).get(self.channel_id).module
+        return chn[18:]
 
 '''
 class PubGCal(Publishing):
