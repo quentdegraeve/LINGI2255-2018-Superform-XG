@@ -59,3 +59,32 @@ def saveExtraFields(channel, descr, form):
 
 def post_pre_validation(post):
     return 1
+
+def make_template_html():
+    template = "<p>Starting Date<input type=\"date\" name=\"start_date\">/p>" \
+               "<p>Ending Date<input type=\"date\" name=\"end_date\"></p>" \
+               "<p>Starting hour<input type=\"time\" name=\"start_hour\"</p>" \
+               "<p>Ending hour<input type=\"time\" name=\"end_hour\"</p>" \
+               "<p>Location<input type=\"text\" name=\"location\"></p>" \
+               "<p>Color<select name=\"color\">" \
+               "<option value=\"tomato\">Tomato</option>" \
+               "<option value=\"flamingo\">Flamingo</option>" \
+               "<option value=\"tangerine\">Tangerine</option>"\
+               "<option value=\"banana\">Banana</option>" \
+               "<option value=\"sage\">Sage</option>" \
+               "<option value=\"basil\">Basil</option>" \
+               "<option value=\"peacock\">Peacock</option>"\
+               "<option value=\"blueberry\">Blueberry</option>" \
+               "<option value=\"lavender\" selected>Lavender</option>" \
+               "<option value=\"grape\">Grape</option>" \
+               "<option value=\"graphite\">Graphite</option>" \
+               "</select></p>" \
+               "<p>Visibility<select name=\"visibility\">" \
+               "<option value=\"public\">Public</option>" \
+               "<option value=\"private\" selected>Private</option>" \
+               "</select></p>" \
+               "<p>Availability<select name=\"availability\">" \
+               "<option value=\"busy\" selected>Busy</option>" \
+               "<option value=\"available\">available</option>" \
+               "</select></p>"
+    return template
