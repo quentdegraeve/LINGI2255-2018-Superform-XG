@@ -23,6 +23,8 @@ def moderate():
 def moderate_publishing(id, idc):
 
     chn = db.session.query(Channel).filter(Channel.id == idc).first()
+    comments = Comment.query.filter(Comment.publishing_id == id).all()
+
     if chn.module == 'superform.plugins.gcal':
         pub = db.session.query(PubGCal).filter(PubGCal.post_id == id, PubGCal.channel_id == idc).first()
         pub.date_start = str_converter(pub.date_start)
@@ -33,7 +35,7 @@ def moderate_publishing(id, idc):
         pub.date_until = str_converter(pub.date_until)
 
     if request.method == "GET":
-        return render_template('moderate_post.html', pub=pub, channel=chn)
+        return render_template('moderate_post.html', pub=pub, channel=chn, comments=comments)
     else:
         pub.title = request.form.get('titlepost')
         pub.description = request.form.get('descrpost')
@@ -88,7 +90,6 @@ def unvalidate_publishing(id):
     moderator_comment = ""
     if request.form.get('moderator_comment'):
         moderator_comment = request.form.get('moderator_comment')
-
     comm = Comment(publishing_id=pub.publishing_id, moderator_comment=moderator_comment)
     db.session.add(comm)
     db.session.commit()

@@ -1,0 +1,72 @@
+/* container */
+.container {
+  padding: 5% 5%;
+}
+
+.scroll {
+	height: 250px;
+    overflow: auto;
+}
+
+/* CSS talk bubble */
+.talk-bubble {
+	margin: 20px;
+  display:  block;
+  position: relative;
+	width: 50%;
+	height: auto;
+}
+
+.left{
+	background-color: #ff374b;
+}
+
+.right{
+	background-color: cornflowerblue;
+	margin-right:0;
+	margin-left: auto;
+}
+
+.round{
+  border-radius: 30px;
+	-webkit-border-radius: 30px;
+	-moz-border-radius: 30px;
+
+}
+
+.tri-right.btm-left-in:after{
+	content: ' ';
+	position: absolute;
+	width: 0;
+	height: 0;
+	left: 38px;
+  right: auto;
+  top: auto;
+	bottom: -20px;
+	border: 12px solid;
+	border-color: #ff374b transparent transparent #ff374b;
+}
+
+.tri-right.btm-right-in:after{
+	content: ' ';
+	position: absolute;
+	width: 0;
+	height: 0;
+  left: auto;
+	right: 38px;
+	bottom: -20px;
+	border: 12px solid;
+	border-color: cornflowerblue cornflowerblue transparent transparent;
+}
+
+/* talk bubble contents */
+.talktext{
+  padding: 1em;
+	text-align: left;
+  line-height: 1.5em;
+}
+.talktext p{
+  /* remove webkit p margins */
+  -webkit-margin-before: 0em;
+  -webkit-margin-after: 0em;
+}

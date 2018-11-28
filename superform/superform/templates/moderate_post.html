@@ -1,11 +1,14 @@
 {% extends "layout.html" %}
+{% block stylesheet %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chat_bubble.css') }}" crossorigin="anonymous">
+{% endblock %}
 {% block title %}Moderate{% endblock %}
 {% block content %}
     <h1>Moderate this publication</h1>
     {% if session.logged_in %}
         <form method="POST" action="">
             <div class="row"  module-namechan="{{channel.module }}">
-                <div class="col-md-12">
+                <div class="col-md-6">
                     <div class="form-group">
                         <label for="titlepost">Title</label><br>
                         <input type="text" name="titlepost" id="titlepost" class="form-control" value="{{ pub.title }}">
@@ -89,9 +92,38 @@
                     </div>
                     {% endif %}
                 </div>
+            <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">Comments</div>
+                        <div class="card-body scroll">
+                            {% for comment in comments %}
+                                {% if comment.user_comment != None %}
+                                    <div class="talk-bubble left round tri-right btm-left-in">
+                                      <div class="talktext">
+                                        <p>{{ comment.user_comment }}</p>
+                                      </div>
+                                    </div>
+                                {% endif %}
+                                {% if comment.moderator_comment != None %}
+                                    <div class="talk-bubble right round tri-right btm-right-in">
+                                      <div class="talktext">
+                                        <p>{{ comment.moderator_comment }}</p>
+                                      </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="moderator_comment">Your comment</label><br>
+                        <textarea class="form-control" rows="5" id="moderator_comment" name="moderator_comment"></textarea>
+                    </div>
+                </div>
             </div>
             <button id="publish" class="btn btn-success">Publish</button>
-            <a href="{{ url_for('publishings.unvalidate_publishing',id=pub.publishing_id) }}" class="btn btn-secondary" type="button">Non-Validate</a>
+            <button id="unvalidate" class="btn btn-danger" formaction="{{ url_for('publishings.unvalidate_publishing',id=pub.publishing_id) }}" formmethod="post" type="submit">
+                    Dismiss
+           </button>
         </form>
     {% else %}
         You are not logged in.

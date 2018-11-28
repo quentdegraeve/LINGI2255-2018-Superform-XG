@@ -8,7 +8,7 @@ __pycache__/
 /superform/setup.py/
 /superform/superform/config.json
 /superform/superform/superform.db
-/venv/
+venv/
 superform/superform/selenium_drivers/
 /superform/superform/suputils/NewKey.key
 /superform/superform/suputils/Superform.kdbx
