@@ -183,6 +183,8 @@ def resubmit_publishing(id):
         db.session.commit()
         return redirect(url_for('index'))
     else:
+        pub.date_from = str_converter(pub.date_from)
+        pub.date_until = str_converter(pub.date_until)
         return render_template('resubmit_post.html', pub=pub, chan=chn)
 
 
@@ -217,8 +219,9 @@ def create_a_resubmit_publishing(pub, chn, form):
                      state=State.NOT_VALIDATED.value, title=title_post, description=descr_post,
                      link_url=link_post, image_url=image_post,
                      date_from=date_from, date_until=date_until)
-    print("new Pub",new_pub)
+    print("new Pub", new_pub)
     return new_pub
+
 
 def pre_validate_post(channel, post):
     plugin = import_module(channel.module)

@@ -5,6 +5,7 @@ from superform.users import get_moderate_channels_for_user
 
 pub_page = Blueprint('publishings', __name__)
 
+
 @pub_page.route('/moderate', methods=["GET"])
 @login_required()
 def moderate():
@@ -17,11 +18,21 @@ def moderate():
         flattened_list_pubs = [y for x in pubs_per_chan for y in x]
     return render_template("moderate.html", publishings=flattened_list_pubs)
 
+
 @pub_page.route('/moderate/<int:id>/<string:idc>', methods=["GET", "POST"])
 @login_required()
 def moderate_publishing(id, idc):
 
     chn = db.session.query(Channel).filter(Channel.id == idc).first()
+    """ FROM THIS : 
+    SHOULD BE IN THE if request.method == 'GET' (BUT pub.date_from = str_converter(pub.date_from) PREVENT US)"""
+    pub_versions = db.session.query(Publishing).filter(Publishing.post_id == id, Publishing.channel_id == idc). \
+        order_by(Publishing.num_version.desc()).all()
+    pub_comments = []
+    for pub_ver in pub_versions:
+        com = db.session.query(Comment).filter(Comment.publishing_id == pub_ver.publishing_id).first()
+        pub_comments.insert(0, com)
+    """TO THIS"""
     if chn.module == 'superform.plugins.gcal':
         pub = db.session.query(PubGCal).filter(PubGCal.post_id == id, PubGCal.channel_id == idc).first()
         pub.date_start = str_converter(pub.date_start)
@@ -30,18 +41,17 @@ def moderate_publishing(id, idc):
         pub = db.session.query(Publishing).filter(Publishing.post_id == id, Publishing.channel_id == idc).order_by(Publishing.num_version.desc()).first()
         pub.date_from = str_converter(pub.date_from)
         pub.date_until = str_converter(pub.date_until)
-
     if request.method == "GET":
-        """
-        pub_versions = db.session.query(Publishing).filter(Publishing.post_id == id, Publishing.channel_id == idc).\
-            order_by(Publishing.num_version.desc()).first()
+        """SHOULD PREPARE THE pub_versions AND pub_comments"""
+        for pub_ver in pub_versions:
+            if pub_ver.publishing_id != pub.publishing_id:
+                pub_ver.date_from = str_converter(pub_ver.date_from)
+                pub_ver.date_until = str_converter(pub_ver  .date_until)
+                #setattr(pub_ver, "date_from_str", str_converter(pub_ver.date_from))
+                #setattr(pub_ver, "date_until_str", str_converter(pub_ver.date_until))
+
         print("pub", pub_versions)
-        pub_comments = []
-        for pub_ver in pub_versions :
-            com = db.session.query(Comment).filter(Comment.id == pub_ver.publishing_id).first()
-            pub_comments.insert(0, com)
-        """
-        return render_template('moderate_post.html', pub=pub, channel=chn)#, pub_versions=pub_versions, comments=pub_comments)
+        return render_template('moderate_post.html', pub=pub, channel=chn, pub_versions=pub_versions, comments=pub_comments)
     else:
         pub.title = request.form.get('titlepost')
         pub.description = request.form.get('descrpost')
@@ -99,9 +109,9 @@ def unvalidate_publishing(id):
 
     comm = db.session.query(Comment).filter(Comment.publishing_id == pub.publishing_id).first()
 
-    if comm :
+    if comm:
         comm.moderator_comment=moderator_comment
-    else :
+    else:
         comm = Comment(publishing_id=pub.publishing_id, moderator_comment=moderator_comment)
         db.session.add(comm)
 

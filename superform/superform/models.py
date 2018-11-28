@@ -136,4 +136,4 @@ class State(Enum):
     PUBLISHED = 1
     ARCHIVED = 2
     REFUSED = 3
-    OLD_VERSION=4
+    OLD_VERSION = 4
