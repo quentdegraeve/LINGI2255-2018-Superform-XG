@@ -76,7 +76,7 @@ def index():
         for pub_unvalidated in pubs_unvalidated:
             if pub_unvalidated.post_id in post_ids:
                 channels_var = [db.session.query(Channel).filter(Channel.id == publishing.channel_id).first()]
-                setattr(pub_unvalidated, "channels", channels)
+                setattr(pub_unvalidated, "channels", channels_var)
                 pubs.append(pubs_unvalidated)
     return render_template("index.html", posts=posts_var, pubs_unvalidated=pubs_unvalidated)
 
