@@ -175,7 +175,7 @@ def resubmit_publishing(id):
         db.session.commit()
 
         user_comment = ""
-        if request.form.get('moderator_comment'):
+        if request.form.get('user_comment'):
             user_comment = request.form.get('user_comment')
         print("pub", new_pub.publishing_id)
         comm = Comment(publishing_id=new_pub.publishing_id, user_comment=user_comment)
