@@ -1,6 +1,8 @@
+import json
+
 from flask import Blueprint, url_for, request, redirect, session, render_template
 from superform.utils import login_required, datetime_converter, str_converter
-from superform.models import db, User, Publishing, Channel, PubGCal, Comment, State
+from superform.models import db, User, Publishing, Channel, PubGCal, Comment, State, AlchemyEncoder
 from superform.users import get_moderate_channels_for_user
 
 pub_page = Blueprint('publishings', __name__)
@@ -24,7 +26,7 @@ def moderate():
 def moderate_publishing(id, idc):
 
     chn = db.session.query(Channel).filter(Channel.id == idc).first()
-    pub_comments = Comment.query.filter(Comment.publishing_id == id).all()
+    pub_comments = []
     """ FROM THIS : 
     SHOULD BE IN THE if request.method == 'GET' (BUT pub.date_from = str_converter(pub.date_from) PREVENT US)"""
     pub_versions = db.session.query(Publishing).filter(Publishing.post_id == id, Publishing.channel_id == idc). \
@@ -33,6 +35,7 @@ def moderate_publishing(id, idc):
         com = db.session.query(Comment).filter(Comment.publishing_id == pub_ver.publishing_id).first()
         pub_comments.insert(0, com)
     """TO THIS"""
+    pub_versions = json.dumps(pub_versions, cls=AlchemyEncoder)
     if chn.module == 'superform.plugins.gcal':
         pub = db.session.query(PubGCal).filter(PubGCal.post_id == id, PubGCal.channel_id == idc).first()
         pub.date_start = str_converter(pub.date_start)
@@ -42,15 +45,6 @@ def moderate_publishing(id, idc):
         pub.date_from = str_converter(pub.date_from)
         pub.date_until = str_converter(pub.date_until)
     if request.method == "GET":
-        """SHOULD PREPARE THE pub_versions AND pub_comments"""
-        for pub_ver in pub_versions:
-            if pub_ver.publishing_id != pub.publishing_id:
-                pub_ver.date_from = str_converter(pub_ver.date_from)
-                pub_ver.date_until = str_converter(pub_ver  .date_until)
-                #setattr(pub_ver, "date_from_str", str_converter(pub_ver.date_from))
-                #setattr(pub_ver, "date_until_str", str_converter(pub_ver.date_until))
-
-        print("pub", pub_versions)
         return render_template('moderate_post.html', pub=pub, channel=chn, pub_versions=pub_versions, comments=pub_comments)
     else:
         pub.title = request.form.get('titlepost')

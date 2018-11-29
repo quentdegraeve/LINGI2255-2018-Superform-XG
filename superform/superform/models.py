@@ -1,8 +1,13 @@
+import json
+
 from flask_sqlalchemy import SQLAlchemy
 from enum import Enum
 import datetime
 
 from sqlalchemy import UniqueConstraint
+from sqlalchemy.ext.declarative import DeclarativeMeta
+
+from utils import str_converter
 
 db = SQLAlchemy()
 
@@ -49,6 +54,26 @@ class Post(db.Model):
                     # state 2 is archived.
                     return False
             return True
+
+
+class AlchemyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj.__class__, DeclarativeMeta):
+            # an SQLAlchemy class
+            fields = {}
+            for field in [x for x in vars(obj) if not x.startswith('_') and x != 'metadata']:
+                data = obj.__getattribute__(field)
+                try:
+                    if data.__class__ == datetime.datetime:
+                        fields[field] = str_converter(data)
+                    else:
+                        json.dumps(data) # this will fail on non-encodable values, like other classes
+                        fields[field] = data
+                except TypeError:
+                    fields[field] = None
+            # a json-encodable dict
+            return fields
+        return json.JSONEncoder.default(self, obj)
 
 
 class Publishing(db.Model):

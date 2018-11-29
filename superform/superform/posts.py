@@ -1,8 +1,10 @@
+import json
+
 from flask import Blueprint, url_for, current_app, request, redirect, session, render_template, flash
 
 from superform.users import channels_available_for_user
 from superform.utils import login_required, datetime_converter, str_converter, get_instance_from_module_path, get_modules_names, get_module_full_name
-from superform.models import db, Post, Publishing, Channel, Comment, PubGCal, State
+from superform.models import db, Post, Publishing, Channel, Comment, PubGCal, State, AlchemyEncoder
 
 from importlib import import_module
 from datetime import date, timedelta
@@ -183,23 +185,16 @@ def resubmit_publishing(id):
         db.session.commit()
         return redirect(url_for('index'))
     else:
-
         pub_versions = db.session.query(Publishing).filter(Publishing.post_id == pub.post_id, Publishing.channel_id == pub.channel_id). \
             order_by(Publishing.num_version.desc()).all()
         pub_comments = []
         for pub_ver in pub_versions:
             com = db.session.query(Comment).filter(Comment.publishing_id == pub_ver.publishing_id).first()
             pub_comments.insert(0, com)
-
+        pub_versions = json.dumps(pub_versions, cls=AlchemyEncoder)
         pub.date_from = str_converter(pub.date_from)
         pub.date_until = str_converter(pub.date_until)
-
-        for pub_ver in pub_versions:
-            if pub_ver.publishing_id != pub.publishing_id:
-                pub_ver.date_from = str_converter(pub_ver.date_from)
-                pub_ver.date_until = str_converter(pub_ver  .date_until)
-
-        return render_template('resubmit_post.html', pub=pub, chan=chn, pub_versions=pub_versions, comments=pub_comments)
+        return render_template('resubmit_post.html', pub=pub, channel=chn, pub_versions=pub_versions, comments=pub_comments)
 
 
 def create_a_resubmit_publishing(pub, chn, form):

@@ -2,9 +2,6 @@ from datetime import datetime
 from functools import wraps
 from flask import render_template, session, current_app
 
-from superform.models import Authorization, Channel
-import configparser
-
 def login_required(admin_required=False):
     def decorator(f):
         @wraps(f)

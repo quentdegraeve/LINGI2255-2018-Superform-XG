@@ -3,11 +3,6 @@
   padding: 5% 5%;
 }
 
-.scroll {
-	height: 250px;
-    overflow: auto;
-}
-
 /* CSS talk bubble */
 .talk-bubble {
 	margin: 20px;
@@ -61,9 +56,10 @@
 
 /* talk bubble contents */
 .talktext{
-  padding: 1em;
+	cursor: pointer;
+	padding: 1em;
 	text-align: left;
-  line-height: 1.5em;
+	line-height: 1.5em;
 }
 .talktext p{
   /* remove webkit p margins */
