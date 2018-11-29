@@ -188,7 +188,7 @@ def run(publishing, channel_config):
     authenticate(publishing.channel_id, (publishing.post_id, publishing.channel_id))
     if share_post(publishing.channel_id, slack_channel_name, publishing.title, publishing.description, publishing.link_url,
                   publishing.image_url):
-        publishing.state = State.PUBLISHED.value
+        publishing.state = State.VALIDATED_SHARED.value
         db.session.commit()
 
 

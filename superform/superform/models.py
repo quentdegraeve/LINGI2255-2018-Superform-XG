@@ -135,7 +135,7 @@ class Permission(Enum):
 class State(Enum):
     INCOMPLETE = -1
     NOT_VALIDATED = 0
-    PUBLISHED = 1
+    VALIDATED_SHARED = 1
     ARCHIVED = 2
     REFUSED = 3
     OLD_VERSION = 4

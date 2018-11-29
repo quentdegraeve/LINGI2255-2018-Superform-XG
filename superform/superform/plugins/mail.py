@@ -37,7 +37,7 @@ def run(publishing,channel_config):
     except SMTPException as e:
         # TODO should add log here
         print(e)
-    publishing.state = State.PUBLISHED.value
+    publishing.state = State.VALIDATED_SHARED.value
     db.session.commit()
 
 # Methods from other groups :
