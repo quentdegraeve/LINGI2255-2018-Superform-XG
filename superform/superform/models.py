@@ -53,7 +53,7 @@ class Post(db.Model):
 
 class Publishing(db.Model):
     publishing_id = db.Column(db.Integer, autoincrement=True, primary_key=True, unique=True, nullable=False)
-    num_version = db.Column(db.Integer, nullable=False)
+    num_version = db.Column(db.Integer, nullable=False, default=1)
     post_id = db.Column(db.Integer, db.ForeignKey("post.id"), nullable=False)
     channel_id = db.Column(db.Integer, db.ForeignKey("channel.id"), nullable=False)
     state = db.Column(db.Integer, nullable=False, default=-1)
@@ -68,7 +68,7 @@ class Publishing(db.Model):
     __table_args__ = ({"sqlite_autoincrement": True},)
 
     def __repr__(self):
-        return '<Publishing {} {}>'.format(repr(self.post_id), repr(self.channel_id))
+        return '<Publishing {} ({} {})>'.format(repr(self.publishing_id), repr(self.post_id), repr(self.channel_id))
 
     def get_author(self):
         return db.session.query(Post).get(self.post_id).user_id
@@ -115,7 +115,7 @@ class Authorization(db.Model):
 
 
 class Comment(db.Model):
-    publishing_id = db.Column(db.Integer, db.ForeignKey("publishing.publishing_id"), nullable=False)
+    publishing_id = db.Column(db.Integer, db.ForeignKey("publishing.publishing_id"), primary_key=True, nullable=False)
     user_comment = db.Column(db.Text, nullable=True)
     moderator_comment = db.Column(db.Text, nullable= True)
 
@@ -135,3 +135,5 @@ class State(Enum):
     NOT_VALIDATED = 0
     PUBLISHED = 1
     ARCHIVED = 2
+    REFUSED = 3
+    OLD_VERSION=4
