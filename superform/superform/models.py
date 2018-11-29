@@ -117,7 +117,9 @@ class Authorization(db.Model):
 class Comment(db.Model):
     publishing_id = db.Column(db.Integer, db.ForeignKey("publishing.publishing_id"), primary_key=True, nullable=False)
     user_comment = db.Column(db.Text, nullable=True)
-    moderator_comment = db.Column(db.Text, nullable= True)
+    moderator_comment = db.Column(db.Text, nullable=True)
+    date_moderator_comment = db.Column(db.Text, nullable=True)
+    date_user_comment = db.Column(db.Text, nullable=True)
 
     def __repr__(self):
         return '<Comment {}>'.format(repr(self.publishing_id))
