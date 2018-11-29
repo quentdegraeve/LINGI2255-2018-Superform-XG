@@ -13,11 +13,21 @@ function createErrorMessage (element,error_message,id){
          element.before(new_elem);
     }
 }
+function update_img_link(mod, img_link_id){
+    if(mod != undefined){
+        if(post_form_validations[mod]['image_type'] != undefined && post_form_validations[mod]['image_type'].toLocaleLowerCase() =="url"){
+             adapt_post_to_channel(img_link_id);
+        }
+    }
+}
+
+function adapt_post_to_channel(img_link_id){
+    document.getElementById(img_link_id).type = "text";
+}
 function prevalidate_post_or_publishing (title_id,description_id,link_url_id,img_link_id,date_from_id,date_until_id,title_length,descr_length){
      var toReturn = true;
      var elementToRemove;
      var input_title = document.getElementById(title_id);
-     alert(input_title.value);
     if (input_title.value == "") {
         createErrorMessage(input_title,"the title is empty","error_"+title_id);
         input_title.classList.add("invalid");
@@ -35,7 +45,6 @@ function prevalidate_post_or_publishing (title_id,description_id,link_url_id,img
     }
 
     var input_descrip = document.getElementById(description_id);
-        alert(input_descrip.value);
     if (input_descrip.value == "") {
         createErrorMessage(input_descrip,"the description is empty","error_"+description_id);
         input_descrip.classList.add("invalid");

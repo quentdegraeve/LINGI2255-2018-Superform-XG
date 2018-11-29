@@ -1,7 +1,20 @@
+
+update_img_link(document.getElementsByClassName('row')[0].getAttribute("module-namechan").split('.')[2],"imagepost");
+
 $("#publish-button").click(function(event){
     var toReturn = true;
-       var title_max_length = 200;
-    var descr_max_length = 200;
+    let mod = document.getElementsByClassName('row')[0].getAttribute("module-namechan").split('.')[2]
+    let title_max_length=100000;
+    let descr_max_length=100000;
+    if(mod != undefined){
+    console.log(post_form_validations[mod]);
+         if(post_form_validations[mod]['title_max_length'] != undefined){
+             title_max_length = post_form_validations[mod]['title_max_length'] ;
+         }
+         if(post_form_validations[mod]['description_max_length'] != undefined){
+             descr_max_length = post_form_validations[mod]['description_max_length'] ;
+         }
+     }
     if((!prevalidate_post(title_max_length,descr_max_length))){
         toReturn = false;
     }

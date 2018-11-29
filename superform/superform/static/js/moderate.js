@@ -1,15 +1,20 @@
-function update_img_link(){
-    var module  = document.getElementsByClassName('row')[0].getAttribute("module-namechan");
-    if(module  == "superform.plugins.linkedin" || module == "superform.plugins.slack") {
-        document.getElementById('imagepost').type = "text";
-    }
-}
-update_img_link();
+
+update_img_link(document.getElementsByClassName('row')[0].getAttribute("module-namechan").split('.')[2],"imagepost");
 
 $("#publish, #unvalidate").click(function(event){
     var toReturn = true;
-    var title_max_length = 200;
-    var descr_max_length = 200;
+    let mod = document.getElementsByClassName('row')[0].getAttribute("module-namechan").split('.')[2];
+    let title_max_length=100000;
+    let descr_max_length=100000;
+     if(mod != undefined){
+         console.log(post_form_validations[mod]);
+         if(post_form_validations[mod]['title_max_length'] != undefined){
+             title_max_length = post_form_validations[mod]['title_max_length'] ;
+         }
+         if(post_form_validations[mod]['description_max_length'] != undefined){
+             descr_max_length = post_form_validations[mod]['description_max_length'] ;
+         }
+     }
      if((!prevalidate_post(title_max_length,descr_max_length))){
             toReturn = false;
      }

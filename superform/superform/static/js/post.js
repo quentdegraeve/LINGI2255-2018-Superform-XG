@@ -3,14 +3,10 @@ $("input[type='checkbox']").each(function(){
     let mod = $(this).attr("module-namechan").split('.')[2];
     if(mod != undefined){
         if(post_form_validations[mod]['image_type'] != undefined && post_form_validations[mod]['image_type'].toLocaleLowerCase() =="url"){
-             $(this).on("click",adapt_post_to_channel($(this).attr('data-namechan')));
+             $(this).on("click",adapt_post_to_channel($(this).attr('data-namechan')+"_imagepost"));
         }
     }
 });
-
-function adapt_post_to_channel(chan_name){
-    document.getElementById(chan_name+"_imagepost").type = "text";
-}
 
 $("#publish-button").click(function(event){
     var toReturn = true;
