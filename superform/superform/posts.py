@@ -1,7 +1,8 @@
 from flask import Blueprint, url_for, current_app, request, redirect, session, render_template, flash
 
 from superform.users import channels_available_for_user
-from superform.utils import login_required, datetime_converter, str_converter, get_instance_from_module_path, get_modules_names, get_module_full_name
+from superform.utils import login_required, datetime_converter, str_converter, get_instance_from_module_path, \
+    get_modules_names, get_module_full_name, datetime_now, str_converter_with_hour
 from superform.models import db, Post, Publishing, Channel, Comment, PubGCal, State
 
 from importlib import import_module
@@ -172,8 +173,11 @@ def resubmit_publishing(id):
         user_comment = ""
         if request.form.get('user_comment'):
             user_comment = request.form.get('user_comment')
+        date_user_comment = str_converter_with_hour(datetime_now())
         print("pub", new_pub.publishing_id)
-        comm = Comment(publishing_id=new_pub.publishing_id, user_comment=user_comment)
+        comm = Comment(publishing_id=new_pub.publishing_id, user_comment=user_comment,
+                       date_user_comment=date_user_comment)
+        print("comm.date_user_comment", comm.date_user_comment)
         db.session.add(comm)
         db.session.commit()
         return redirect(url_for('index'))

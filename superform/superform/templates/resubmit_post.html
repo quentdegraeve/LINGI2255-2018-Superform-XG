@@ -1,5 +1,8 @@
 {% extends "layout.html" %}
 {% block title %}Resubmit post{% endblock %}
+{% block stylesheet %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/error.css') }}" crossorigin="anonymous">
+{% endblock %}
 {% block content %}
     <h1>resubmit this publication</h1>
     {% if session.logged_in %}
@@ -96,3 +99,8 @@
         You are not logged in.
     {% endif %}
 {% endblock %}
+{% block scripts %}
+    <script src="{{ url_for('static', filename='js/resubmit.js') }}" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/post_and_publishing_utils.js') }}" crossorigin="anonymous"></script>
+{% endblock %}
+
