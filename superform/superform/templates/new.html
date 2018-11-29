@@ -332,8 +332,7 @@
 
 {% block scripts %}
     <script type="text/javascript">
-        var post_form_validations =
-        {{ post_form_validations|tojson }}
+        var post_form_validations = {{ post_form_validations|tojson }}
     </script>
     <script>
 
@@ -638,5 +637,6 @@
                 .val(text);
         });
     </script>
+    <script src="{{ url_for('static', filename='js/post_and_publishing_utils.js') }}" crossorigin="anonymous"></script>
     <script src="{{ url_for('static', filename='js/post.js') }}" crossorigin="anonymous"></script>
 {% endblock %}

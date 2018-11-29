@@ -2,6 +2,7 @@
 {% block stylesheet %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/chat_bubble.css') }}" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/error.css') }}" crossorigin="anonymous">
 {% endblock %}
 {% block title %}Moderate{% endblock %}
 {% block content %}
@@ -196,14 +197,14 @@
                                 {% if comment != None %}
                                     {% if comment.user_comment != None and comment.user_comment != ''%}
                                         <div class="talk-bubble right round tri-right btm-right-in">
-                                          <div id="admin_{{ loop.index }}" class="talktext">
+                                          <div id="user_{{ loop.index }}" class="talktext">
                                             <p>{{ comment.user_comment }}</p>
                                           </div>
                                         </div>
                                     {% endif %}
                                     {% if comment.moderator_comment != None and comment.moderator_comment != '' %}
                                         <div class="talk-bubble left round tri-right btm-left-in">
-                                          <div id="user_{{ loop.index }}" class="talktext">
+                                          <div id="mod_{{ loop.index }}" class="talktext">
                                             <p>{{ comment.moderator_comment }}</p>
                                           </div>
                                         </div>
@@ -225,8 +226,10 @@
     {% endif %}
 {% endblock %}
 {% block scripts %}
-    <script>
+    <script type="text/javascript">
     let pubs = JSON.parse({{ pub_versions|tojson }}).reverse();
+    var post_form_validations = {{ post_form_validations|tojson }}
     </script>
+    <script src="{{ url_for('static', filename='js/post_and_publishing_utils.js') }}" crossorigin="anonymous"></script>
     <script src="{{ url_for('static', filename='js/moderate.js') }}" crossorigin="anonymous"></script>
 {% endblock %}

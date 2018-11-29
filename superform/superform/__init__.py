@@ -53,17 +53,17 @@ def index():
     else:
         page = int(page)
     user_id = session.get("user_id", "") if session.get("logged_in", False) else -1
-    posts = []
+    posts_var = []
     pubs_unvalidated = []
     if user_id != -1:
         # AJOUTER Post.user_id == user_id dans posts DANS QUERY?
-        posts = Post.query.order_by(Post.date_created.desc()).paginate(page, 5, error_out=False)
-        for post in posts.items:
-            publishings = db.session.query(Publishing).filter(Publishing.post_id == post.id).all()
-            channels = []
-            for publishing in publishings:
-                channels.append(db.session.query(Channel).filter(Channel.id == publishing.channel_id).first())
-            setattr(post, "channels", channels)
+        posts_var = Post.query.order_by(Post.date_created.desc()).paginate(page, 5, error_out=False)
+        for post in posts_var.items:
+            publishings_var = db.session.query(Publishing).filter(Publishing.post_id == post.id).all()
+            channels_var = set()
+            for publishing in publishings_var:
+                channels_var.add(db.session.query(Channel).filter(Channel.id == publishing.channel_id).first())
+            setattr(post, "channels", channels_var)
 
         posts_user = db.session.query(Post).filter(Post.user_id == user_id).all()
         print("posts_user", posts_user)
@@ -75,10 +75,10 @@ def index():
 
         for pub_unvalidated in pubs_unvalidated:
             if pub_unvalidated.post_id in post_ids:
-                channels = [db.session.query(Channel).filter(Channel.id == publishing.channel_id).first()]
-                setattr(pub_unvalidated, "channels", channels)
+                channels_var = [db.session.query(Channel).filter(Channel.id == publishing.channel_id).first()]
+                setattr(pub_unvalidated, "channels", channels_var)
                 pubs.append(pubs_unvalidated)
-    return render_template("index.html", posts=posts, pubs_unvalidated=pubs_unvalidated)
+    return render_template("index.html", posts=posts_var, pubs_unvalidated=pubs_unvalidated)
 
 
 @app.errorhandler(403)

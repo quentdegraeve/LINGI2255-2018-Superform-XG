@@ -1,9 +1,10 @@
 import json
 
 from flask import Blueprint, url_for, request, redirect, session, render_template
-from superform.utils import login_required, datetime_converter, str_converter
+from superform.utils import login_required, datetime_converter, str_converter, datetime_now, str_converter_with_hour
 from superform.models import db, User, Publishing, Channel, PubGCal, Comment, State, AlchemyEncoder
 from superform.users import get_moderate_channels_for_user
+from superform.posts import get_post_form_validations
 
 pub_page = Blueprint('publishings', __name__)
 
@@ -45,7 +46,12 @@ def moderate_publishing(id, idc):
         pub.date_from = str_converter(pub.date_from)
         pub.date_until = str_converter(pub.date_until)
     if request.method == "GET":
-        return render_template('moderate_post.html', pub=pub, channel=chn, pub_versions=pub_versions, comments=pub_comments)
+        """SHOULD PREPARE THE pub_versions AND pub_comments"""
+        print("pub", pub_versions)
+
+        post_form_validations = get_post_form_validations()
+
+        return render_template('moderate_post.html', pub=pub, channel=chn, pub_versions=pub_versions, comments=pub_comments, post_form_validations=post_form_validations)
     else:
         pub.title = request.form.get('titlepost')
         pub.description = request.form.get('descrpost')
@@ -98,15 +104,21 @@ def unvalidate_publishing(id):
 
     """TESTER SI MODERATOR_COMMENT EST NONE"""
     moderator_comment = ""
+    print('mod', request.form.get('moderator_comment'))
     if request.form.get('moderator_comment'):
         moderator_comment = request.form.get('moderator_comment')
+    print('mod_com', moderator_comment)
 
     comm = db.session.query(Comment).filter(Comment.publishing_id == pub.publishing_id).first()
-
+    date_moderator_comment = str_converter_with_hour(datetime_now())
     if comm:
-        comm.moderator_comment=moderator_comment
+        comm.moderator_comment = moderator_comment
+        comm.date_moderator_comment = date_moderator_comment
     else:
-        comm = Comment(publishing_id=pub.publishing_id, moderator_comment=moderator_comment)
+        comm = Comment(publishing_id=pub.publishing_id, moderator_comment=moderator_comment,
+                       date_moderator_comment=date_moderator_comment)
         db.session.add(comm)
+    print("comm.date_moderator_comment", str_converter_with_hour(datetime_now()), comm.date_moderator_comment)
+
     db.session.commit()
     return redirect(url_for('index'))

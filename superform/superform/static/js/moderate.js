@@ -1,12 +1,32 @@
-function update_img_link(){
-    var module  = document.getElementsByClassName('row')[0].getAttribute("module-namechan");
-    if(module  == "superform.plugins.linkedin" || module == "superform.plugins.slack") {
-        document.getElementById('imagepost').type = "text";
-        document.getElementById('imagepost_old').type = "text";
-    }
+
+update_img_link(document.getElementsByClassName('row')[0].getAttribute("module-namechan").split('.')[2],"imagepost");
+
+$("#publish, #unvalidate").click(function(event){
+    var toReturn = true;
+    let mod = document.getElementsByClassName('row')[0].getAttribute("module-namechan").split('.')[2];
+    let title_max_length=100000;
+    let descr_max_length=100000;
+     if(mod != undefined){
+         console.log(post_form_validations[mod]);
+         if(post_form_validations[mod]['title_max_length'] != undefined){
+             title_max_length = post_form_validations[mod]['title_max_length'] ;
+         }
+         if(post_form_validations[mod]['description_max_length'] != undefined){
+             descr_max_length = post_form_validations[mod]['description_max_length'] ;
+         }
+     }
+     if((!prevalidate_post(title_max_length,descr_max_length))){
+            toReturn = false;
+     }
+     return toReturn;
+});
+
+function prevalidate_post(title_max_length,descr_max_length){
+     return prevalidate_post_or_publishing ("titlepost","descrpost",
+    "linkurlpost","imagepost",
+    "datefrompost","dateuntilpost",title_max_length,descr_max_length);
 }
 
-update_img_link();
 
 let height = $('#old_pub').height() - $('#mod_comment').height(); // - $('#pagination_old').height();
 $('#chat_box').height(height);
@@ -58,7 +78,6 @@ $('#prev_button').on('click', function(){
 $('.talktext').on('click', function () {
     _this = $(this);
     number = _this.attr('id').split('_')[1] - 1;
-    console.log(number)
     current = number;
     updateFields();
 });

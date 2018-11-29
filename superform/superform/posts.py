@@ -3,7 +3,8 @@ import json
 from flask import Blueprint, url_for, current_app, request, redirect, session, render_template, flash
 
 from superform.users import channels_available_for_user
-from superform.utils import login_required, datetime_converter, str_converter, get_instance_from_module_path, get_modules_names, get_module_full_name
+from superform.utils import login_required, datetime_converter, str_converter, get_instance_from_module_path, \
+    get_modules_names, get_module_full_name, datetime_now, str_converter_with_hour
 from superform.models import db, Post, Publishing, Channel, Comment, PubGCal, State, AlchemyEncoder
 
 from importlib import import_module
@@ -109,13 +110,8 @@ def new_post():
     if request.method == "GET":  # when clicking on the new post tab
         # set default date
         default_date = {'from': date.today(), 'until': date.today() + timedelta(days=7)}
-        mods = get_modules_names(current_app.config["PLUGINS"].keys())
-        post_form_validations = dict()
-        for m in mods:
-            full_name = get_module_full_name(m)
-            clas = get_instance_from_module_path(full_name)
-            fields = clas.POST_FORM_VALIDATIONS
-            post_form_validations[m] = fields
+
+        post_form_validations = get_post_form_validations()
 
         print(post_form_validations)
         return render_template('new.html', l_chan=list_of_channels, post_form_validations=post_form_validations,date=default_date)
@@ -179,8 +175,11 @@ def resubmit_publishing(id):
         user_comment = ""
         if request.form.get('user_comment'):
             user_comment = request.form.get('user_comment')
+        date_user_comment = str_converter_with_hour(datetime_now())
         print("pub", new_pub.publishing_id)
-        comm = Comment(publishing_id=new_pub.publishing_id, user_comment=user_comment)
+        comm = Comment(publishing_id=new_pub.publishing_id, user_comment=user_comment,
+                       date_user_comment=date_user_comment)
+        print("comm.date_user_comment", comm.date_user_comment)
         db.session.add(comm)
         db.session.commit()
         return redirect(url_for('index'))
@@ -194,7 +193,10 @@ def resubmit_publishing(id):
         pub_versions = json.dumps(pub_versions, cls=AlchemyEncoder)
         pub.date_from = str_converter(pub.date_from)
         pub.date_until = str_converter(pub.date_until)
-        return render_template('resubmit_post.html', pub=pub, channel=chn, pub_versions=pub_versions, comments=pub_comments)
+
+        post_form_validations = get_post_form_validations()
+
+        return render_template('resubmit_post.html', pub=pub, channel=chn, pub_versions=pub_versions, comments=pub_comments, post_form_validations=post_form_validations)
 
 
 def create_a_resubmit_publishing(pub, chn, form):
@@ -235,3 +237,15 @@ def create_a_resubmit_publishing(pub, chn, form):
 def pre_validate_post(channel, post):
     plugin = import_module(channel.module)
     return plugin.post_pre_validation(post)
+
+
+def get_post_form_validations():
+    mods = get_modules_names(current_app.config["PLUGINS"].keys())
+    post_form_validations = dict()
+    for m in mods:
+        full_name = get_module_full_name(m)
+        clas = get_instance_from_module_path(full_name)
+        fields = clas.POST_FORM_VALIDATIONS
+        post_form_validations[m] = fields
+    return post_form_validations
+
