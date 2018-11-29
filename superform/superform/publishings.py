@@ -2,6 +2,7 @@ from flask import Blueprint, url_for, request, redirect, session, render_templat
 from superform.utils import login_required, datetime_converter, str_converter
 from superform.models import db, User, Publishing, Channel, PubGCal, Comment, State
 from superform.users import get_moderate_channels_for_user
+from superform.posts import get_post_form_validations
 
 pub_page = Blueprint('publishings', __name__)
 
@@ -51,7 +52,10 @@ def moderate_publishing(id, idc):
                 #setattr(pub_ver, "date_until_str", str_converter(pub_ver.date_until))
 
         print("pub", pub_versions)
-        return render_template('moderate_post.html', pub=pub, channel=chn, pub_versions=pub_versions, comments=pub_comments)
+
+        post_form_validations = get_post_form_validations()
+
+        return render_template('moderate_post.html', pub=pub, channel=chn, pub_versions=pub_versions, comments=pub_comments, post_form_validations=post_form_validations)
     else:
         pub.title = request.form.get('titlepost')
         pub.description = request.form.get('descrpost')

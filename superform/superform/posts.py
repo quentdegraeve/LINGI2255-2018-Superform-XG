@@ -107,13 +107,8 @@ def new_post():
     if request.method == "GET":  # when clicking on the new post tab
         # set default date
         default_date = {'from': date.today(), 'until': date.today() + timedelta(days=7)}
-        mods = get_modules_names(current_app.config["PLUGINS"].keys())
-        post_form_validations = dict()
-        for m in mods:
-            full_name = get_module_full_name(m)
-            clas = get_instance_from_module_path(full_name)
-            fields = clas.POST_FORM_VALIDATIONS
-            post_form_validations[m] = fields
+
+        post_form_validations = get_post_form_validations()
 
         print(post_form_validations)
         return render_template('new.html', l_chan=list_of_channels, post_form_validations=post_form_validations,date=default_date)
@@ -199,7 +194,9 @@ def resubmit_publishing(id):
                 pub_ver.date_from = str_converter(pub_ver.date_from)
                 pub_ver.date_until = str_converter(pub_ver  .date_until)
 
-        return render_template('resubmit_post.html', pub=pub, chan=chn, pub_versions=pub_versions, comments=pub_comments)
+        post_form_validations = get_post_form_validations()
+
+        return render_template('resubmit_post.html', pub=pub, chan=chn, pub_versions=pub_versions, comments=pub_comments, post_form_validations=post_form_validations)
 
 
 def create_a_resubmit_publishing(pub, chn, form):
@@ -240,3 +237,15 @@ def create_a_resubmit_publishing(pub, chn, form):
 def pre_validate_post(channel, post):
     plugin = import_module(channel.module)
     return plugin.post_pre_validation(post)
+
+
+def get_post_form_validations():
+    mods = get_modules_names(current_app.config["PLUGINS"].keys())
+    post_form_validations = dict()
+    for m in mods:
+        full_name = get_module_full_name(m)
+        clas = get_instance_from_module_path(full_name)
+        fields = clas.POST_FORM_VALIDATIONS
+        post_form_validations[m] = fields
+    return post_form_validations
+
