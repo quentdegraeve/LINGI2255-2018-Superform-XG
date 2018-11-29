@@ -1,5 +1,8 @@
 {% extends "layout.html" %}
 {% block title %}Moderate{% endblock %}
+{% block stylesheet %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/error.css') }}" crossorigin="anonymous">
+{% endblock %}
 {% block content %}
     <h1>Moderate this publication</h1>
     {% if session.logged_in %}
@@ -91,7 +94,7 @@
                 </div>
             </div>
             <button id="publish" class="btn btn-success">Publish</button>
-            <a href="{{ url_for('publishings.unvalidate_publishing',id=pub.publishing_id) }}" class="btn btn-secondary" type="button">Non-Validate</a>
+            <a href="{{ url_for('publishings.unvalidate_publishing',id=pub.publishing_id) }}" id="unvalidate" class="btn btn-secondary" >Non-Validate</a>
         </form>
     {% else %}
         You are not logged in.
@@ -99,4 +102,5 @@
 {% endblock %}
 {% block scripts %}
     <script src="{{ url_for('static', filename='js/moderate.js') }}" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/post_and_publishing_utils.js') }}" crossorigin="anonymous"></script>
 {% endblock %}
