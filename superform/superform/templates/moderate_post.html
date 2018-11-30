@@ -221,7 +221,7 @@
             </div>
             <button id="publish" class="btn btn-success">Publish</button>
             <button id="unvalidate" class="btn btn-danger" formaction="{{ url_for('publishings.unvalidate_publishing',id=pub.publishing_id) }}" formmethod="post" type="submit">
-                    Dismiss
+                    Reject
            </button>
         </form>
     {% else %}
