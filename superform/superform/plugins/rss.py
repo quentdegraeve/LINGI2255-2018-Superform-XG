@@ -38,3 +38,8 @@ def get_template_new():
 # returns the name of an extra form (pre-fillable), None if not needed
 def get_template_mod():
     return None
+def deletable():
+    return True
+
+def delete(pub):
+    pass
