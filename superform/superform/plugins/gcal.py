@@ -45,3 +45,9 @@ def run(gcal_publishing,channel_config):
 
 def post_pre_validation(post):
     return plugin_utils.post_pre_validation_plugins(post, 40000, 40000)
+
+def deletable():
+    return True
+
+def delete(pub):
+    pass

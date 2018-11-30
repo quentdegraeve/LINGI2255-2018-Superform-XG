@@ -1,0 +1,5 @@
+python-dateutil
+construct
+argon2_cffi
+pycryptodome
+lxml

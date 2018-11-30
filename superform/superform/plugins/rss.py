@@ -28,3 +28,9 @@ def authenticate(channel_id, publishing_id):
 def run(publishing, channel_config):
     publishing.state = 1
     db.session.commit()
+
+def deletable():
+    return True
+
+def delete(pub):
+    pass
