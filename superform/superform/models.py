@@ -7,7 +7,7 @@ import datetime
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
-from utils import str_converter
+from superform.utils import str_converter
 
 db = SQLAlchemy()
 

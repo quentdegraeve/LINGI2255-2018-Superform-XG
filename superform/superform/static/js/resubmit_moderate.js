@@ -1,5 +1,6 @@
 
 update_img_link(document.getElementsByClassName('row')[0].getAttribute("module-namechan").split('.')[2],"imagepost");
+update_img_link(document.getElementsByClassName('row')[0].getAttribute("module-namechan").split('.')[2],"imagepost_old");
 
 $("#publish, #unvalidate").click(function(event){
     var toReturn = true;
