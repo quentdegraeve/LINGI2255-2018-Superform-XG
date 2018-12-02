@@ -198,14 +198,16 @@
                                     {% if comment.user_comment != None and comment.user_comment != ''%}
                                         <div class="talk-bubble left round tri-right btm-left-in">
                                           <div id="user_{{ loop.index }}" class="talktext">
-                                            <p>{{ comment.user_comment }}</p>
+                                              <h6>{{ comment.date_user_comment }}</h6>
+                                              <p>{{ comment.user_comment }}</p>
                                           </div>
                                         </div>
                                     {% endif %}
                                     {% if comment.moderator_comment != None and comment.moderator_comment != '' %}
                                         <div class="talk-bubble right round tri-right btm-right-in">
                                           <div id="mod_{{ loop.index }}" class="talktext">
-                                            <p>{{ comment.moderator_comment }}</p>
+                                              <h6>{{ comment.date_moderator_comment }}</h6>
+                                              <p>{{ comment.moderator_comment }}</p>
                                           </div>
                                         </div>
                                     {% endif %}
