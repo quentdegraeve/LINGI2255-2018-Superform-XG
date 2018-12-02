@@ -87,6 +87,11 @@ var data = {
                     "value": "Description 2"
                 }
             ]
+        },
+        {
+            "module": "Twitter",
+            "name": "My second account",
+            "fields": []
         }
     ]
 };
@@ -122,7 +127,7 @@ function createInput(field) {
         component.addClass("form-control");
         component.prop("name", field.name);
         if (field.required) {
-            component.prop("required", true);
+            component.prop("required", "required");
         }
     }
 
@@ -159,65 +164,54 @@ function addLinkToDropDownButton(button, link) {
     menu.append(link);
 }
 
-function createHeader(label, button) {
-
-    var title = $("<div>");
-    title.append(label);
-
-    var tools = $("<div>");
-    tools.append(button);
-
-    var container = $("<div>");
-    container.addClass("d-flex");
-    container.addClass("justify-content-between");
-    container.append(title);
-    container.append(tools);
-
-    return container;
-}
-
-function createDisclaimer(content) {
-
-    var container = $("<div>");
-    container.addClass("alert");
-    container.addClass("alert-danger");
-
-    var button = $("<button>");
-    button.addClass("close");
-    button.prop("type", "button");
-    button.attr("data-dismiss", "alert");
-    button.attr("aria-label", "Close");
-
-    var icon = $("<i>");
-    icon.addClass("fas");
-    icon.addClass("fa-times");
-
-    button.append(icon);
-    container.append(button);
-    container.append(content);
-
-    return container;
-}
-
 function createComponent(field) {
+
+    // Header :
+
+    var label = $("<div>");
+    label.addClass("font-weight-bold");
+    label.text(field.label);
+
+    var header = $("<div>");
+    header.addClass("field-header");
+    header.append(label);
+
+    // Body :
+
+    var input = createInput(field);
+
+    var body = $("<div>");
+    body.addClass("field-body");
+    body.append(input);
+
+    // var validFeedback = $("<div>");
+    // validFeedback.addClass("valid-feedback");
+    // validFeedback.append("This field seems to be correct");
+    // body.append(validFeedback);
+
+    var invalidFeedback = $("<div>");
+    invalidFeedback.addClass("invalid-feedback");
+    invalidFeedback.append("This field seems to be empty or incorrect");
+    body.append(invalidFeedback);
+
+    // Footer :
 
     var button = createDropDownButton();
     var restore = $("<a>");
     restore.text("Restore");
-
     addLinkToDropDownButton(button, restore);
 
-    var label = $("<label>");
-    label.text(field.label);
+    var footer = $("<div>");
+    footer.addClass("field-body");
+    footer.append(button);
 
-    var header = createHeader(label, button);
-    var input = createInput(field);
+    // Container :
+
     var container = $("<div>");
-
-    container.addClass("form-group");
+    container.addClass("field");
     container.append(header);
-    container.append(input);
-
+    container.append(body);
+    container.append(footer);
     return container;
 }
 
@@ -307,7 +301,7 @@ function addTab(tabs, selector, fieldset, name) {
     selector.append(a);
 }
 
-$(document).ready(function () {
+$(document).ready(function() {
 
     var tabs = $("#tabs");
     var selector = $("#selector");
@@ -320,13 +314,29 @@ $(document).ready(function () {
 
     addTab(tabs, selector, fieldset, "General");
 
+    var list = $("<div>");
+    list.addClass("list-group");
+    $("#add_channel .modal-body").append(list);
+
     for (var k = 0; k < data.channels.length; k++) {
-        var channel = layout.channels.find(function(channel) {
-            return channel.module == data.channels[k].module;
-        });
-        var fieldset = createChannelFieldset(fields, channel, data.channels[k].name);
-        if (typeof fieldset !== 'undefined') {
-            addTab(tabs, selector, fieldset, data.channels[k].name);
+        if (data.channels[k].fields.length > 0) {
+            var channel = layout.channels.find(function(channel) {
+                return channel.module == data.channels[k].module;
+            });
+            var fieldset = createChannelFieldset(fields, channel, data.channels[k].name);
+            if (typeof fieldset !== 'undefined') {
+                addTab(tabs, selector, fieldset, data.channels[k].name);
+            }
+        } else {
+            console.log(list);
+            var link = $("<a>");
+            link.addClass("list-group-item");
+            link.addClass("list-group-item-action");
+            link.text(data.channels[k].name);
+            link.on("click", function() {
+                console.log($(this).text());
+            });
+            list.append(link);
         }
     }
 
@@ -336,20 +346,13 @@ $(document).ready(function () {
     selector.children().first().addClass("active");
     tabs.children().first().addClass("active show");
 
-    $("#validate").on("click", function() {
+    $("#validate").click(function() {
+
         var button = $(this);
         button.prop("disabled", true);
-        var filled = true;
-        $(":required").each(function() {
-            if ($(this).val().length === 0) {
-                var disclaimer = createDisclaimer("This field is required");
-                $(this).parent().append(disclaimer);
-                if (filled) {
-                    filled = false;
-                }
-            }
-        });
-        if (filled) {
+
+        var form = $(this).parents("form");
+        if (form.get(0).checkValidity()) {
             var data = [];
             $("fieldset").each(function() {
                 data.push({
@@ -364,6 +367,7 @@ $(document).ready(function () {
         } else {
             button.prop("disabled", false);
         }
+        form.addClass("was-validated");
     });
 
     $("#add").on("click", function() {
