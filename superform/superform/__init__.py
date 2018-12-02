@@ -5,7 +5,7 @@ from flask import request
 
 import superform.plugins
 from superform.publishings import pub_page
-from superform.models import db, Post, Publishing, Channel, State
+from superform.models import db, Post, Publishing, Channel, State, Comment
 from superform.authentication import authentication_page
 from superform.authorizations import authorizations_page
 from superform.channels import channels_page
@@ -43,6 +43,7 @@ app.config["PLUGINS"] = {
     for finder, name, ispkg
     in pkgutil.iter_modules(superform.plugins.__path__, superform.plugins.__name__ + ".")
 }
+SIZE_COMMENT = 40
 
 
 @app.route('/', methods=["GET"])
@@ -78,6 +79,15 @@ def index():
                 channels_var = [db.session.query(Channel).filter(Channel.id == publishing.channel_id).first()]
                 setattr(pub_unvalidated, "channels", channels_var)
                 pubs.append(pubs_unvalidated)
+                last_comment = db.session.query(Comment).filter(Comment.publishing_id ==
+                                                                pub_unvalidated.publishing_id).first()
+                comm = comm_short = last_comment.moderator_comment[:SIZE_COMMENT]
+                if len(last_comment.moderator_comment) > SIZE_COMMENT:
+                    comm_short = comm + "..."
+
+                comm = last_comment.moderator_comment
+                setattr(pub_unvalidated, "comment_short", comm_short)
+                setattr(pub_unvalidated, "comment", comm)
     return render_template("index.html", posts=posts_var, pubs_unvalidated=pubs_unvalidated)
 
 

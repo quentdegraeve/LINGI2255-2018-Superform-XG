@@ -128,6 +128,7 @@
                                 <div class="card-title">
                                     <span class="font-weight-bold">{{ item.title }}</span>
                                 </div>
+                                <div class="card-subtitle mb-2 text-muted" title="{{ item.comment }}">Comment : {{ item.comment_short }}</div>
                                 <div class="card-text">
                                     <div class="tags">
                                         {% for channel in item.channels %}
