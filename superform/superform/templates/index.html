@@ -13,14 +13,14 @@
 {% block content %}
     {% if session.logged_in %}
         {% with messages = get_flashed_messages() %}
-         {% if messages %}
-             <ul class=flashes >
-              {% for message in messages %}
-                  <li><font color="red"><strong>{{ message }}</strong></font></li>
-               {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for message in messages %}
+                        <li><strong class="text-danger">{{ message }}</strong></li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
         <div class="container">
             <h1>My posts</h1>
             <div class="row">
@@ -115,7 +115,7 @@
                         <img src="{{ url_for('static', filename='assets/uclouvain.png') }}" alt="logo ucl">
                     </div>
                     <div class="d-flex justify-content-center">
-                        <a class="btn btn-success" href="{{ url_for('authentication.login') }}" role="button">
+                        <a class="btn btn-lg btn-success" href="{{ url_for('authentication.login') }}" role="button">
                             <i class="fas fa-sign-in-alt"></i> Log In
                         </a>
                     </div>
