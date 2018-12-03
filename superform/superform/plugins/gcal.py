@@ -41,11 +41,9 @@ def run(gcal_publishing,channel_config):
         #TODO should add log here
         print(e)
 
-# this function should put the descr + all extra fields inside a json file and return it.
-# if there are no extra fields, just return descr.
-def saveExtraFields(channel, descr, form):
+# this function add all extra fields inside a json file and return it.
+def saveExtraFields(channel, form):
     fields = {}
-    fields["description"] = descr
     fields["date_start"] = form.get(channel + 'datedebut')
     fields["date_end"] = form.get(channel + 'datefin')
     fields["time_start"] = form.get(channel + 'heuredebut')
@@ -61,7 +59,7 @@ def post_pre_validation(post):
     return 1
 
 def make_template_html():
-    template = "<p>Starting Date<input type=\"date\" name=\"start_date\">/p>" \
+    template = "<p>Starting Date<input type=\"date\" name=\"start_date\"</p>" \
                "<p>Ending Date<input type=\"date\" name=\"end_date\"></p>" \
                "<p>Starting hour<input type=\"time\" name=\"start_hour\"</p>" \
                "<p>Ending hour<input type=\"time\" name=\"end_hour\"</p>" \

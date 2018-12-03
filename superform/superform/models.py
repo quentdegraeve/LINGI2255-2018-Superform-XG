@@ -65,6 +65,7 @@ class Publishing(db.Model):
     image_url = db.Column(db.Text)
     date_from = db.Column(db.DateTime)
     date_until = db.Column(db.DateTime)
+    misc = db.Column(db.Text)
 
     __table_args__ = (db.PrimaryKeyConstraint('post_id', 'channel_id'),)
 
@@ -73,12 +74,6 @@ class Publishing(db.Model):
 
     def get_author(self):
         return db.session.query(Post).get(self.post_id).user_id
-
-    def get_desc(self):
-        print(self.description)
-        j = json.loads(self.description)
-        desc = j['description']
-        return desc
 
 
     def get_chan_module(self):  #Return the name of the plugin used by the publication
