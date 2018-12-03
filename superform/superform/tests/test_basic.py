@@ -46,7 +46,7 @@ def login(client, login):
 def test_index_not_logged_in(client):
     rv = client.get('/', follow_redirects=True)
     assert rv.status_code == 200
-    assert "Please, log in" in rv.data.decode()
+    assert "Log In" in rv.data.decode()
 
 
 def test_other_pages_not_logged_in(client):
@@ -65,7 +65,7 @@ def test_index_logged_in(client):
     login(client, "myself")
     rv2 = client.get('/', follow_redirects=True)
     assert rv2.status_code == 200
-    assert "Your are not logged in." not in rv2.data.decode()
+    assert "Log In" not in rv2.data.decode()
 
 def test_log_out(client):
     login(client,"myself")
@@ -73,7 +73,7 @@ def test_log_out(client):
     assert rv2.status_code == 200
     rv2 = client.get('/logout',follow_redirects=True)
     assert rv2.status_code == 200
-    assert "Please, log in" in rv2.data.decode()
+    assert "Log In" in rv2.data.decode()
 
 
 def test_new_post(client):

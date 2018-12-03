@@ -3,7 +3,7 @@
 {% block stylesheet %}
     <style>
     .card {
-        margin: 25px 0;
+        margin: 35px 0;
     }
     .card-title {
         font-size: 1.4em;
@@ -12,12 +12,17 @@
 {% endblock %}
 {% block content %}
     {% if session.logged_in %}
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for message in messages %}
+                        <li><strong class="text-danger">{{ message }}</strong></li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
         <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <h1>My posts</h1>
-                </div>
-            </div>
+            <h1>My posts</h1>
             <div class="row">
                 <div class="col-md-8">
                     {% for item in posts.items %}
@@ -103,16 +108,19 @@
             </div>
         </div>
     {% else %}
-        <img src="https://moodleucl.uclouvain.be/pluginfile.php/2/course/section/13/Logo%20UCLouvain.png?time=1535961389826" alt="logo ucl" class="left" width="350" height="100">
-        <h1 align ="center"> Welcome to Superform website </h1>
-
-        <table width="70%" align="center" border ="1" cellspacing="1" cellpadding="1" >
-            <tr>
-                <td>
-                    <div align = "center">Superform is a web application that generalize sharing informations between all UCLouvain's <br> students, researchers and colleagues <br> by using variety of communication channels and also to be distributed on multiple channels.</div>
-                </td>
-            <tr>
-        </table>
-        <h5 align = "right">Please, log in .</h5>
+        <div class="container">
+            <div class="jumbotron jumbotron-fluid">
+                <div class="container">
+                    <div class="d-flex justify-content-center">
+                        <img src="{{ url_for('static', filename='assets/uclouvain.png') }}" alt="logo ucl">
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <a class="btn btn-lg btn-success" href="{{ url_for('authentication.login') }}" role="button">
+                            <i class="fas fa-sign-in-alt"></i> Log In
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     {% endif %}
 {% endblock %}

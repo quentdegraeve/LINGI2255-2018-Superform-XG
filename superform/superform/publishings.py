@@ -51,8 +51,9 @@ def moderate_publishing(id, idc):
             pub.date_from = datetime_converter(request.form.get('datefrompost'))
             pub.date_until = datetime_converter(request.form.get('dateuntilpost'))
         # state is shared & validated
-        pub.state = 1
+        """pub.state = 1
         db.session.commit()
+        """
         # running the plugin here
         c = db.session.query(Channel).filter(Channel.id == pub.channel_id).first()
         plugin_name = c.module
@@ -63,11 +64,10 @@ def moderate_publishing(id, idc):
         # every plugin should implement the autheticate method that redirect to the plugin authentication process
         # if it is required or necessary (no token available or expired)!
 
-        url = plugin.authenticate(c.name, (id, idc))
+        url = plugin.authenticate(c.id, (id, idc))
         if url != "AlreadyAuthenticated":
             print("url", url)
             return plugin.auto_auth(url, pub.channel_id)
-
         print('publishing publishings.py', pub)
         plugin.run(pub, c_conf)
 

@@ -5,10 +5,13 @@ import re
 import requests
 import tweepy
 
+from superform import db
 
 FIELDS_UNAVAILABLE = ["Title"]
 CONFIG_FIELDS = ["consumer_key", "consumer_secret", "access_token_key", "access_token_secret"]
 
+AUTH_FIELDS = False
+POST_FORM_VALIDATIONS = {}
 
 def run(publishing, channel_config):
 
@@ -66,6 +69,8 @@ def run(publishing, channel_config):
             os.remove(filename)
         else:
             print("Cant load the image")
+    publishing.state = 1
+    db.session.commit()
 
 
 def get_api(cfg):

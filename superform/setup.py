@@ -12,7 +12,7 @@ setup(
         'tweepy',
         'python3-linkedin',
         'pykeepass',
-        'linkedin',
-        'selenium'
+        'slackclient',
+        'selenium', 'pytest'
     ],
 )
