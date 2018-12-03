@@ -80,7 +80,8 @@ var data = {
     "channels": [
         {
             "module": "Twitter",
-            "name": "My Twitter",
+            "name": "My first Twitter account",
+            "state": 0,
             "fields": [
                 {
                     "name": "description",
@@ -90,7 +91,14 @@ var data = {
         },
         {
             "module": "Twitter",
-            "name": "My second account",
+            "state": -1,
+            "name": "My second Twitter account",
+            "fields": []
+        },
+        {
+            "module": "Twitter",
+            "state": -1,
+            "name": "My third Twitter account",
             "fields": []
         }
     ]
@@ -158,10 +166,10 @@ function createDropDownButton() {
     return container;
 }
 
-function addLinkToDropDownButton(button, link) {
-    var menu = button.find(".dropdown-menu");
-    link.addClass("dropdown-item");
-    menu.append(link);
+function addLinkToDropDownButton(button, a) {
+    var container = button.find(".dropdown-menu");
+    a.addClass("dropdown-item");
+    container.append(a);
 }
 
 function createComponent(field) {
@@ -179,20 +187,14 @@ function createComponent(field) {
     // Body :
 
     var input = createInput(field);
+    var feedback = $("<div>");
+    feedback.addClass("invalid-feedback");
+    feedback.append("This field seems to be empty or incorrect");
 
     var body = $("<div>");
     body.addClass("field-body");
     body.append(input);
-
-    // var validFeedback = $("<div>");
-    // validFeedback.addClass("valid-feedback");
-    // validFeedback.append("This field seems to be correct");
-    // body.append(validFeedback);
-
-    var invalidFeedback = $("<div>");
-    invalidFeedback.addClass("invalid-feedback");
-    invalidFeedback.append("This field seems to be empty or incorrect");
-    body.append(invalidFeedback);
+    body.append(feedback);
 
     // Footer :
 
@@ -233,25 +235,23 @@ function createGeneralFieldset(fields) {
     return fieldset;
 }
 
-function createChannelFieldset(fields, channel, name) {
-
-    if (typeof channel === 'undefined') {
-        return;
-    }
-
-    var fieldset = createFieldSet(name);
-
-    for (var k = 0; k < fields.length; k++) {
-        if ($.inArray(fields[k].name, channel.disabled_fields) < 0) {
-            fieldset.append(createComponent(fields[k]));
+function createChannelFieldset(channel) {
+    var fieldset = createFieldSet(channel.name);
+    for (var i = 0; i < layout.channels.length; i++) {
+        if (layout.channels[i].module === channel.module) {
+            for (var j = 0; j < layout.default.fields.length; j++) {
+                var field = layout.default.fields[j];
+                if ($.inArray(field.name, layout.channels[i].disabled_fields) < 0) {
+                    fieldset.append(createComponent(field));
+                }
+            }
+            var fields = layout.channels[i].fields;
+            for (var j = 0; j < fields.length; j++) {
+                fieldset.append(createComponent(fields[j]));
+            }
+            return fieldset;
         }
     }
-
-    for (var k = 0; k < channel.fields.length; k++) {
-        fieldset.append(createComponent(channel.fields[k]));
-    }
-
-    return fieldset;
 }
 
 function fillGeneralFieldset() {
@@ -301,6 +301,21 @@ function addTab(tabs, selector, fieldset, name) {
     selector.append(a);
 }
 
+function createList() {
+    var container = $("<div>");
+    container.addClass("list-group");
+    return container;
+}
+
+function addToList(list, name, onclick) {
+    var a = $("<a>");
+    a.addClass("list-group-item");
+    a.addClass("list-group-item-action");
+    a.text(name);
+    a.on("click", onclick);
+    list.append(a);
+}
+
 $(document).ready(function() {
 
     var tabs = $("#tabs");
@@ -313,30 +328,16 @@ $(document).ready(function() {
     var fieldset = createGeneralFieldset(fields);
 
     addTab(tabs, selector, fieldset, "General");
-
-    var list = $("<div>");
-    list.addClass("list-group");
+    var list = createList();
     $("#add_channel .modal-body").append(list);
 
     for (var k = 0; k < data.channels.length; k++) {
-        if (data.channels[k].fields.length > 0) {
-            var channel = layout.channels.find(function(channel) {
-                return channel.module == data.channels[k].module;
-            });
-            var fieldset = createChannelFieldset(fields, channel, data.channels[k].name);
+        if (data.channels[k].state >= 0) {
+            var name = data.channels[k].name;
+            var fieldset = createChannelFieldset(data.channels[k]);
             if (typeof fieldset !== 'undefined') {
-                addTab(tabs, selector, fieldset, data.channels[k].name);
+                addTab(tabs, selector, fieldset, name);
             }
-        } else {
-            console.log(list);
-            var link = $("<a>");
-            link.addClass("list-group-item");
-            link.addClass("list-group-item-action");
-            link.text(data.channels[k].name);
-            link.on("click", function() {
-                console.log($(this).text());
-            });
-            list.append(link);
         }
     }
 
@@ -371,7 +372,49 @@ $(document).ready(function() {
     });
 
     $("#add").on("click", function() {
-        var container = $("#add_channel");
+
+        var container = $("#channel_manager");
+        var list = createList();
+        var content = container.find(".modal-body");
+
+        content.empty();
+        content.append(list);
+
+        for (var i = 0; i < data.channels.length; i++) {
+            var channel = data.channels[i];
+            if (channel.state < 0) {
+                var fieldset = $("fieldset[name=\"" + channel.name + "\"]");
+                if (fieldset.length === 0) {
+                    addToList(list, channel.name, function() {
+                        var name = $(this).text();
+                        for (var i = 0; i < data.channels.length; i++) {
+                            if (data.channels[i].name === name) {
+                                var tabs = $("#tabs");
+                                var selector = $("#selector");
+                                var fieldset = createChannelFieldset(data.channels[i]);
+                                addTab(tabs, selector, fieldset, name);
+                            }
+                        }
+                        $(this).remove();
+                    });
+                }
+            }
+        }
+
+        container.modal();
+    });
+
+    $("#delete").on("click", function() {
+
+        var container = $("#channel_manager");
+        var list = createList();
+        var content = container.find(".modal-body");
+
+        content.empty();
+        content.append(list);
+
+        // To do...
+
         container.modal();
     });
 });

@@ -26,7 +26,8 @@
         #tabs {
             padding: 2rem;
         }
-        #buttons {
+        #buttons,
+        #selector {
             margin-top: 2rem;
             margin-bottom: 2rem;
         }
@@ -34,6 +35,11 @@
         .field-body {
             margin-top: 1rem;
             margin-bottom: 1rem;
+        }
+
+        #channel_manager a:hover,
+        .dropdown-item:hover {
+            cursor: pointer;
         }
     </style>
 {% endblock %}
@@ -46,14 +52,17 @@
             <div class="row">
                 <div class="col-md-8">
                     <div class="tab-content card" id="tabs">
-                        <i class="fas fa-spinner spin"></i>
+                        <div class="loader">
+                            <i class="fas fa-spinner spin"></i>
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="sticky-top">
                         <h2>Channels</h2>
                         <div id="selector" class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical"></div>
-                        <button id="add" class="btn btn-outline-primary" type="button">Add channel</button>
+                        <button id="add" class="btn btn-outline-primary" type="button">Add</button>
+                        <button id="delete" class="btn btn-outline-danger" type="button">Delete</button>
                     </div>
                 </div>
             </div>
@@ -68,12 +77,9 @@
         </form>
     </div>
     <!-- Modals -->
-    {% call modal.modal_block(id='copy_from', title='Copy from...') %}
-    {% endcall %}
-    {% call modal.modal_block(id='copy_to', title='Copy to...') %}
-    {% endcall %}
-    {% call modal.modal_block(id='add_channel', title='Add channel') %}
-    {% endcall %}
+    {% call modal.modal_block(id='copy_from', title='Copy from...') %}{% endcall %}
+    {% call modal.modal_block(id='copy_to', title='Copy to...') %}{% endcall %}
+    {% call modal.modal_block(id='channel_manager', title='Channel Manager') %}{% endcall %}
 {% endblock %}
 
 {% block scripts %}
