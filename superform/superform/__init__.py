@@ -12,6 +12,7 @@ from superform.posts import posts_page
 from superform.plugins.slack import slack_error_callback_page, slack_verify_callback_page
 from superform.users import get_moderate_channels_for_user, is_moderator
 from superform.rss import rss_page
+from superform.delete import del_page
 
 from superform.plugins.linkedin import linkedin_verify_callback_page
 
@@ -28,6 +29,7 @@ app.register_blueprint(linkedin_verify_callback_page)
 app.register_blueprint(slack_error_callback_page)
 app.register_blueprint(slack_verify_callback_page)
 app.register_blueprint(rss_page)
+app.register_blueprint(del_page)
 
 # Init dbsx
 db.init_app(app)
