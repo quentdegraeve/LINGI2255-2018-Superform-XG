@@ -45,6 +45,7 @@ authorization_url = 'http://localhost:5000/authorizations'
 new_post_url = 'http://localhost:5000/new'
 index_url = 'http://localhost:5000'
 configure_url = 'http://localhost:5000/configure/'
+delete_url = 'http://localhost:5000/delete/'
 moderate_url = 'http://localhost:5000/moderate/'
 linkedin_url = 'https://www.linkedin.com/'
 
@@ -91,6 +92,14 @@ def create_channel(driver, name, username, password, module):
     input_password.send_keys(password)
 
     driver.find_element_by_name("add_chan").click()
+
+def create_simple_channel(driver, name, module):
+    driver.get(channel_url)
+    driver.find_element_by_css_selector('select[name="module"] option[value="' + module + '"]').click()
+    input_name = driver.find_element_by_name("name")
+    input_name.send_keys(name)
+    driver.find_element_by_name("add_chan").click()
+
 
 
 def modify_config(driver, chan_number, domain_name, channel_name):
@@ -148,3 +157,12 @@ def add_new_post(driver, name_array, title, description, date_from, date_to, lin
 def moderate_post(driver, chan_number, post_number):
     driver.get(moderate_url + str(post_number) + '/' + str(chan_number))
     driver.find_element_by_css_selector('button[id="publish"]').click()
+
+def modify_config_gcal(driver, chan_number, token):
+    driver.get(configure_url + str(chan_number))
+    input_token = driver.find_element_by_name("token")
+    input_token.send_keys(token)
+    driver.find_element_by_css_selector('button[type="submit"]').click()
+
+def delete_post(driver, post_number):
+    driver.get(moderate_url + str(post_number))
