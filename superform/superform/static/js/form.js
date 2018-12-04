@@ -1,146 +1,118 @@
-var layout = {
-    "default": {
-        "fields": [
-            {
-                "name": "title",
-                "label": "Title",
-                "required": true,
-                "type": "input[\"text\"]"
-            },
-            {
-                "name": "description",
-                "label": "Description",
-                "required": true,
-                "type": "textarea"
-            },
-            {
-                "name": "link",
-                "label": "Link",
-                "required": true,
-                "type": "input[\"text\"]"
-            },
-            {
-                "name": "image",
-                "label": "Image",
-                "required": true,
-                "type": "input[\"text\"]"
-            },
-            {
-                "name": "publication_date",
-                "label": "Publication Date",
-                "required": true,
-                "type": "input[\"date\"]"
-            },
-            {
-                "name": "publication_until",
-                "label": "Publication Until",
-                "required": true,
-                "type": "input[\"date\"]"
-            }
-        ]
-    },
-    "channels": [
-        {
-            "module": "Twitter",
-            "icon": "fab fa-twitter",
-            "disabled_fields": ["title"],
-            "fields": []
-        }
-    ]
-};
-
-var data = {
-    "default": {
-        "fields": [
-            {
-                "name": "title",
-                "value": "Ceci est mon titre"
-            },
-            {
-                "name": "description",
-                "value": "Ceci est ma description"
-            },
-            {
-                "name": "link",
-                "value": "http://www.google.com"
-            },
-            {
-                "name": "image",
-                "value": "http://www.google.com"
-            },
-            {
-                "name": "publication_date",
-                "value": "2018-12-12"
-            },
-            {
-                "name": "publication_until",
-                "value": "2018-12-12"
-            }
-        ]
-    },
-    "channels": [
-        {
-            "module": "Twitter",
-            "name": "My first Twitter account",
-            "state": 0,
-            "fields": [
-                {
-                    "name": "description",
-                    "value": "Description 2"
-                }
-            ]
-        },
-        {
-            "module": "Twitter",
-            "state": -1,
-            "name": "My second Twitter account",
-            "fields": []
-        },
-        {
-            "module": "Twitter",
-            "state": -1,
-            "name": "My third Twitter account",
-            "fields": []
-        }
-    ]
-};
+// @authors: Group 4
+// @date: December 2018
 
 function createInput(field) {
 
+    var container = $("<div>");
     var component = 'undefined';
 
     switch (field.type) {
         case "input[\"text\"]":
             component = $("<input>");
             component.prop("type", "text");
+            container.append(component);
             break;
         case "input[\"date\"]":
             component = $("<input>");
             component.prop("type", "date");
+            container.append(component);
+            break;
+        case "input[\"url\"]":
+            component = $("<input>");
+            component.prop("type", "url");
+            container.append(component);
             break;
         case "textarea":
             component = $("<textarea>");
             component.prop("rows", 5);
+            container.append(component);
             break;
         case "select":
             component = $("<select>");
+            var option = 'undefined';
             for (var k = 0; k < field.options.length; k++) {
-                var option = $("<option>");
+                option = $("<option>");
                 option.text(field.options[k]);
                 component.append(option);
+            }
+            container.append(component);
+            break;
+        case "radio":
+            var option = 'undefined';
+            var label = 'undefined';
+            for (var k = 0; k < field.options.length; k++) {
+                option = $("<input>");
+                option.prop("type", "radio");
+                option.prop("name", field.name);
+                option.prop("value", field.options[k]);
+                label = $("<label>");
+                label.append(option);
+                label.append(field.options[k]);
+                component = $("<div>");
+                component.addClass("form-check");
+                component.append(label);
+                container.append(component);
             }
             break;
     }
 
     if (typeof component !== 'undefined') {
-        component.addClass("form-control");
-        component.prop("name", field.name);
-        if (field.required) {
-            component.prop("required", "required");
-        }
+        container.children().each(function() {
+            if (!$(this).hasClass("form-check")) {
+                $(this).addClass("form-control");
+            }
+            $(this).prop("name", field.name);
+            if (field.required) {
+                $(this).prop("required", "required");
+            }
+        });
     }
 
-    return component;
+    return container;
+}
+
+function createComponent(field) {
+
+    // Header :
+
+    var label = $("<span>");
+    label.addClass("font-weight-bold");
+    label.text(field.label);
+
+    var header = $("<div>");
+    header.addClass("field-header");
+    header.append(label);
+
+    if (field.required) {
+        var icon = $("<span>");
+        icon.addClass("text-danger");
+        icon.text("*");
+        header.append(icon);
+    }
+
+    // Body :
+
+    var feedback = $("<div>");
+    feedback.addClass("invalid-feedback");
+    feedback.append("This field seems to be empty or incorrect");
+
+    var body = createInput(field);
+    body.addClass("field-body");
+    body.append(feedback);
+
+    // Footer :
+
+    var footer = $("<div>");
+    footer.addClass("field-footer");
+
+    // Container :
+
+    var container = $("<div>");
+    container.addClass("field");
+    container.append(header);
+    container.append(body);
+    container.append(footer);
+    return container;
 }
 
 function createDropDownButton() {
@@ -167,68 +139,48 @@ function createDropDownButton() {
     return container;
 }
 
-function addLinkToDropDownButton(button, a) {
-    var container = button.find(".dropdown-menu");
-    a.addClass("dropdown-item");
-    container.append(a);
-}
+function addOptionToComponent(component, name, onclick) {
 
-function createComponent(field) {
+    var footer = component.find(".field-footer");
+    var container = footer.find(".btn-group");
 
-    // Header :
-
-    var label = $("<span>");
-    label.addClass("font-weight-bold");
-    label.text(field.label);
-
-    var title = $("<div>");
-    title.append(label);
-
-    if (field.required) {
-        var icon = $("<span>");
-        icon.addClass("text-danger");
-        icon.text("*");
-        title.append(icon);
+    if (container.length === 0) {
+        footer.append(createDropDownButton());
     }
 
-    var header = $("<div>");
-    header.addClass("field-header");
-    header.append(title);
+    var option = $("<a>");
+    option.addClass("dropdown-item");
+    option.on("click", onclick);
+    option.text(name);
 
-    // Body :
-
-    var input = createInput(field);
-    var feedback = $("<div>");
-    feedback.addClass("invalid-feedback");
-    feedback.append("This field seems to be empty or incorrect");
-
-    var body = $("<div>");
-    body.addClass("field-body");
-    body.append(input);
-    body.append(feedback);
-
-    // Footer :
-
-    var button = createDropDownButton();
-    var restore = $("<a>");
-    restore.text("Restore");
-    addLinkToDropDownButton(button, restore);
-
-    var footer = $("<div>");
-    footer.addClass("field-body");
-    footer.append(button);
-
-    // Container :
-
-    var container = $("<div>");
-    container.addClass("field");
-    container.append(header);
-    container.append(body);
-    container.append(footer);
-    return container;
+    var menu = footer.find(".dropdown-menu");
+    menu.append(option);
 }
 
-function createFieldSet(name) {
+function createBadge(state) {
+
+    var span = $("<span>");
+    span.addClass("badge");
+    span.addClass("badge-secondary");
+
+    switch (state) {
+        case -1:
+            span.text("Incomplete");
+            return span;
+        case 0:
+            span.text("Not validated");
+            return span;
+        case 1:
+            span.text("Validated");
+            return span;
+        case 2:
+            span.text("Archived");
+            return span;
+    }
+    return span;
+}
+
+function createFieldset(name) {
     var fieldset = $("<fieldset>");
     fieldset.prop("name", name);
     return fieldset;
@@ -236,10 +188,10 @@ function createFieldSet(name) {
 
 function createGeneralFieldset(fields) {
 
-    var fieldset = createFieldSet("General");
+    var fieldset = createFieldset("General");
 
-    for (var i = 0; i < fields.length; i++) {
-        var component = createComponent(fields[i]);
+    for (var k = 0; k < fields.length; k++) {
+        var component = createComponent(fields[k]);
         fieldset.append(component);
     }
 
@@ -247,7 +199,9 @@ function createGeneralFieldset(fields) {
 }
 
 function createChannelFieldset(channel) {
-    var fieldset = createFieldSet(channel.name);
+
+    var fieldset = createFieldset(channel.name);
+
     for (var i = 0; i < layout.channels.length; i++) {
         if (layout.channels[i].module === channel.module) {
             for (var j = 0; j < layout.default.fields.length; j++) {
@@ -266,29 +220,34 @@ function createChannelFieldset(channel) {
 }
 
 function fillGeneralFieldset() {
+
     var name = "General";
     var fieldset = $("fieldset[name=\"" + name + "\"]");
-    for (var k = 0; k < data.default.fields.length; k++) {
-        var field = data.default.fields[k];
-        var input = fieldset.find("[name=\"" + field.name + "\"]");
-        input.val(field.value);
+    var fields = data.default.fields;
+
+    for (var key in fields) {
+        var input = fieldset.find("[name=\"" + key + "\"]");
+        input.val(fields[key]);
     }
 }
 
 function fillChannelFieldset() {
-    for (var i = 0; i < data.channels.length; i++) {
-        var channel = data.channels[i];
+    for (var k = 0; k < data.channels.length; k++) {
+
+        var channel = data.channels[k];
         var fieldset = $("fieldset[name=\"" + channel.name + "\"]");
-        for (var j = 0; j < channel.fields.length; j++) {
-            var field = channel.fields[j];
-            var input = fieldset.find("[name=\"" + field.name + "\"]");
-            input.val(field.value);
+        var fields = channel.fields;
+
+        for (var key in fields) {
+            var input = fieldset.find("[name=\"" + key + "\"]");
+            input.val(fields[key]);
         }
     }
 }
 
-function addTab(tabs, selector, fieldset, name) {
+function addTab(tabs, selector, fieldset) {
 
+    var name = fieldset.attr("name");
     var id = name.replace(/\s/g, "_");
 
     var tab = $("<div>");
@@ -308,9 +267,6 @@ function addTab(tabs, selector, fieldset, name) {
     a.attr("aria-controls", id);
     a.attr("aria-selected", "false");
     a.text(name);
-    a.on("click", function() {
-        update_header($(this).attr("href"));
-    });
 
     tabs.append(tab);
     selector.append(a);
@@ -331,70 +287,20 @@ function addToList(list, name, onclick) {
     list.append(a);
 }
 
-function update_header(href) {
-    var id = href.substring(1, href.length);
-    if (id === "General") {
+// Features :
 
-        var header = $("#header");
-        var title = $("<h1>");
-        title.text("General");
-
-        header.empty();
-        header.append(title);
-
-        return;
-    }
-    for (var i = 0; i < data.channels.length; i++) {
-        if (data.channels[i].name.replace(/\s/g, "_") === id) {
-            for (var j = 0; j < layout.channels.length; j++) {
-                if (data.channels[i].module === layout.channels[j].module) {
-
-                    var header = $("#header");
-                    var title = $("<h1>");
-                    title.append(data.channels[i].name);
-
-                    var p = $("<p>");
-                    var ul = $("<ul>");
-                    p.addClass("lead");
-                    p.append(ul);
-
-                    var li;
-                    li = $("<li>");
-                    li.append("Module : " + data.channels[i].module);
-                    ul.append(li);
-
-                    li = $("<li>");
-                    var span = $("<span>");
-                    span.addClass("badge");
-                    span.addClass("badge-secondary");
-
-                    switch (data.channels[i].state) {
-                        case -1:
-                            span.text("Incomplete");
-                            break;
-                        case 0:
-                            span.text("Not validated");
-                            break;
-                        case 1:
-                            span.text("Validated");
-                            break;
-                        case 2:
-                            span.text("Archived");
-                            break;
-                    }
-
-                    li.append("Status : ");
-                    li.append(span);
-                    ul.append(li);
-
-                    header.empty();
-                    header.append(title);
-                    header.append(p);
-                }
+function addRestoreFeature(component) {
+    addOptionToComponent(component, "Reset", function() {
+        var container = $(this).parents(".field");
+        var input = container.find(".form-control");
+        for (var i = 0; i < data.default.fields.length; i++) {
+            if (data.default.fields[i].name === input.attr("name")) {
+                input.val(data.default.fields[i].value);
             }
         }
-    }
+    });
 }
+
 
 $("#validate").click(function() {
 
@@ -405,21 +311,24 @@ $("#validate").click(function() {
     if (form.get(0).checkValidity()) {
         var data = [];
         $("fieldset").each(function() {
+            var array = $(this).serializeArray();
+            var fields = {};
+            for (var i = 0; i < array.length; i++) {
+                fields[array[i].name] = array[i].value;
+            }
             data.push({
                 "name": $(this).prop("name"),
-                "fields": $(this).serializeArray()
+                "fields": fields
             });
         });
-        $.post(url, JSON.stringify(data))
-            .done(function() {
-                button.prop("disabled", false);
-            });
+        $.post(server_url, JSON.stringify(data)).done(function() {
+            button.prop("disabled", false);
+        });
     } else {
         var input = $(".form-control:invalid").first();
         var tab = input.parents(".tab-pane");
-        var id = tab.prop("id");
-        var link = $("#selector").find("[aria-controls=\"" + id + "\"]");
-        link.click();
+        var id = tab.prop("aria-labelledby");
+        $("#" + id).click();
         button.prop("disabled", false);
     }
     form.addClass("was-validated");
@@ -491,39 +400,47 @@ $("#delete").on("click", function() {
     container.modal();
 });
 
+var layout;
+var data;
+
 $(document).ready(function() {
+    $.get(layout_url, function(json) {
+        layout = json;
+    }).done(function() {
+        $.get(data_url, function(json) {
+            data = json;
+        }).done(function() {
+            var loader = $("#loader");
+            var content = $("#content");
+            loader.hide();
+            content.show();
 
-    var loader = $("#loader");
-    var content = $("#content");
-    loader.hide();
-    content.show();
+            var tabs = $("#tabs");
+            var selector = $("#selector");
 
-    var tabs = $("#tabs");
-    var selector = $("#selector");
+            tabs.empty();
+            selector.empty();
 
-    tabs.empty();
-    selector.empty();
+            var fields = layout.default.fields;
+            var fieldset = createGeneralFieldset(fields);
 
-    var fields = layout.default.fields;
-    var fieldset = createGeneralFieldset(fields);
+            addTab(tabs, selector, fieldset);
 
-    addTab(tabs, selector, fieldset, "General");
-    var list = createList();
-    $("#add_channel .modal-body").append(list);
-
-    for (var k = 0; k < data.channels.length; k++) {
-        if (data.channels[k].state >= 0) {
-            var name = data.channels[k].name;
-            var fieldset = createChannelFieldset(data.channels[k]);
-            if (typeof fieldset !== 'undefined') {
-                addTab(tabs, selector, fieldset, name);
+            for (var k = 0; k < data.channels.length; k++) {
+                if (data.channels[k].state >= 0) {
+                    var name = data.channels[k].name;
+                    var fieldset = createChannelFieldset(data.channels[k]);
+                    if (typeof fieldset !== 'undefined') {
+                        addTab(tabs, selector, fieldset);
+                    }
+                }
             }
-        }
-    }
 
-    fillGeneralFieldset();
-    fillChannelFieldset();
+            fillGeneralFieldset();
+            fillChannelFieldset();
 
-    selector.children().first().addClass("active");
-    tabs.children().first().addClass("active show");
+            selector.children().first().addClass("active");
+            tabs.children().first().addClass("active show");
+        });
+    });
 });

@@ -82,6 +82,10 @@
 {% endblock %}
 
 {% block scripts %}
-    <script>var url = "{{ url_for('edit.publish_edit_post', post_id=post_id) }}"</script>
+    <script>
+        var layout_url = "{{ url_for('static', filename='form/layout.json') }}";
+        var data_url = "{{ url_for('static', filename='form/data.json') }}";
+        var server_url = "{{ url_for('edit.publish_edit_post', post_id=post_id) }}";
+    </script>
     <script src="{{ url_for('static', filename='js/form.js') }}"></script>
 {% endblock %}

@@ -1,0 +1,34 @@
+{
+  "default": {
+    "fields": {
+      "title": "Ceci est mon titre",
+      "description": "Ceci est ma description",
+      "link": "http://www.google.com",
+      "image": "http://www.google.com",
+      "publication_date": "2018-12-12",
+      "publication_until": "2018-12-12"
+    }
+  },
+  "channels": [
+    {
+      "module": "Twitter",
+      "name": "My first Twitter account",
+      "state": 0,
+      "fields": {
+        "description" : "Description 2"
+      }
+    },
+    {
+      "module": "Twitter",
+      "name": "My second Twitter account",
+      "state": -1,
+      "fields": {}
+    },
+    {
+      "module": "Twitter",
+      "name": "My third Twitter account",
+      "state": -1,
+      "fields": {}
+    }
+  ]
+}

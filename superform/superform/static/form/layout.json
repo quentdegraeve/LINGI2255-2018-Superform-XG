@@ -1,0 +1,52 @@
+{
+  "default": {
+    "fields": [
+      {
+        "name": "title",
+        "label": "Title",
+        "required": true,
+        "type": "input[\"text\"]"
+      },
+      {
+        "name": "description",
+        "label": "Description",
+        "required": false,
+        "type": "textarea"
+      },
+      {
+        "name": "link",
+        "label": "Link",
+        "required": false,
+        "type": "input[\"text\"]"
+      },
+      {
+        "name": "image",
+        "label": "Image",
+        "required": false,
+        "type": "input[\"text\"]"
+      },
+      {
+        "name": "publication_date",
+        "label": "Publication Date",
+        "required": false,
+        "type": "input[\"date\"]"
+      },
+      {
+        "name": "publication_until",
+        "label": "Publication Until",
+        "required": false,
+        "type": "input[\"date\"]"
+      }
+    ]
+  },
+  "channels": [
+    {
+      "module": "Twitter",
+      "icon": "fab fa-twitter",
+      "disabled_fields": [
+        "title"
+      ],
+      "fields": []
+    }
+  ]
+}
