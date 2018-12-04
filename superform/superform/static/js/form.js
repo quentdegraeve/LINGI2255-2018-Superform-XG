@@ -42,6 +42,7 @@ var layout = {
     "channels": [
         {
             "module": "Twitter",
+            "icon": "fab fa-twitter",
             "disabled_fields": ["title"],
             "fields": []
         }
@@ -176,13 +177,23 @@ function createComponent(field) {
 
     // Header :
 
-    var label = $("<div>");
+    var label = $("<span>");
     label.addClass("font-weight-bold");
     label.text(field.label);
 
+    var title = $("<div>");
+    title.append(label);
+
+    if (field.required) {
+        var icon = $("<span>");
+        icon.addClass("text-danger");
+        icon.text("*");
+        title.append(icon);
+    }
+
     var header = $("<div>");
     header.addClass("field-header");
-    header.append(label);
+    header.append(title);
 
     // Body :
 
@@ -255,7 +266,8 @@ function createChannelFieldset(channel) {
 }
 
 function fillGeneralFieldset() {
-    var fieldset = $("fieldset[name=\"General\"]");
+    var name = "General";
+    var fieldset = $("fieldset[name=\"" + name + "\"]");
     for (var k = 0; k < data.default.fields.length; k++) {
         var field = data.default.fields[k];
         var input = fieldset.find("[name=\"" + field.name + "\"]");
@@ -296,6 +308,9 @@ function addTab(tabs, selector, fieldset, name) {
     a.attr("aria-controls", id);
     a.attr("aria-selected", "false");
     a.text(name);
+    a.on("click", function() {
+        update_header($(this).attr("href"));
+    });
 
     tabs.append(tab);
     selector.append(a);
@@ -316,7 +331,172 @@ function addToList(list, name, onclick) {
     list.append(a);
 }
 
+function update_header(href) {
+    var id = href.substring(1, href.length);
+    if (id === "General") {
+
+        var header = $("#header");
+        var title = $("<h1>");
+        title.text("General");
+
+        header.empty();
+        header.append(title);
+
+        return;
+    }
+    for (var i = 0; i < data.channels.length; i++) {
+        if (data.channels[i].name.replace(/\s/g, "_") === id) {
+            for (var j = 0; j < layout.channels.length; j++) {
+                if (data.channels[i].module === layout.channels[j].module) {
+
+                    var header = $("#header");
+                    var title = $("<h1>");
+                    title.append(data.channels[i].name);
+
+                    var p = $("<p>");
+                    var ul = $("<ul>");
+                    p.addClass("lead");
+                    p.append(ul);
+
+                    var li;
+                    li = $("<li>");
+                    li.append("Module : " + data.channels[i].module);
+                    ul.append(li);
+
+                    li = $("<li>");
+                    var span = $("<span>");
+                    span.addClass("badge");
+                    span.addClass("badge-secondary");
+
+                    switch (data.channels[i].state) {
+                        case -1:
+                            span.text("Incomplete");
+                            break;
+                        case 0:
+                            span.text("Not validated");
+                            break;
+                        case 1:
+                            span.text("Validated");
+                            break;
+                        case 2:
+                            span.text("Archived");
+                            break;
+                    }
+
+                    li.append("Status : ");
+                    li.append(span);
+                    ul.append(li);
+
+                    header.empty();
+                    header.append(title);
+                    header.append(p);
+                }
+            }
+        }
+    }
+}
+
+$("#validate").click(function() {
+
+    var button = $(this);
+    button.prop("disabled", true);
+
+    var form = $(this).parents("form");
+    if (form.get(0).checkValidity()) {
+        var data = [];
+        $("fieldset").each(function() {
+            data.push({
+                "name": $(this).prop("name"),
+                "fields": $(this).serializeArray()
+            });
+        });
+        $.post(url, JSON.stringify(data))
+            .done(function() {
+                button.prop("disabled", false);
+            });
+    } else {
+        var input = $(".form-control:invalid").first();
+        var tab = input.parents(".tab-pane");
+        var id = tab.prop("id");
+        var link = $("#selector").find("[aria-controls=\"" + id + "\"]");
+        link.click();
+        button.prop("disabled", false);
+    }
+    form.addClass("was-validated");
+});
+
+$("#add").on("click", function() {
+
+    var container = $("#channel_manager");
+    var list = createList();
+    var content = container.find(".modal-body");
+
+    content.empty();
+    content.append(list);
+
+    for (var i = 0; i < data.channels.length; i++) {
+        var channel = data.channels[i];
+        if (channel.state < 0) {
+            var fieldset = $("fieldset[name=\"" + channel.name + "\"]");
+            if (fieldset.length === 0) {
+                addToList(list, channel.name, function() {
+                    var name = $(this).text();
+                    for (var i = 0; i < data.channels.length; i++) {
+                        if (data.channels[i].name === name) {
+                            var tabs = $("#tabs");
+                            var selector = $("#selector");
+                            var fieldset = createChannelFieldset(data.channels[i]);
+                            addTab(tabs, selector, fieldset, name);
+                        }
+                    }
+                    $(this).remove();
+                });
+            }
+        }
+    }
+
+    container.modal();
+});
+
+$("#delete").on("click", function() {
+
+    var container = $("#channel_manager");
+    var list = createList();
+    var content = container.find(".modal-body");
+
+    content.empty();
+    content.append(list);
+
+    for (var i = 0; i < data.channels.length; i++) {
+        var channel = data.channels[i];
+        if (channel.state < 0) {
+            var fieldset = $("fieldset[name=\"" + channel.name + "\"]");
+            if (fieldset.length > 0) {
+                addToList(list, channel.name, function() {
+                    var name = $(this).text();
+                    var id = name.replace(/\s/g, "_");
+                    var link = $("#" + id);
+                    if (link.hasClass("active")) {
+                        $("#General_tab").addClass("active show");
+                        $("#General").addClass("active show");
+                    }
+                    link.remove();
+                    $("#" + id + "_tab").remove();
+                    $(this).remove();
+                });
+            }
+        }
+    }
+
+    container.modal();
+});
+
 $(document).ready(function() {
+
+    var loader = $("#loader");
+    var content = $("#content");
+    loader.hide();
+    content.show();
 
     var tabs = $("#tabs");
     var selector = $("#selector");
@@ -346,75 +526,4 @@ $(document).ready(function() {
 
     selector.children().first().addClass("active");
     tabs.children().first().addClass("active show");
-
-    $("#validate").click(function() {
-
-        var button = $(this);
-        button.prop("disabled", true);
-
-        var form = $(this).parents("form");
-        if (form.get(0).checkValidity()) {
-            var data = [];
-            $("fieldset").each(function() {
-                data.push({
-                    "name": $(this).prop("name"),
-                    "fields": $(this).serializeArray()
-                });
-            });
-            $.post(url, JSON.stringify(data))
-                .done(function() {
-                    button.prop("disabled", false);
-                });
-        } else {
-            button.prop("disabled", false);
-        }
-        form.addClass("was-validated");
-    });
-
-    $("#add").on("click", function() {
-
-        var container = $("#channel_manager");
-        var list = createList();
-        var content = container.find(".modal-body");
-
-        content.empty();
-        content.append(list);
-
-        for (var i = 0; i < data.channels.length; i++) {
-            var channel = data.channels[i];
-            if (channel.state < 0) {
-                var fieldset = $("fieldset[name=\"" + channel.name + "\"]");
-                if (fieldset.length === 0) {
-                    addToList(list, channel.name, function() {
-                        var name = $(this).text();
-                        for (var i = 0; i < data.channels.length; i++) {
-                            if (data.channels[i].name === name) {
-                                var tabs = $("#tabs");
-                                var selector = $("#selector");
-                                var fieldset = createChannelFieldset(data.channels[i]);
-                                addTab(tabs, selector, fieldset, name);
-                            }
-                        }
-                        $(this).remove();
-                    });
-                }
-            }
-        }
-
-        container.modal();
-    });
-
-    $("#delete").on("click", function() {
-
-        var container = $("#channel_manager");
-        var list = createList();
-        var content = container.find(".modal-body");
-
-        content.empty();
-        content.append(list);
-
-        // To do...
-
-        container.modal();
-    });
 });
