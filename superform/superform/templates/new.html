@@ -240,6 +240,11 @@
                                             {% endif %}
                                             {% if chan.module == "superform.plugins.ICTV" %}
                                                 <div class="form-group">
+                                                    <label for="{{ chan.name }}_subtitle">Subtitle</label><br>
+                                                    <input type="text" name="{{ chan.name }}_subtitle"
+                                                           id="{{ chan.name }}_subtitle" class="form-control">
+                                                </div>
+                                                <div class="form-group">
                                                     <label for="{{ chan.name }}_template">Template</label><br>
                                                     <select name="{{ chan.name }}_template" id="{{ chan.name }}_template"
                                                             class="form-control">
@@ -249,7 +254,7 @@
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="{{ chan.name }}_logopost">Logo</label><br>
-                                                    <div class="js-logo">
+                                                    <div class="input-group">
                                                         <input type="url" name="{{ chan.name }}_logopost"
                                                                id="{{ chan.name }}_logopost" class="form-control" >
                                                         <button id="js-open-preview-logo" type="button"
@@ -261,7 +266,9 @@
                                                 <div class="form-group">
                                                     <label for="{{ chan.name }}_backgroundpost">Background</label><br>
                                                     <div class="input-group">
-                                                        <input type="color" name="favcolor" value="#000000">
+                                                        <input type="color"  value="#000000"
+                                                               name="{{ chan.name }}_backgroundpost"
+                                                               id="{{ chan.name }}_backgroundpost" >
                                                         <!--<input type="src" name="{{ chan.name }}_backgroundpost"
                                                                id="{{ chan.name }}_backgroundpost" class="form-control">
                                                         <button id="js-open-preview-background" type="button"
@@ -269,12 +276,6 @@
                                                             Preview
                                                         </button>-->
                                                     </div>
-                                                </div>
-
-                                                <div class="form-group">
-                                                    <label for="{{ chan.name }}_subtitle">Subtitle</label><br>
-                                                    <input type="text" name="{{ chan.name }}_subtitle"
-                                                           id="{{ chan.name }}_subtitle" class="form-control">
                                                 </div>
 
                                                 <div class="form-group">
