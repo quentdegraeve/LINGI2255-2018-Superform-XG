@@ -114,10 +114,8 @@ def tweet_split(text, separators):
             done = False
             if (len(s) + 1) > limit:
                 if separators == ' ':
-                    print("Split between characters")
                     return [text[i:i+280] for i in range(0, len(text), 280)]
                 else:
-                    print("Split between words")
                     return tweet_split(text, ' ')
             else:
                 if not url_index:  # if no url in text
