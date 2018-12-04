@@ -25,7 +25,7 @@ def authenticate(channel_id, publishing_id):
     return 'AlreadyAuthenticated'
 
 def run(publishing, channel_config):
-    publishing.state = 1
+    publishing.state = 2
     db.session.commit()
 
 def saveExtraFields(channel, form):
