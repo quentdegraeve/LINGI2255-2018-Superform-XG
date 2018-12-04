@@ -1,8 +1,9 @@
 from flask import Blueprint, url_for, current_app, request, redirect, session, render_template, flash
 
 from superform.users import channels_available_for_user
-from superform.utils import login_required, datetime_converter, str_converter, get_instance_from_module_path, get_modules_names, get_module_full_name
-from superform.models import db, Post, Publishing, Channel, PubGCal
+from superform.utils import login_required, datetime_converter, str_converter, get_instance_from_module_path, \
+    get_modules_names, get_module_full_name
+from superform.models import db, Post, Publishing, Channel, PubGCal, PubICTV
 
 from importlib import import_module
 from datetime import date, timedelta
@@ -64,6 +65,7 @@ def create_a_publishing(post, chn, form):  # called in publish_from_new_post()
                       date_from=None, date_until=None, date_start=date_start, date_end=date_end,
                       location=location, color_id=color_id, hour_start=hour_start, hour_end=hour_end,
                       guests=guests, visibility=visibility)  # , availability=availability)
+
     else:
         if form.get(chan + 'datefrompost') is '':
             date_from = date.today()
@@ -75,9 +77,21 @@ def create_a_publishing(post, chn, form):  # called in publish_from_new_post()
         else:
             date_until = datetime_converter(form.get(chan + '_dateuntilpost')) if datetime_converter(
                 form.get(chan + '_dateuntilpost')) is not None else post.date_until
-    pub = Publishing(post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
-                     link_url=link_post, image_url=image_post,
-                     date_from=date_from, date_until=date_until)
+        if chn.module == 'superform.plugins.ICTV':
+            template = form.get(chan + '_template')
+            logo = form.get(chan + '_logopost')
+            background = form.get(chan + '_backgroundpost')
+            subtitle = form.get(chan + '_subtitle')
+            duration = form.get(chan + '_duration')
+
+            pub = PubICTV(post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
+                          link_url=link_post, image_url=image_post,
+                          date_from=date_from, date_until=date_until,
+                          template=template, logo=logo, background=background, subtitle=subtitle, duration=duration)
+        else:
+            pub = Publishing(post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
+                             link_url=link_post, image_url=image_post,
+                             date_from=date_from, date_until=date_until)
 
     db.session.add(pub)
     db.session.commit()
@@ -108,7 +122,8 @@ def new_post():
             post_form_validations[m] = fields
 
         print(post_form_validations)
-        return render_template('new.html', l_chan=list_of_channels, post_form_validations=post_form_validations,date=default_date)
+        return render_template('new.html', l_chan=list_of_channels, post_form_validations=post_form_validations,
+                               date=default_date)
     else:
         create_a_post(request.form)
         return redirect(url_for('index'))
@@ -121,13 +136,14 @@ def publish_from_new_post():  # when clicking on 'save and publish' button
     p = create_a_post(request.form)
     # then treat the publish part
     if request.method == "POST":
-        error_id  = "";
+        error_id = "";
         state_error = False;
         for elem in request.form:
             if elem.startswith("chan_option_"):
                 def substr(elem):
                     import re
                     return re.sub('^chan\_option\_', '', elem)
+
                 c = Channel.query.get(substr(elem))
                 validate = pre_validate_post(c, p)
                 if validate == 0:

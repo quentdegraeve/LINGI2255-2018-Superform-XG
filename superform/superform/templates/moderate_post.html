@@ -70,8 +70,37 @@
                     {% endif %}
                     <div class="form-group">
                         <label for="imagepost">Image</label><br>
-                        <input type="file" name="imagepost" id="imagepost" class="form-control" value="{{ pub.image_url }}">
+                        <input type="text" name="imagepost" id="imagepost" class="form-control" value="{{ pub.image_url }}">
                     </div>
+                    {% if channel.module == "superform.plugins.ICTV" %}
+                        <div class="form-group">
+                            <label for="template">Template</label><br>
+
+                            <select name="template" id="template" class="form-control" >
+                                <option value="{{ pub.template}}">{{ pub.template}}</option>
+                                <option value="volvo">Volvo</option>
+                                <option value="saab">Saab</option>
+                                <option value="opel">Opel</option>
+                                <option value="audi">Audi</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="logo">Logo</label><br>
+                            <input type="text" name="logo" id="logo" class="form-control" value="{{ pub.logo}}">
+                        </div>
+                        <div class="form-group">
+                            <label for="background">Background</label><br>
+                            <input type="text" name="background" id="background" class="form-control" value="{{ pub.background}}">
+                        </div>
+                         <div class="form-group">
+                            <label for="subtitle">Subtitle</label><br>
+                            <input type="text" name="subtitle" id="subtitle" class="form-control" value="{{ pub.subtitle}}">
+                        </div>
+                        <div class="form-group">
+                            <label for="duration">Duration</label><br>
+                            <input type="number" name="duration" id="duration" class="form-control" value="{{ pub.duration}}">
+                        </div>
+                    {% endif %}
                     {% if channel.module != "superform.plugins.gcal" %}
                     <div class="row">
                         <div class="col-md-6">

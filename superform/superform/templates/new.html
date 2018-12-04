@@ -148,10 +148,10 @@
                                                 <div class="form-group">
                                                     <label for="{{ chan.name }}_imagepost">Image</label><br>
                                                     <div class="input-group">
-                                                        <input type="text" name="{{ chan.name }}_linkurlpost"
+                                                        <input type="text" name="{{ chan.name }}_imagepost"
                                                                id="{{ chan.name }}_imagepost" class="form-control">
                                                         <button id="js-open-preview-test" type="button"
-                                                                class="btn btn-secondary" onclick="PreviewFunction()">
+                                                                class="btn btn-secondary" onclick="PreviewFunction('{{ chan.name }}_imagepost')">
                                                             Preview
                                                         </button>
                                                     </div>
@@ -238,6 +238,55 @@
                                                            id="{{ chan.name }}_guests" class="form-control">
                                                 </div>
                                             {% endif %}
+                                            {% if chan.module == "superform.plugins.ICTV" %}
+                                                <div class="form-group">
+                                                    <label for="{{ chan.name }}_template">Template</label><br>
+                                                    <select name="{{ chan.name }}_template" id="{{ chan.name }}_template"
+                                                            class="form-control">
+                                                      <option value="volvo">Volvo</option>
+                                                      <option value="saab">Saab</option>
+                                                      <option value="opel">Opel</option>
+                                                      <option value="audi">Audi</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="{{ chan.name }}_logopost">Logo</label><br>
+                                                    <div class="js-logo">
+                                                        <input type="url" name="{{ chan.name }}_logopost"
+                                                               id="{{ chan.name }}_logopost" class="form-control" >
+                                                        <button id="js-open-preview-logo" type="button"
+                                                                class="btn btn-secondary" onclick="PreviewFunction('{{ chan.name }}_logopost')">
+                                                            Preview
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="{{ chan.name }}_backgroundpost">Background</label><br>
+                                                    <div class="input-group">
+                                                        <input type="color" name="favcolor" value="#000000">
+                                                        <!--<input type="src" name="{{ chan.name }}_backgroundpost"
+                                                               id="{{ chan.name }}_backgroundpost" class="form-control">
+                                                        <button id="js-open-preview-background" type="button"
+                                                                class="btn btn-secondary" onclick="PreviewFunction('{{ chan.name }}_backgroundpost')">
+                                                            Preview
+                                                        </button>-->
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label for="{{ chan.name }}_subtitle">Subtitle</label><br>
+                                                    <input type="text" name="{{ chan.name }}_subtitle"
+                                                           id="{{ chan.name }}_subtitle" class="form-control">
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label for="{{ chan.name }}_duration">Duration(in seconds)</label><br>
+                                                    <input type="number" name="{{ chan.name }}_duration"
+                                                           id="{{ chan.name }}_duration" min="-1" value="5">
+                                                </div>
+
+
+                                            {% endif %}
                                             {% if chan.module != "superform.plugins.gcal" %}
                                                 <div class="row">
                                                     <div class="col-md-6">
@@ -311,16 +360,32 @@
 {% endblock %}
 
 {% block scripts %}
-    <script type="text/javascript">
-        var post_form_validations =
-        {{ post_form_validations|tojson }}
-    </script>
     <script>
-        function PreviewFunction() {
+        function PreviewFunction(post) {
             var protocol = /^http[s]?:\/{2}/i;
-            var pattern = /(?:https?:\/{2})?(?:w{3}\.)?(?:\w+\.)+(com|fr|be|io|gov|net|tv|uk|ch|de|nl|lu)(?:\/[^\s]+)?/g;
+            //var pattern = /(?:https?:\/{2})?(?:w{3}\.)?(?:\w+\.)+(com|fr|be|io|gov|net|tv|uk|ch|de|nl|lu)(?:\/[^\s]+)?/g;
+            var pattern = /\.(jpeg|jpg|gif|png|bmp)$/
+            var split = post.split("_");
+            console.log(split)
+            console.log(post)
 
-            var url = $("#imagepost").val();
+            if (split[split.length-1] == "imagepost") {
+                var url = $("#imagepost").val();
+                console.log(url)
+            }
+            else if (split[split.length-1] == "backgroundpost") {
+                var url = $("#backgroundpost").val();
+            }
+            else if(split[split.length-1] == "logopost") {
+                var parent = $("#js-open-preview-logo").parent();
+                var input = parent.find("input");
+                var text = input.val();
+                var url = text;
+            }
+            console.log(url)
+
+
+
             var preview = $("#previewModal");
             var container = preview.find(".modal-body");
 
@@ -500,7 +565,6 @@
 
 
         $(".js-counter textarea").on("keyup", function () {
-
             var container = $(this).parent();
             var text = $(this).val();
             var count = text.length;
@@ -516,6 +580,7 @@
                 message.hide();
             }
         });
+
 
 
         // This manage if a channel is selected or not:
@@ -594,9 +659,9 @@
                     return this.id.match(/.*imagepost/);
                 })
                 .val(text);
-
-
         });
+
+
 
         $('#dateuntilpost').on("change", function (event) {
             text = ($(this).val());

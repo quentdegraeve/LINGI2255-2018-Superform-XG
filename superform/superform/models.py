@@ -54,6 +54,7 @@ class Publishing(db.Model):
     channel_id = db.Column(db.Integer, db.ForeignKey("channel.id"), nullable=False)
     state = db.Column(db.Integer, nullable=False, default=-1)
     title = db.Column(db.Text, nullable=False)
+
     description = db.Column(db.Text)
     link_url = db.Column(db.Text)
     image_url = db.Column(db.Text)
@@ -80,6 +81,15 @@ class PubGCal(Publishing):
     guests = db.Column(db.Text, nullable=True)
     visibility = db.Column(db.Text, nullable=True)
     availability = db.Column(db.Text, nullable=True)
+
+
+class PubICTV(Publishing):
+
+    template = db.Column(db.Text, nullable=True)
+    logo = db.Column(db.Text, nullable=True)
+    background = db.Column(db.Text, nullable=True)
+    subtitle = db.Column(db.Text, nullable=True)
+    duration = db.Column(db.Text, nullable=True)
 
 
 class Channel(db.Model):
