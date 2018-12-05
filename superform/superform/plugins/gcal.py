@@ -44,20 +44,22 @@ def run(gcal_publishing,channel_config):
 # this function add all extra fields inside a json file and return it.
 def saveExtraFields(channel, form):
     fields = {}
-    fields["date_start"] = form.get(channel + 'datedebut')
-    fields["date_end"] = form.get(channel + 'datefin')
-    fields["time_start"] = form.get(channel + 'heuredebut')
-    fields["time_end"] = form.get(channel + 'heurefin')
-    fields["location"] = form.get(channel + 'location')
-    fields["color"] = form.get(channel + 'color')
-    fields["visibility"] = form.get(channel + 'visibility')
-    fields["availability"] = form.get(channel + 'availability')
-    fields["guests"] = form.get(channel + 'guests')
-    return json.dumps(fields)
+    fields["date_start"] = form.get(channel + '_datedebut')
+    fields["date_end"] = form.get(channel + '_datefin')
+    fields["time_start"] = form.get(channel + '_heuredebut')
+    fields["time_end"] = form.get(channel + '_heurefin')
+    fields["location"] = form.get(channel + '_location')
+    fields["color"] = form.get(channel + '_color')
+    fields["visibility"] = form.get(channel + '_visibility')
+    fields["availability"] = form.get(channel + '_availability')
+    fields["guests"] = form.get(channel + '_guests')
+    str = json.dumps(fields)
+    return str
 
 def post_pre_validation(post):
     return 1
 
+# pas utile
 def make_template_html():
     template = "<p>Starting Date<input type=\"date\" name=\"start_date\"</p>" \
                "<p>Ending Date<input type=\"date\" name=\"end_date\"></p>" \
