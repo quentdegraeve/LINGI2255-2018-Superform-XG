@@ -9,22 +9,22 @@ function createInput(field) {
     switch (field.type) {
         case "input[\"text\"]":
             component = $("<input>");
-            component.prop("type", "text");
+            component.attr("type", "text");
             container.append(component);
             break;
         case "input[\"date\"]":
             component = $("<input>");
-            component.prop("type", "date");
+            component.attr("type", "date");
             container.append(component);
             break;
         case "input[\"url\"]":
             component = $("<input>");
-            component.prop("type", "url");
+            component.attr("type", "url");
             container.append(component);
             break;
         case "textarea":
             component = $("<textarea>");
-            component.prop("rows", 5);
+            component.attr("rows", 5);
             container.append(component);
             break;
         case "select":
@@ -42,9 +42,9 @@ function createInput(field) {
             var label = 'undefined';
             for (var k = 0; k < field.options.length; k++) {
                 option = $("<input>");
-                option.prop("type", "radio");
-                option.prop("name", field.name);
-                option.prop("value", field.options[k]);
+                option.attr("type", "radio");
+                option.attr("name", field.name);
+                option.attr("value", field.options[k]);
                 label = $("<label>");
                 label.append(option);
                 label.append(field.options[k]);
@@ -61,9 +61,9 @@ function createInput(field) {
             if (!$(this).hasClass("form-check")) {
                 $(this).addClass("form-control");
             }
-            $(this).prop("name", field.name);
+            $(this).attr("name", field.name);
             if (field.required) {
-                $(this).prop("required", "required");
+                $(this).attr("required", "required");
             }
         });
     }
@@ -122,7 +122,7 @@ function createDropDownButton() {
     button.addClass("btn");
     button.addClass("btn-light");
     button.addClass("dropdown-toggle");
-    button.prop("type", "button");
+    button.attr("type", "button");
     button.attr("data-toggle", "dropdown");
     button.attr("aria-haspopup", true);
     button.attr("aria-expanded", false);
@@ -157,6 +157,12 @@ function addOptionToComponent(component, name, onclick) {
     menu.append(option);
 }
 
+function createIcon(name) {
+    var icon = $("<i>");
+    icon.addClass(name);
+    return icon;
+}
+
 function createBadge(state) {
 
     var span = $("<span>");
@@ -180,9 +186,54 @@ function createBadge(state) {
     return span;
 }
 
+function createAlert() {
+
+    var button = $("<button>");
+    button.addClass("close");
+    button.attr("type", "button");
+    button.attr("data-dismiss", "alert");
+    button.attr("aria-label", "Close");
+    button.attr("type", "button");
+
+    var icon = createIcon("fas fa-times");
+    icon.attr("aria-hidden", "true");
+    button.append(icon);
+
+    var container = $("<div>");
+    container.addClass("alert");
+    container.addClass("alert-dismissible");
+    container.addClass("fade");
+    container.addClass("show");
+    container.attr("role", "alert");
+    container.append(button);
+
+    return container;
+}
+
+function createSuccessMessage(content) {
+    var container = createAlert();
+    container.addClass("alert-success");
+    container.prepend(content);
+    return container;
+}
+
+function createErrorMessage(content) {
+    var container = createAlert();
+    container.addClass("alert-danger");
+    container.prepend(content);
+    return container;
+}
+
+function createWarningMessage(content) {
+    var container = createAlert();
+    container.addClass("alert-warning");
+    container.prepend(content);
+    return container;
+}
+
 function createFieldset(name) {
     var fieldset = $("<fieldset>");
-    fieldset.prop("name", name);
+    fieldset.attr("name", name);
     return fieldset;
 }
 
@@ -301,37 +352,69 @@ function addRestoreFeature(component) {
     });
 }
 
+function retrieveFormData() {
+    var data = [];
+    $("fieldset").each(function() {
+        var array = $(this).serializeArray();
+        var fields = {};
+        for (var i = 0; i < array.length; i++) {
+            fields[array[i].name] = array[i].value;
+        }
+        data.push({
+            "name": $(this).attr("name"),
+            "fields": fields
+        });
+    });
+    return JSON.stringify(data);
+}
 
 $("#validate").click(function() {
 
     var button = $(this);
-    button.prop("disabled", true);
+    button.attr("disabled", true);
+
+    var content = $("<div>");
+    content.append(createIcon("fas fa-spinner spin"));
+    content.append("Loading...");
+
+    var logs = $("#logs");
+    logs.empty();
+    logs.append(createWarningMessage(content));
 
     var form = $(this).parents("form");
     if (form.get(0).checkValidity()) {
-        var data = [];
-        $("fieldset").each(function() {
-            var array = $(this).serializeArray();
-            var fields = {};
-            for (var i = 0; i < array.length; i++) {
-                fields[array[i].name] = array[i].value;
-            }
-            data.push({
-                "name": $(this).prop("name"),
-                "fields": fields
+        $.post(server_url, retrieveFormData())
+            .done(function() {
+                var content = $("<div>");
+                content.append("The fields has been saved !");
+                var message = createSuccessMessage(content);
+                logs.empty();
+                logs.append(message);
+                button.attr("disabled", false);
+            }).fail(function(error) {
+                var content = $("<div>");
+                content.append("An error has occurred !");
+                var message = createErrorMessage(content);
+                logs.empty();
+                logs.append(message);
+                button.attr("disabled", false);
             });
-        });
-        $.post(server_url, JSON.stringify(data)).done(function() {
-            button.prop("disabled", false);
-        });
     } else {
-        var input = $(".form-control:invalid").first();
-        var tab = input.parents(".tab-pane");
-        var id = tab.prop("aria-labelledby");
-        $("#" + id).click();
-        button.prop("disabled", false);
+
+        var content = $("<div>");
+        content.append("Some field are incomplete !");
+
+        var message = createErrorMessage(content);
+        message.find("button.close").on("click", function() {
+            form.removeClass("was-validated");
+        });
+
+        logs.empty();
+        logs.append(message);
+
+        form.addClass("was-validated");
+        button.attr("disabled", false);
     }
-    form.addClass("was-validated");
 });
 
 $("#add").on("click", function() {
@@ -404,15 +487,22 @@ var layout;
 var data;
 
 $(document).ready(function() {
+
+    var logs = $("#logs");
+    logs.empty();
+    logs.append(createIcon("fas fa-spinner spin"));
+    logs.append("Loading...");
+
     $.get(layout_url, function(json) {
         layout = json;
     }).done(function() {
         $.get(data_url, function(json) {
             data = json;
         }).done(function() {
-            var loader = $("#loader");
+
+            logs.empty();
+
             var content = $("#content");
-            loader.hide();
             content.show();
 
             var tabs = $("#tabs");
@@ -441,6 +531,13 @@ $(document).ready(function() {
 
             selector.children().first().addClass("active");
             tabs.children().first().addClass("active show");
+
+        }).fail(function() {
+            logs.empty();
+            logs.append(createErrorMessage("Error while loading the data"));
         });
+    }).fail(function() {
+        logs.empty();
+        logs.append(createErrorMessage("Error while loading the layout"));
     });
 });

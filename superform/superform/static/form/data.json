@@ -15,7 +15,8 @@
       "name": "My first Twitter account",
       "state": 0,
       "fields": {
-        "description" : "Description 2"
+        "description" : "Description 2",
+        "link": "hhhtpiijzjfz"
       }
     },
     {
@@ -27,6 +28,12 @@
     {
       "module": "Twitter",
       "name": "My third Twitter account",
+      "state": -1,
+      "fields": {}
+    },
+    {
+      "module": "ICTV",
+      "name": "My ICTV channel",
       "state": -1,
       "fields": {}
     }

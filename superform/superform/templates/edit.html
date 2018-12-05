@@ -44,9 +44,6 @@
     </style>
 {% endblock %}
 {% block content %}
-    <div id="loader" class="container">
-        <i class="fas fa-spinner spin"></i> Loading
-    </div>
     <div id="content" class="container" style="display:none">
         <div id="header" class="jumbotron">
             <h1>General</h1>
@@ -54,13 +51,14 @@
         <form novalidate>
             <div class="row">
                 <div class="col-md-8">
+                    <div id="logs"></div>
                     <div id="tabs" class="tab-content card"></div>
                 </div>
                 <div class="col-md-4">
                     <div class="sticky-top">
                         <h2>Channels</h2>
                         <div id="selector" class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical"></div>
-                        <button id="add" class="btn btn-outline-success" type="button">Add</button>
+                        <button id="add" class="btn btn-outline-primary" type="button">Add</button>
                         <button id="delete" class="btn btn-outline-danger" type="button">Delete</button>
                     </div>
                 </div>
