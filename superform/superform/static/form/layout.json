@@ -57,7 +57,9 @@
     {
       "module": "Mail",
       "icon": "fas fa-envelope",
-      "disabled_fields": [],
+      "disabled_fields": [
+        "image"
+      ],
       "additional_fields": []
     },
     {
