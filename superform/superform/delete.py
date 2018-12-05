@@ -17,6 +17,7 @@ del_page = Blueprint('delete', __name__)
 
 
 @del_page.route('/delete/<int:id>', methods=["GET","POST"])
+@login_required()
 def delete(id):
     # show a pop-up window that asks confirmation
     for pub in db.session.query(Publishing).filter(Publishing.post_id == id):
