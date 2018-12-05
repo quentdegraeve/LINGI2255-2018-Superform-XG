@@ -36,7 +36,9 @@
                             </div>
                         </div>
                     </div>
-
+                    {% if chan.hasExtra %}
+                        {% include chan.name+'_form.html' %} <!-- YOLO -->
+                    {% endif %}
                 </div>
             </div>
             <button id="publish" class="btn btn-success">Publish</button>

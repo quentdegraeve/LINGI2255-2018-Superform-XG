@@ -98,11 +98,13 @@ class Channel(db.Model):
     name = db.Column(db.Text, nullable=False)
     module = db.Column(db.String(100), nullable=False)
     config = db.Column(db.Text, nullable=False)
+    has_extraFields = db.Column(db.Boolean, default=False)
 
     publishings = db.relationship("Publishing", backref="channel", lazy=True)
     authorizations = db.relationship("Authorization", backref="channel", lazy=True)
 
     __table_args__ = ({"sqlite_autoincrement": True},)
+
 
     def __repr__(self):
         return '<Channel {}>'.format(repr(self.id))

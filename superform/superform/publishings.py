@@ -5,7 +5,7 @@ from superform.models import db, Publishing, Channel
 pub_page = Blueprint('publishings', __name__)
 
 
-@pub_page.route('/moderate/<int:id>/<string:idc>', methods=["GET", "POST"])
+@pub_page.route('/moderate/<int:id>/<int:idc>', methods=["GET", "POST"])
 @login_required()
 def moderate_publishing(id, idc):
     pub = db.session.query(Publishing).filter(Publishing.post_id == id, Publishing.channel_id == idc).first()
