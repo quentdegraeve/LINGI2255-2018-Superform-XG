@@ -3,6 +3,7 @@ from googleapiclient.discovery import build
 from httplib2 import Http
 from oauth2client import file, client, tools
 from superform.suputils import plugin_utils
+from superform.models import db, Publishing, Channel
 from flask import current_app
 import json
 
@@ -38,6 +39,13 @@ def run(gcal_publishing,channel_config):
     #template['source'] = {"url": gcal_publishing.link_url, "title": 'link'}
     try:
         event = service.events().insert(calendarId='primary', body=template).execute()
+
+        """
+        Handling of the future deletion.
+        It is put in comment for now to avoid errors, but should be tested
+        """
+        #gcal_publishing.misc['id'] = event.get('id')
+        #db.session.commit()
     except Exception as e:
         #TODO should add log here
         print(e)
@@ -100,8 +108,26 @@ def post_pre_validation(post):
     return plugin_utils.post_pre_validation_plugins(post, 40000, 40000)
     return plugin_utils.post_pre_validation_plugins(post, 40000, 40000)
 
+
 def deletable():
     return True
 
+
+#To make delete(pub) work, the 'pass' should be replaced by the code
+#in comment beneath it.
 def delete(pub):
     pass
+"""
+    c = db.session.query(Channel).filter(Channel.id == pub.channel_id).first()
+    data = json.loads(c.config)
+    token = data['token']
+    credentials = None
+    try:
+        credentials = client.Credentials.new_from_json(json.dumps(token))
+        service = build('calendar', 'v3', http=credentials.authorize(Http()))
+        service.events().delete(calendarId='primary', eventId=pub.misc.get('id')).execute()
+    except ValueError:
+        pass
+    except Exception as e:
+        print(e)
+"""
