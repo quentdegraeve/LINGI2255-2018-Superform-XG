@@ -1,14 +1,46 @@
 import datetime
 import pytest
-
+import os
 from superform.suputils import selenium_utils
 from superform.suputils import keepass
 from superform.models import db, Publishing, Post, Authorization, Channel
+from superform import app
+from superform import models
+import sqlite3
+import platform
+
+if platform.system() == 'Windows':
+    TESTDB_PATH = "superform\superform\superform.db"
+else:
+    TESTDB_PATH = "superform/superform/superform.db"
 
 
+# @pytest.fixture(scope='session', autouse=True)
+# def db(request):
+#     """Session-wide test database."""
+#     if os.path.exists(TESTDB_PATH):
+#         os.unlink(TESTDB_PATH)
+#
+#     def teardown():
+#         print("lol")
+#         #models.db.drop_all()
+#         #os.unlink(TESTDB_PATH)
+#
+#     app.app_context().push()
+#     models.db.app = app
+#     models.db.create_all()
+#
+#     request.addfinalizer(teardown)
+#     return models.db
 
 @pytest.fixture(scope='session', autouse=True)
 def prepare():
+    if os.path.exists(TESTDB_PATH):
+        os.unlink(TESTDB_PATH)
+
+    app.app_context().push()
+    models.db.app = app
+    models.db.create_all()
     #db.execute(db.session.query(Publishing).delete())
     #db.execute(db.session.query(Post).delete())
     #db.execute(db.session.query(Authorization).delete())
@@ -22,6 +54,19 @@ def prepare():
     pytest.slack_description_max = 40000
 
     keepass.set_entry_from_keepass('account_superform')
+    selenium_utils.login(pytest.driver, keepass.KeepassEntry.username, keepass.KeepassEntry.password)
+    connection = sqlite3.connect(TESTDB_PATH)
+    cursor = connection.cursor()
+    sql_command = """
+        UPDATE user
+        SET admin = 1
+        WHERE id = 'superego';
+        """
+    cursor.execute(sql_command)
+    connection.commit()
+    connection.close()
+    pytest.driver.close()
+    pytest.driver = selenium_utils.get_chrome()
     selenium_utils.login(pytest.driver, keepass.KeepassEntry.username, keepass.KeepassEntry.password)
 
     # keepass.set_entry_from_keepass('account_linkedin')
