@@ -67,4 +67,4 @@ def publish_edit_post(post_id):
                         p.date_until = datetime_converter(fields.get('publication_until'))
                     db.session.commit()
 
-    return redirect(url_for('index'))
+    return ('', 200)
