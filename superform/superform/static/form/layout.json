@@ -43,10 +43,8 @@
     {
       "module": "Twitter",
       "icon": "fab fa-twitter",
-      "disabled_fields": [
-        "title"
-      ],
-      "fields": []
+      "disabled_fields": ["title"],
+      "additional_fields": []
     },
     {
       "module": "Linkedin",
@@ -57,9 +55,7 @@
     {
       "module": "Mail",
       "icon": "fas fa-envelope",
-      "disabled_fields": [
-        "image"
-      ],
+      "disabled_fields": ["image"],
       "additional_fields": []
     },
     {
@@ -77,7 +73,11 @@
           "name": "visibility",
           "label": "Visibility",
           "required": true,
-          "type": "option"
+          "type": "radio",
+          "options": [
+            "yes",
+            "no"
+          ]
         },
         {
           "name": "availability",

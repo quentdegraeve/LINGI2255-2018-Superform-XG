@@ -261,7 +261,7 @@ function createChannelFieldset(channel) {
                     fieldset.append(createComponent(field));
                 }
             }
-            var fields = layout.channels[i].fields;
+            var fields = layout.channels[i].additional_fields;
             for (var j = 0; j < fields.length; j++) {
                 fieldset.append(createComponent(fields[j]));
             }
@@ -283,6 +283,7 @@ function fillGeneralFieldset() {
 }
 
 function fillChannelFieldset() {
+
     for (var k = 0; k < data.channels.length; k++) {
 
         var channel = data.channels[k];
@@ -318,9 +319,14 @@ function addTab(tabs, selector, fieldset) {
     a.attr("aria-controls", id);
     a.attr("aria-selected", "false");
     a.text(name);
+    a.on("click", function() {
+        updateHeader(name);
+    });
 
     tabs.append(tab);
     selector.append(a);
+
+    addRestoreFeature(fieldset);
 }
 
 function createList() {
@@ -340,16 +346,40 @@ function addToList(list, name, onclick) {
 
 // Features :
 
-function addRestoreFeature(component) {
-    addOptionToComponent(component, "Reset", function() {
-        var container = $(this).parents(".field");
-        var input = container.find(".form-control");
-        for (var i = 0; i < data.default.fields.length; i++) {
-            if (data.default.fields[i].name === input.attr("name")) {
-                input.val(data.default.fields[i].value);
-            }
-        }
-    });
+function addRestoreFeature(fieldset) {
+    if (fieldset.attr("name") === "General") {
+        fieldset.find(".form-control").each(function() {
+            var input = $(this);
+            var component = input.parents(".field");
+            addOptionToComponent(component, "Restore", function() {
+                for (var key in data.default.fields) {
+                    if (input.attr("name") === key) {
+                        input.val(data.default.fields[key]);
+                        return;
+                    }
+                }
+                input.val("");
+            });
+        });
+    } else {
+        fieldset.find(".form-control").each(function() {
+            var input = $(this);
+            var component = input.parents(".field");
+            addOptionToComponent(component, "Restore", function() {
+                for (var k = 0; k < data.channels.length; k++) {
+                    if (fieldset.attr("name") === data.channels[k].name) {
+                        for (var key in data.channels[k].fields) {
+                            if (input.attr("name") === key) {
+                                input.val(data.channels[k].fields[key]);
+                                return;
+                            }
+                        }
+                    }
+                }
+                input.val("");
+            });
+        });
+    }
 }
 
 function retrieveFormData() {
@@ -357,8 +387,8 @@ function retrieveFormData() {
     $("fieldset").each(function() {
         var array = $(this).serializeArray();
         var fields = {};
-        for (var i = 0; i < array.length; i++) {
-            fields[array[i].name] = array[i].value;
+        for (var k = 0; k < array.length; k++) {
+            fields[array[k].name] = array[k].value;
         }
         data.push({
             "name": $(this).attr("name"),
@@ -366,6 +396,44 @@ function retrieveFormData() {
         });
     });
     return JSON.stringify(data);
+}
+
+function updateHeader(name) {
+
+    var title = $("<h1>");
+    title.text(name);
+
+    var container = $("#header");
+    container.empty();
+    container.append(title);
+
+    if (name !== "General") {
+        for (var i = 0; i < data.channels.length; i++) {
+            if (name === data.channels[i].name) {
+                for (var j = 0; j < layout.channels.length; j++) {
+                    if (data.channels[i].module === layout.channels[j].module) {
+                        container.append($("<hr>"));
+                        var module = $("<p>");
+                        module.addClass("lead");
+                        module.append(createIcon(layout.channels[j].icon));
+                        module.append(layout.channels[j].module);
+                        container.append(module);
+                        var badge = createBadge(data.channels[i].state);
+                        container.append(badge);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+}
+
+function displayLogs(logs, message) {
+    logs.empty();
+    logs.append(message);
+    $('html, body').animate({
+        scrollTop: 0
+    }, 800);
 }
 
 $("#validate").click(function() {
@@ -388,15 +456,13 @@ $("#validate").click(function() {
                 var content = $("<div>");
                 content.append("The fields has been saved !");
                 var message = createSuccessMessage(content);
-                logs.empty();
-                logs.append(message);
+                displayLogs(logs, message);
                 button.attr("disabled", false);
             }).fail(function(error) {
                 var content = $("<div>");
                 content.append("An error has occurred !");
                 var message = createErrorMessage(content);
-                logs.empty();
-                logs.append(message);
+                displayLogs(logs, message);
                 button.attr("disabled", false);
             });
     } else {
@@ -408,18 +474,15 @@ $("#validate").click(function() {
         message.find("button.close").on("click", function() {
             form.removeClass("was-validated");
         });
-
-        logs.empty();
-        logs.append(message);
-
         form.addClass("was-validated");
+        displayLogs(logs, message);
         button.attr("disabled", false);
     }
 });
 
 $("#add").on("click", function() {
 
-    var container = $("#channel_manager");
+    var container = $("#channels");
     var list = createList();
     var content = container.find(".modal-body");
 
@@ -452,7 +515,7 @@ $("#add").on("click", function() {
 
 $("#delete").on("click", function() {
 
-    var container = $("#channel_manager");
+    var container = $("#channels");
     var list = createList();
     var content = container.find(".modal-body");
 
@@ -487,23 +550,12 @@ var layout;
 var data;
 
 $(document).ready(function() {
-
-    var logs = $("#logs");
-    logs.empty();
-    logs.append(createIcon("fas fa-spinner spin"));
-    logs.append("Loading...");
-
     $.get(layout_url, function(json) {
         layout = json;
     }).done(function() {
         $.get(data_url, function(json) {
             data = json;
         }).done(function() {
-
-            logs.empty();
-
-            var content = $("#content");
-            content.show();
 
             var tabs = $("#tabs");
             var selector = $("#selector");
@@ -529,15 +581,16 @@ $(document).ready(function() {
             fillGeneralFieldset();
             fillChannelFieldset();
 
+            updateHeader("General");
             selector.children().first().addClass("active");
             tabs.children().first().addClass("active show");
 
+            $("#content").show();
+
         }).fail(function() {
-            logs.empty();
-            logs.append(createErrorMessage("Error while loading the data"));
+            console.log("Error while loading the data");
         });
     }).fail(function() {
-        logs.empty();
-        logs.append(createErrorMessage("Error while loading the layout"));
+        console.log("Error while loading the layout");
     });
 });

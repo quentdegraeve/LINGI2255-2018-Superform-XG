@@ -31,13 +31,14 @@
             margin-top: 2rem;
             margin-bottom: 2rem;
         }
-
+        .field:not(:last-child) {
+            margin-bottom: 1rem;
+        }
         .field-body {
             margin-top: 1rem;
             margin-bottom: 1rem;
         }
-
-        #channel_manager a:hover,
+        #channels a:hover,
         .dropdown-item:hover {
             cursor: pointer;
         }
@@ -45,9 +46,7 @@
 {% endblock %}
 {% block content %}
     <div id="content" class="container" style="display:none">
-        <div id="header" class="jumbotron">
-            <h1>General</h1>
-        </div>
+        <div id="header" class="jumbotron"></div>
         <form novalidate>
             <div class="row">
                 <div class="col-md-8">
@@ -76,7 +75,7 @@
     <!-- Modals -->
     {% call modal.modal_block(id='copy_from', title='Copy from...') %}{% endcall %}
     {% call modal.modal_block(id='copy_to', title='Copy to...') %}{% endcall %}
-    {% call modal.modal_block(id='channel_manager', title='Channel Manager') %}{% endcall %}
+    {% call modal.modal_block(id='channels', title='Channels') %}{% endcall %}
 {% endblock %}
 
 {% block scripts %}
