@@ -204,3 +204,7 @@ class SlackTokens:
         c.config = json.dumps(config_json)
         print("put token", config_json)
         db.session.commit()
+
+
+def get_template():
+    return None

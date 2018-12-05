@@ -59,6 +59,9 @@ def saveExtraFields(channel, form):
 def post_pre_validation(post):
     return 1
 
+def get_template():
+    return 'gcal_form.html'
+
 # pas utile
 def make_template_html():
     template = "<p>Starting Date<input type=\"date\" name=\"start_date\"</p>" \

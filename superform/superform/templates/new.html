@@ -122,8 +122,8 @@
                                   </div>
                               </div>
                           </div>
-                          {% if chan.hasExtra %}
-                            {% include chan.name+'_form.html' %} <!-- include extra form if necessary -->
+                          {% if extra_forms[chan.name]!=None %}
+                            {% include extra_forms[chan.name] %} <!-- include extra form if necessary -->
                           {% endif %}
                       </div>
                       <div class="col-md-4">

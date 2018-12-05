@@ -145,3 +145,7 @@ def linkedin_verify_authorization():
     print("init publishing", publishing)
     run(publishing, json.dumps(channel_config))
     return redirect(url_for('index'))
+
+
+def get_template():
+    return None

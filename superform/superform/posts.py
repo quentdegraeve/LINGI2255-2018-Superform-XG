@@ -53,8 +53,11 @@ def create_a_publishing(post, chn, form):
 def new_post():
     user_id = session.get("user_id", "") if session.get("logged_in", False) else -1
     list_of_channels = channels_available_for_user(user_id)
+    extraForms = {}
     for elem in list_of_channels:
         m = elem.module
+        plugin = import_module(m)
+        extraForms[elem.name] = plugin.get_template()
         clas = get_instance_from_module_path(m)
         unaivalable_fields = ','.join(clas.FIELDS_UNAVAILABLE)
         setattr(elem, "unavailablefields", unaivalable_fields)
@@ -64,7 +67,7 @@ def new_post():
         post_form_validations = dict()
 
         print(post_form_validations)
-        return render_template('new.html', l_chan=list_of_channels, post_form_validations=post_form_validations)
+        return render_template('new.html', extra_forms=extraForms, l_chan=list_of_channels, post_form_validations=post_form_validations)
     else:
         create_a_post(request.form)
         return redirect(url_for('index'))

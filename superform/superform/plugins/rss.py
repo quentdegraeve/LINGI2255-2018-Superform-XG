@@ -17,6 +17,8 @@ POST_FORM_VALIDATIONS = {
 slack_error_callback_page = Blueprint('slack_error', 'channels')
 slack_verify_callback_page = Blueprint('slack', 'channels')
 
+def get_template():
+    return None
 
 def post_pre_validation(post):
     return plugin_utils.post_pre_validation_plugins(post, 40000, 40000)

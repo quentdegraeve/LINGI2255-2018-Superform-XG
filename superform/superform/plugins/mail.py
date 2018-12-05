@@ -42,3 +42,6 @@ def authenticate(channel_name, publishing_id):
 
 def post_pre_validation(post):
     return 1;
+
+def get_template():
+    return None
