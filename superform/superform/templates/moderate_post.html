@@ -36,8 +36,8 @@
                             </div>
                         </div>
                     </div>
-                    {% if chan.hasExtra %}
-                        {% include chan.name+'_form.html' %} <!-- YOLO -->
+                    {% if template!=None %}
+                        {% include template %} <!-- include extra form if necessary -->
                     {% endif %}
                 </div>
             </div>

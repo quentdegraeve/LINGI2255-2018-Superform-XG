@@ -146,6 +146,10 @@ def linkedin_verify_authorization():
     run(publishing, json.dumps(channel_config))
     return redirect(url_for('index'))
 
+# returns the name of an extra form, None if not needed
+def get_template_new():
+    return None
 
-def get_template():
+# returns the name of an extra form (pre-fillable), None if not needed
+def get_template_mod():
     return None

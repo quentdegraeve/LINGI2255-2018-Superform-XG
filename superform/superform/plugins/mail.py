@@ -43,5 +43,10 @@ def authenticate(channel_name, publishing_id):
 def post_pre_validation(post):
     return 1;
 
-def get_template():
+# returns the name of an extra form, None if not needed
+def get_template_new():
+    return None
+
+# returns the name of an extra form (pre-fillable), None if not needed
+def get_template_mod():
     return None

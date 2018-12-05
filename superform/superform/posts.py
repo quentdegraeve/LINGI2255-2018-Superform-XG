@@ -57,7 +57,7 @@ def new_post():
     for elem in list_of_channels:
         m = elem.module
         plugin = import_module(m)
-        extraForms[elem.name] = plugin.get_template()
+        extraForms[elem.name] = plugin.get_template_new()
         clas = get_instance_from_module_path(m)
         unaivalable_fields = ','.join(clas.FIELDS_UNAVAILABLE)
         setattr(elem, "unavailablefields", unaivalable_fields)

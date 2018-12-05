@@ -59,8 +59,11 @@ def saveExtraFields(channel, form):
 def post_pre_validation(post):
     return 1
 
-def get_template():
+def get_template_new():
     return 'gcal_form.html'
+
+def get_template_mod():
+    return 'filled_gcal_form.html'
 
 # pas utile
 def make_template_html():
