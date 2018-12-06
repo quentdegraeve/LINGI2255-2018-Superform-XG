@@ -15,7 +15,7 @@ def get_headless_chrome():
             return webdriver.Chrome(sys.path[0] + '\superform\selenium_drivers\chromedriver.exe',
                                     chrome_options=options)
         else:
-            return webdriver.Chrome(sys.path[0] + '/superform/selenium_drivers/chromedriver', chrome_options=options)
+            return webdriver.Chrome(sys.path[1] + '/superform/selenium_drivers/chromedriver', chrome_options=options)
     except common.exceptions.WebDriverException:
         print(
             'Can not find a valid selenium_drivers driver. it should be named chromedriver on linux or chromedriver.exe '
@@ -24,11 +24,14 @@ def get_headless_chrome():
 
 
 def get_chrome():
+    print("------------")
+    print("PATH", sys.path)
+    print("os", platform.system())
     try:
         if platform.system() == 'Windows':
             return webdriver.Chrome(sys.path[0] + '\superform\selenium_drivers\chromedriver.exe')
         else:
-            return webdriver.Chrome(sys.path[0] + '/superform/selenium_drivers/chromedriver')
+            return webdriver.Chrome(sys.path[1] + '/superform/selenium_drivers/chromedriver')
     except common.exceptions.WebDriverException as e:
         print(e)
         print(
@@ -42,6 +45,7 @@ login_url = 'http://localhost:5000/login'
 logout_url = 'http://localhost:5000/logout'
 authorization_url = 'http://localhost:5000/authorizations'
 new_post_url = 'http://localhost:5000/new'
+edit_post_url = 'http://localhost:5000/edit/'
 index_url = 'http://localhost:5000'
 configure_url = 'http://localhost:5000/configure/'
 moderate_url = 'http://localhost:5000/moderate/'
@@ -88,6 +92,14 @@ def create_channel(driver, name, username, password, module):
     input_name.send_keys(name)
     input_username.send_keys(username)
     input_password.send_keys(password)
+
+    driver.find_element_by_name("add_chan").click()
+
+def create_channel(driver, name, module):
+    driver.get(channel_url)
+    driver.find_element_by_css_selector('select[name="module"] option[value="' + module + '"]').click()
+    input_name = driver.find_element_by_name("name")
+    input_name.send_keys(name)
 
     driver.find_element_by_name("add_chan").click()
 
@@ -147,3 +159,24 @@ def add_new_post(driver, name_array, title, description, date_from, date_to, lin
 def moderate_post(driver, chan_number, post_number):
     driver.get(moderate_url + str(post_number) + '/' + str(chan_number))
     driver.find_element_by_css_selector('button[id="publish"]').click()
+
+def edit_post(driver,  channel_array, title, post_id, description, date_from, date_to, link=''):
+    driver.get(edit_post_url + str(post_id))
+
+    input_title = driver.find_element_by_name("title")
+    input_description = driver.find_element_by_name("description")
+    input_link = driver.find_element_by_name("link")
+    input_date_from = driver.find_element_by_name("publication_date")
+    input_date_to = driver.find_element_by_name("publication_until")
+
+    input_title.send_keys(title)
+    input_description.send_keys(description)
+    input_link.send_keys(link)
+    input_date_from.send_keys(date_from)
+    input_date_to.send_keys(date_to)
+
+
+    for name in channel_array:
+        driver.find_element_by_css_selector('a["' + name + '_tab"]').click()
+
+    driver.find_element_by_css_selector('button[id="validate"]').click()

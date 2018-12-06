@@ -9,6 +9,7 @@ from superform.models import db, Post, Publishing, Channel
 from superform.authentication import authentication_page
 from superform.authorizations import authorizations_page
 from superform.channels import channels_page
+from superform import plugins
 from superform.posts import posts_page
 from superform.api import api_page
 from superform.edit import edit_page
@@ -41,7 +42,7 @@ db.init_app(app)
 app.config["PLUGINS"] = {
     name: importlib.import_module(name)
     for finder, name, ispkg
-    in pkgutil.iter_modules(superform.plugins.__path__, superform.plugins.__name__ + ".")
+    in pkgutil.iter_modules(plugins.__path__, plugins.__name__ + ".")
 }
 
 @app.route('/', methods=["GET"])

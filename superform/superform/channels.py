@@ -8,7 +8,7 @@ from superform.utils import login_required, get_instance_from_module_path, get_m
 from superform.models import db, Channel
 import ast
 
-from suputils import keepass
+from superform.suputils import keepass
 
 channels_page = Blueprint('channels', __name__)
 
