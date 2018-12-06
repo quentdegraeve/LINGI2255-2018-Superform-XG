@@ -31,6 +31,9 @@ $("#publish, #unvalidate, #resubmit").click(function(event){
      }
      var moderator_comment = $('#moderator_comment');
      var user_comment = $('#user_comment');
+     if($(this).attr('id') == 'publish'){
+         return toReturn;
+     }
      if(toReturn && (( moderator_comment.length && moderator_comment.val() == "") || (user_comment.length && user_comment.val() == ""))){
           $("#modalResubmitModerate").modal("show");
           return false;

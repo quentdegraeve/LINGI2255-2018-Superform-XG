@@ -53,7 +53,9 @@ def moderate_publishing(id, idc):
 
         post_form_validations = get_post_form_validations()
 
-        return render_template('moderate_post.html', pub=pub, channel=chn, pub_versions=pub_versions, pub_comments=pub_comments_json, comments=pub_comments, post_form_validations=post_form_validations)
+        return render_template('moderate_post.html', pub=pub, channel=chn, pub_versions=pub_versions,
+                               pub_comments=pub_comments_json, comments=pub_comments,
+                               post_form_validations=post_form_validations)
     else:
         pub.title = request.form.get('titlepost')
         pub.description = request.form.get('descrpost')

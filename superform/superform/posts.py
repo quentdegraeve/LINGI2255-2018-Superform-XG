@@ -94,7 +94,6 @@ def create_a_publishing(post, chn, form):  # called in publish_from_new_post()
         comm = Comment(publishing_id=pub.publishing_id, user_comment=user_comment,
                        date_user_comment=date_user_comment)
 
-
         db.session.add(comm)
         db.session.commit()
     else:
