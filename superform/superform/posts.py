@@ -79,8 +79,8 @@ def create_a_publishing(post, chn, form):  # called in publish_from_new_post()
                 form.get(chan + '_dateuntilpost')) is not None else post.date_until
         if chn.module == 'superform.plugins.ICTV':
             template = form.get(chan + '_template')
-            logo = form.get(chan + '_logopost')
-            background = form.get(chan + '_backgroundpost')
+            logo = form.get(chan + '_logo')
+            background = form.get(chan + '_background')
             subtitle = form.get(chan + '_subtitle')
             duration = form.get(chan + '_duration')
 
