@@ -19,44 +19,20 @@ def creates_a_capsule(url,header,date_from,date_until,title):
     return requests.post(url, data=partial_capsules, headers=header)
 
 
-def create_a_slide(duration, template, title, subtitle, text, logo, image, background):
+def create_a_slide(duration, template, title, subtitle, text, logo, image):
     content = dict()
-    if title is not None :
-        content["title-1"] = {"text": title}
-    else:
-        content["title-1"] = {"text": ""}
-    if subtitle is not None :
-        content["subtitle-1"] = {"text": subtitle}
-    else:
-        content["subtitle-1"] = {"text": ""}
-    if text is not None :
-        content["text-1"] = {"text": text}
-    else:
-        content["text-1"] = {"text": ""}
-    if logo is not None :
+    content["title-1"] = {"text": title}
+    content["subtitle-1"] = {"text": subtitle}
+    content["text-1"] = {"text": text}
+    if logo is not "":
         content["logo-1"] = {"src": logo}
-    if image is not None :
+    if image is not "":
         content["image-1"] = {"src": image}
-    if background is not None :
-        content["background-1"] = {"src": background}
-
     partial_slide = {"duration": duration, "template": template, "content": content}
     return partial_slide
 
 
-def get_capsule_id(url, header, capsule_title):
-    all_capsules = requests.get(url, headers=header)
-    if all_capsules.status_code != 200:
-        print("HttpError: " + all_capsules.status_code)
-        return -1
-    capsules = all_capsules.json()
-    for elem in capsules:
-        if elem.get("name") == capsule_title:
-            return str(elem.get("id"))
-
-
-def run(publishing, channel_config):
-    # To do : Error management
+def delete(publishing, channel_config):
 
     json_data = json.loads(channel_config)
 
@@ -65,8 +41,37 @@ def run(publishing, channel_config):
             print("Missing : {0}".format(field))
             return
 
-    duration = publishing.duration
-    template = publishing.template
+    url = "http://" + json_data.get("server_url") + "/channels/" + json_data.get("channel_id") + "/api/capsules"
+    header_get = {'accept': 'application/json', 'X-ICTV-editor-API-Key': json_data.get('api_key')}
+    header_delete = {'accept': 'application/json','Content-Type': 'application/json', 'X-ICTV-editor-API-Key': json_data.get('api_key')}
+    capsule_title = "Superform_post" + str(publishing.post_id) + ":" + publishing.title
+    capsule_id = get_capsule_id(url, header_get, capsule_title)
+    if capsule_id == -1:
+        return
+    requests.delete(url + "/" + str(capsule_id), headers=header_delete)
+
+
+def get_capsule_id(url, header, capsule_title):
+    all_capsules = requests.get(url, headers=header)
+    if all_capsules.status_code != 200:
+        print("HttpError_get_capsule_id: " + all_capsules.status_code)
+        return -1
+    capsules = all_capsules.json()
+    for elem in capsules:
+        if capsule_title in elem.get("name"):
+            return str(elem.get("id"))
+
+
+def run(publishing, channel_config):
+
+    json_data = json.loads(channel_config)
+
+    for field in CONFIG_FIELDS:
+        if json_data.get(field) is None:
+            print("Missing : {0}".format(field))
+            return
+
+    duration = int(publishing.duration)
     title = publishing.title
     subtitle = publishing.subtitle
     image_url = publishing.image_url
@@ -74,7 +79,6 @@ def run(publishing, channel_config):
     date_from = publishing.date_from
     text = publishing.description
     logo = publishing.logo
-    background = publishing.background
     url = "http://" + json_data.get("server_url") + "/channels/" + json_data.get("channel_id") + "/api/capsules"
     header_get = {'accept': 'application/json', 'X-ICTV-editor-API-Key': json_data.get('api_key')}
     header_post = {'accept': 'application/json','Content-Type': 'application/json', 'X-ICTV-editor-API-Key': json_data.get('api_key')}
@@ -83,16 +87,18 @@ def run(publishing, channel_config):
     try:
         full_capsule = creates_a_capsule(url,header_post,date_from,date_until,capsule_title)
         if full_capsule.status_code != 201:
-            print("HttpError: " + str(full_capsule.status_code))
+            print("HttpError_run1: " + str(full_capsule.status_code))
             return
         capsule_id = get_capsule_id(url,header_get,capsule_title)
         if capsule_id == -1:
             return
-        slide = create_a_slide(duration, template, title, subtitle, text, logo, image_url, background)
+        template = template_selector(image_url)
+        slide = create_a_slide(duration, template, title, subtitle, text, logo, image_url)
         slide_url = str(url + "/" + capsule_id + "/slides")
         completed_capsule = requests.post(slide_url, headers=header_post, data=json.dumps(slide))
         if completed_capsule.status_code != 201:
-            print("HttpError: " + str(completed_capsule.status_code))
+            print("HttpError_run2: " + str(completed_capsule.status_code))
+            delete(publishing, channel_config)
             return
     except requests.exceptions.HTTPError as e:
         print(e)
@@ -101,6 +107,13 @@ def run(publishing, channel_config):
         print(e)
     publishing.state = 1
     db.session.commit()
+
+
+def template_selector(image):
+    if image is '':
+        return "template-text-center"
+    return "template-text-image"
+
 
 # Methods from other groups :
 

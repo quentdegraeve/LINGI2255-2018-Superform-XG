@@ -43,10 +43,110 @@
     {
       "module": "Twitter",
       "icon": "fab fa-twitter",
-      "disabled_fields": [
-        "title"
-      ],
-      "fields": []
+      "disabled_fields": ["title"],
+      "additional_fields": []
+    },
+    {
+      "module": "Linkedin",
+      "icon": "fab fa-linkedin",
+      "disabled_fields": [],
+      "additional_fields": []
+    },
+    {
+      "module": "Mail",
+      "icon": "fas fa-envelope",
+      "disabled_fields": ["image"],
+      "additional_fields": []
+    },
+    {
+      "module": "Gcal",
+      "icon": "fas fa-calendar",
+      "disabled_fields": [],
+      "additional_fields": [
+        {
+          "name": "color",
+          "label": "Color",
+          "required": true,
+          "type": "option"
+        },
+        {
+          "name": "visibility",
+          "label": "Visibility",
+          "required": true,
+          "type": "radio",
+          "options": [
+            "yes",
+            "no"
+          ]
+        },
+        {
+          "name": "availability",
+          "label": "Availability",
+          "required": true,
+          "type": "option"
+        },
+        {
+          "name": "guest_email",
+          "label": "Guest_Email",
+          "required": false,
+          "type": "textarea"
+        },
+        {
+          "name": "starting_time",
+          "label": "Starting_Time",
+          "required": false,
+          "type": "time"
+        },
+        {
+          "name": "ending_time",
+          "label": "Ending_Time",
+          "required": false,
+          "type": "time"
+        }
+      ]
+    },
+    {
+      "module": "Slack",
+      "icon": "fas fa-calendar",
+      "disabled_fields": [],
+      "additional_fields": []
+    },
+    {
+      "module": "ICTV",
+      "icon": "fas fa-tv",
+      "disabled_fields": ["link"],
+      "additional_fields": [
+        {
+          "name": "subtitle",
+          "label": "Subtitle",
+          "required": true,
+          "type": "input[\"text\"]"
+        },
+        {
+          "name": "logo",
+          "label": "Logo",
+          "required": false,
+          "type": "url"
+        },
+        {
+          "name": "template",
+          "label": "Template",
+          "required": true,
+          "type": "option"
+        },
+        {
+          "name": "background",
+          "label": "Background",
+          "required": false,
+          "type": "color"
+        },
+        {
+          "name": "duration",
+          "label": "Duration",
+          "required": true,
+          "type": "number"
+        }
+      ]
     }
   ]
 }
