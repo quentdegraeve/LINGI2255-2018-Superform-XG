@@ -85,9 +85,7 @@ class PubGCal(Publishing):
 
 class PubICTV(Publishing):
 
-    template = db.Column(db.Text, nullable=True)
     logo = db.Column(db.Text, nullable=True)
-    background = db.Column(db.Text, nullable=True)
     subtitle = db.Column(db.Text, nullable=True)
     duration = db.Column(db.Text, nullable=True)
 

@@ -51,9 +51,7 @@ def moderate_publishing(id, idc):
             pub.visibility = request.form.get('visibility')
             pub.availability = request.form.get('availability')
         if chn.module == 'superform.plugins.ICTV':
-            pub.template = request.form.get('template')
             pub.logo = request.form.get('logo')
-            pub.background = request.form.get('background')
             pub.subtitle = request.form.get('subtitle')
             pub.duration = request.form.get('duration')
             pub.date_from = datetime_converter(request.form.get('datefrompost'))

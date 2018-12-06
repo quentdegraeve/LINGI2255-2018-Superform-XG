@@ -245,14 +245,6 @@
                                                            id="{{ chan.name }}_subtitle" class="form-control">
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="{{ chan.name }}_template">Template</label><br>
-                                                    <select name="{{ chan.name }}_template" id="{{ chan.name }}_template"
-                                                            class="form-control">
-                                                      <option value="template-text-center">template-text-center</option>
-                                                      <option value="template-text-image">template-text-image</option>
-                                                    </select>
-                                                </div>
-                                                <div class="form-group">
                                                     <label for="{{ chan.name }}_logo">Logo</label><br>
                                                     <div class="input-group">
                                                         <input type="url" name="{{ chan.name }}_logo"
@@ -261,20 +253,6 @@
                                                                 class="btn btn-secondary" onclick="PreviewFunction('{{ chan.name }}_logopost')">
                                                             Preview
                                                         </button>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="{{ chan.name }}_background">Background</label><br>
-                                                    <div class="input-group">
-                                                        <input type="color"  value="#000000"
-                                                               name="{{ chan.name }}_background"
-                                                               id="{{ chan.name }}_background" >
-                                                        <!--<input type="src" name="{{ chan.name }}_backgroundpost"
-                                                               id="{{ chan.name }}_backgroundpost" class="form-control">
-                                                        <button id="js-open-preview-background" type="button"
-                                                                class="btn btn-secondary" onclick="PreviewFunction('{{ chan.name }}_backgroundpost')">
-                                                            Preview
-                                                        </button>-->
                                                     </div>
                                                 </div>
 
