@@ -38,6 +38,7 @@ def moderate_publishing(id, idc):
     pub_comments = db.session.query(Comment).filter(Comment.publishing_id.in_(pub_ids)).all()
     """TO THIS"""
     pub_versions = json.dumps(pub_versions, cls=AlchemyEncoder)
+    pub_comments_json = json.dumps(pub_comments, cls=AlchemyEncoder)
     if chn.module == 'superform.plugins.gcal':
         pub = db.session.query(PubGCal).filter(PubGCal.post_id == id, PubGCal.channel_id == idc).first()
         pub.date_start = str_converter(pub.date_start)
@@ -52,7 +53,7 @@ def moderate_publishing(id, idc):
 
         post_form_validations = get_post_form_validations()
 
-        return render_template('moderate_post.html', pub=pub, channel=chn, pub_versions=pub_versions, comments=pub_comments, post_form_validations=post_form_validations)
+        return render_template('moderate_post.html', pub=pub, channel=chn, pub_versions=pub_versions, pub_comments=pub_comments_json, comments=pub_comments, post_form_validations=post_form_validations)
     else:
         pub.title = request.form.get('titlepost')
         pub.description = request.form.get('descrpost')
