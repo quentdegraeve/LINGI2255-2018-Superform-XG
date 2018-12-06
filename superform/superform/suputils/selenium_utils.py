@@ -43,9 +43,10 @@ logout_url = 'http://localhost:5000/logout'
 authorization_url = 'http://localhost:5000/authorizations'
 new_post_url = 'http://localhost:5000/new'
 index_url = 'http://localhost:5000'
-configure_url = 'http://localhost:5000/configure'
-moderate_url = 'http://localhost:5000/moderate'
-linkedin_url = 'https://www.linkedin.com'
+configure_url = 'http://localhost:5000/configure/'
+moderate_url = 'http://localhost:5000/moderate/'
+linkedin_url = 'https://www.linkedin.com/'
+resubmit_url = 'http://localhost:5000/publishing/resubmit/'
 
 
 #---------- Autolog methods
@@ -93,7 +94,7 @@ def create_channel(driver, name, username, password, module):
 
 
 def modify_config(driver, chan_number, domain_name, channel_name):
-    driver.get(configure_url + '/' + str(chan_number))
+    driver.get(configure_url + str(chan_number))
     input_domain_name = driver.find_element_by_name("slack_domain_name")
     input_channel_name = driver.find_element_by_name("slack_channel_name")
     input_domain_name.clear()
@@ -145,5 +146,5 @@ def add_new_post(driver, name_array, title, description, date_from, date_to, lin
 
 
 def moderate_post(driver, chan_number, post_number):
-    driver.get(moderate_url + '/' + str(post_number) + '/' + str(chan_number))
+    driver.get(moderate_url + str(post_number) + '/' + str(chan_number))
     driver.find_element_by_css_selector('button[id="publish"]').click()

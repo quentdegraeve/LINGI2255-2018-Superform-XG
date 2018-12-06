@@ -201,3 +201,49 @@ def test_add_post_slack_wrong_begining_ending_date():
     selenium_utils.add_new_post(pytest.driver, ['test_slack'], title, description, pytest.now, end_date.strftime("%d%m%Y"))
 
     assert pytest.driver.find_elements_by_css_selector('div[id="error_test_slack_dateuntilpost"]')
+
+
+def test_resubmit_post():
+    title = 'test_linkedin_sjs'
+    description = 'test_linkedin descriptiondss'
+    selenium_utils.add_new_post(pytest.driver, ['test_linkedin'], title, description, pytest.now, pytest.now,
+                                'https://www.google.be/')
+    #TO DO
+    pytest.driver.get(selenium_utils.moderate_url)
+
+    assert pytest.driver.find_elements_by_css_selector('a[href="/moderate/4/1"]')
+
+    selenium_utils.moderate_post_with_reject(pytest.driver, 4, 1, "your post not good")
+
+    #check that the post have been really refused
+    assert not pytest.driver.find_elements_by_css_selector('a[href="/moderate/4/1"]')
+
+    pytest.driver.get(selenium_utils.index_url)
+    assert pytest.driver.find_elements_by_css_selector('a[href="/resubmit/5"]')
+
+    selenium_utils.resubmit_post(pytest.driver, 5, "oups i forgot")
+
+    #check that the post is in the posts to be moderated again
+    pytest.driver.get(selenium_utils.moderate_url)
+
+    assert pytest.driver.find_elements_by_css_selector('a[href="/moderate/4/1"]')
+
+
+def test_comments_displayed():
+
+    #check if all commemments are displayed at the moderation
+    #are all two comment displayed
+    pytest.driver.get(selenium_utils.moderate_url+"4/1")
+    assert pytest.driver.find_elements_by_css_selector('div[mod_2]')
+
+    selenium_utils.moderate_post_with_reject(pytest.driver, 4, 1, "hahha no way, you troll")
+
+    pytest.driver.get(selenium_utils.index_url)
+    assert pytest.driver.find_elements_by_css_selector('a[href="/resubmit/6"]')
+
+    # check if all commemments are displayed at the moderation
+    # are all two comment displayed
+    pytest.driver.get(selenium_utils.resubmit_url+"6")
+    assert pytest.driver.find_elements_by_css_selector('div[mod_2]')
+
+
