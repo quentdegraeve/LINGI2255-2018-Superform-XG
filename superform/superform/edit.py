@@ -1,7 +1,7 @@
 from flask import Blueprint, url_for, request, redirect, render_template, session
 
 from superform.utils import login_required, datetime_converter
-from superform.models import db, Post, Publishing, Channel, User
+from superform.models import db, Post, Publishing, Channel, User, PubGCal, PubICTV
 
 from datetime import date, timedelta
 
@@ -17,8 +17,6 @@ def edit_post(post_id):
 def publish_edit_post(post_id):
     data = request.get_json(force=True)
 
-    print(data)
-
     current_user_id = session.get("user_id", "")
 
     post = db.session.query(Post).filter(Post.id == post_id, Post.user_id == current_user_id).first()  # retrieve old post
@@ -32,7 +30,6 @@ def publish_edit_post(post_id):
         fields = d.get('fields')
         if d.get('name') == 'General':
             post.title = fields.get('title')
-            title = post.title
             post.description = fields.get('description')
             post.link_url = fields.get('link')
             post.image_url = fields.get('image')
@@ -49,22 +46,90 @@ def publish_edit_post(post_id):
 
         else:
             for p in pubs:
-                chan_name = (db.session.query(Channel).filter((Channel.id == p.channel_id))).first().name
-                chan_name = 'My first Twitter account'  # to change !!!!
-                if chan_name == name:
-                    p.title = fields.get('title') if fields.get('title') is not None else title
-                    p.description = fields.get('description')
-                    p.link_url = fields.get('link')
-                    p.image_url = fields.get('image')
-                    if fields.get('publication_date') is '':
-                        # set default date if no date was chosen
-                        p.date_from = date.today()
-                    else:
-                        p.date_from = datetime_converter(fields.get('publication_date'))
-                    if fields.get('publication_until') is '':
-                        p.date_until = date.today() + timedelta(days=7)
-                    else:
-                        p.date_until = datetime_converter(fields.get('publication_until'))
-                    db.session.commit()
+                chans = (db.session.query(Channel).filter((Channel.id == p.channel_id))).all()
+
+                for chn in chans:
+                    if chn.name == name:
+
+                        db.session.delete(p)  # remove old publication
+
+                        # create new updated publication:
+                        title_post = fields.get('title') if (
+                            fields.get('title') is not None) else post.title
+                        descr_post = fields.get('description') if fields.get(
+                            'description') is not None else post.description
+                        link_post = fields.get('link') if fields.get('link') is not None else post.link_url
+                        image_post = fields.get('image') if fields.get('image') is not None else post.image_url
+
+                        if chn.module == 'superform.plugins.gcal':
+                            date_start = datetime_converter(fields.get('starting_date')) if datetime_converter(
+                                fields.get('starting_date')) is not None else post.date_from  # !! not in json
+                            date_end = datetime_converter( fields.get('ending_date')) if datetime_converter(
+                                fields.get('ending_date')) is not None else post.date_until  # not in json !
+                            hour_start = fields.get('starting_time')\
+                                if fields.get('starting_time') is not None else '00:00'
+                            hour_end = fields.get('ending_time') if fields.get('ending_time') is not None else '00:00'
+                            location = fields.get('location')  # !! not in json
+                            color_id = fields.get('color')
+                            guests = fields.get('guest_email')
+                            visibility = fields.get('visibility')
+                            availability = fields.get('availability')
+
+                            pub = PubGCal(post_id=post.id, channel_id=chn.id, state=0, title=title_post,
+                                          description=descr_post,
+                                          link_url=link_post, image_url=image_post,
+                                          date_from=None, date_until=None, date_start=date_start, date_end=date_end,
+                                          location=location, color_id=color_id, hour_start=hour_start,
+                                          hour_end=hour_end,
+                                          guests=guests, visibility=visibility, availability=availability)
+
+                        else:
+                            if fields.get('publication_date') is '':
+                                date_from = date.today()
+                            else:
+                                date_from = datetime_converter(fields.get('publication_date')) if datetime_converter(
+                                    fields.get('publication_date')) is not None else post.date_from
+                            if fields.get('publication_until') is '':
+                                date_until = date.today() + timedelta(days=7)
+                            else:
+                                date_until = datetime_converter(
+                                    fields.get('publication_until')) if datetime_converter(
+                                    fields.get('publication_until')) is not None else post.date_until
+                            if chn.module == 'superform.plugins.ICTV':
+                                logo = fields.get('logo')
+                                subtitle = fields.get('subtitle')
+                                duration = fields.get('duration')
+
+                                pub = PubICTV(post_id=post.id, channel_id=chn.id, state=0, title=title_post,
+                                              description=descr_post,
+                                              link_url=link_post, image_url=image_post,
+                                              date_from=date_from, date_until=date_until, logo=logo, subtitle=subtitle,
+                                              duration=duration)
+                            else:
+                                pub = Publishing(post_id=post.id, channel_id=chn.id, state=0, title=title_post,
+                                                 description=descr_post,
+                                                 link_url=link_post, image_url=image_post,
+                                                 date_from=date_from, date_until=date_until)
+
+                        db.session.add(pub)
+                        db.session.commit()
+
+
+                        """
+                        p.title = fields.get('title') if fields.get('title') is not None else title
+                        p.description = fields.get('description')
+                        p.link_url = fields.get('link')
+                        p.image_url = fields.get('image')
+                        if fields.get('publication_date') is '':
+                            # set default date if no date was chosen
+                            p.date_from = date.today()
+                        else:
+                            p.date_from = datetime_converter(fields.get('publication_date'))
+                        if fields.get('publication_until') is '':
+                            p.date_until = date.today() + timedelta(days=7)
+                        else:
+                            p.date_until = datetime_converter(fields.get('publication_until'))
+                        db.session.commit()
+                        """
 
     return ('', 200)
