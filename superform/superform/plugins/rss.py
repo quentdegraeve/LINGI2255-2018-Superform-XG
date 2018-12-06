@@ -26,7 +26,7 @@ def authenticate(channel_id, publishing_id):
     return 'AlreadyAuthenticated'
 
 def run(publishing, channel_config):
-    publishing.state = 2
+    publishing.state = 1
     db.session.commit()
 
 def deletable():
