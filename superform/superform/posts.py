@@ -85,10 +85,15 @@ def create_a_publishing(post, chn, form):  # called in publish_from_new_post()
         pub = Publishing(post_id=post.id, channel_id=chn.id, state=State.NOT_VALIDATED.value, title=title_post, description=descr_post,
                      link_url=link_post, image_url=image_post,
                      date_from=date_from, date_until=date_until)
+
+        db.session.add(pub)
+        db.session.commit()
+        
         user_comment = ""
         date_user_comment = str_converter_with_hour(datetime_now())
         comm = Comment(publishing_id=pub.publishing_id, user_comment=user_comment,
                        date_user_comment=date_user_comment)
+
 
         db.session.add(comm)
         db.session.commit()
@@ -97,8 +102,8 @@ def create_a_publishing(post, chn, form):  # called in publish_from_new_post()
                          link_url=link_post, image_url=image_post,
                          date_from=date_from, date_until=date_until)
 
-    db.session.add(pub)
-    db.session.commit()
+        db.session.add(pub)
+        db.session.commit()
     return pub
 
 
