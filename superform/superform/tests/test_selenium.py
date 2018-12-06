@@ -37,7 +37,7 @@ def test_add_post_linkedin():
     title = 'test_linkedin title'
     description = 'test_linkedin description'
     selenium_utils.add_new_post(pytest.driver, ['test_linkedin'], title, description, pytest.now, pytest.now, 'https://www.google.be/')
-    pytest.driver.get(selenium_utils.index_url)
+    pytest.driver.get(selenium_utils.moderate_url)
 
     assert pytest.driver.find_elements_by_css_selector('a[href="/moderate/1/1"]')
 
@@ -46,7 +46,7 @@ def test_add_post_slack():
     title = 'test_slack title'
     description = 'test_slack description'
     selenium_utils.add_new_post(pytest.driver, ['test_slack'], title, description, pytest.now, pytest.now, 'https://www.google.be/')
-    pytest.driver.get(selenium_utils.index_url)
+    pytest.driver.get(selenium_utils.moderate_url)
 
     assert pytest.driver.find_elements_by_css_selector('a[href="/moderate/2/2"]')
 
@@ -67,7 +67,7 @@ def test_add_post_linkedin_slack():
     title = 'test_linkedin_slack title'
     description = 'test_linkedin_slack description'
     selenium_utils.add_new_post(pytest.driver, ['test_linkedin', 'test_slack'], title, description, pytest.now, pytest.now, 'https://www.google.be/')
-    pytest.driver.get(selenium_utils.index_url)
+    pytest.driver.get(selenium_utils.moderate_url)
 
     assert pytest.driver.find_elements_by_css_selector('a[href="/moderate/3/1"]')
     assert pytest.driver.find_elements_by_css_selector('a[href="/moderate/3/2"]')
@@ -90,7 +90,7 @@ def test_add_post_linkedin_empty_title():
     description = 'test_slack description'
     selenium_utils.add_new_post(pytest.driver, ['test_linkedin'], title, description, pytest.now, pytest.now)
 
-    assert pytest.driver.find_elements_by_css_selector('div[id="error_title"]')
+    assert pytest.driver.find_elements_by_css_selector('div[id="error_test_linkedin_titlepost"]')
 
 
 def test_add_post_slack_empty_title():
@@ -98,7 +98,7 @@ def test_add_post_slack_empty_title():
     description = 'test_linkedin description'
     selenium_utils.add_new_post(pytest.driver, ['test_slack'], title, description, pytest.now, pytest.now)
 
-    assert pytest.driver.find_elements_by_css_selector('div[id="error_title"]')
+    assert pytest.driver.find_elements_by_css_selector('div[id="error_test_slack_titlepost"]')
 
 
 def test_add_post_linkedin_empty_description():
@@ -106,7 +106,7 @@ def test_add_post_linkedin_empty_description():
     description = ''
     selenium_utils.add_new_post(pytest.driver, ['test_linkedin'], title, description, pytest.now, pytest.now)
 
-    assert pytest.driver.find_elements_by_css_selector('div[id="error_desc"]')
+    assert pytest.driver.find_elements_by_css_selector('div[id="error_test_linkedin_descriptionpost"]')
 
 
 def test_add_post_slack_empty_description():
@@ -114,7 +114,7 @@ def test_add_post_slack_empty_description():
     description = ''
     selenium_utils.add_new_post(pytest.driver, ['test_slack'], title, description, pytest.now, pytest.now)
 
-    assert pytest.driver.find_elements_by_css_selector('div[id="error_desc"]')
+    assert pytest.driver.find_elements_by_css_selector('div[id="error_test_slack_descriptionpost"]')
 
 
 def test_add_post_linkedin_wrong_title():
@@ -122,7 +122,7 @@ def test_add_post_linkedin_wrong_title():
     description = 'test_slack description'
     selenium_utils.add_new_post(pytest.driver, ['test_linkedin'], title, description, pytest.now, pytest.now)
 
-    assert pytest.driver.find_elements_by_css_selector('div[id="error_title"]')
+    assert pytest.driver.find_elements_by_css_selector('div[id="error_test_linkedin_titlepost"]')
 
 
 def test_add_post_linkedin_wrong_description():
@@ -130,7 +130,7 @@ def test_add_post_linkedin_wrong_description():
     description = "x" * (pytest.linkedin_description_max + 1)
     selenium_utils.add_new_post(pytest.driver, ['test_linkedin'], title, description, pytest.now, pytest.now)
 
-    assert pytest.driver.find_elements_by_css_selector('div[id="error_desc"]')
+    assert pytest.driver.find_elements_by_css_selector('div[id="error_test_linkedin_descriptionpost"]')
 
 
 def test_add_post_linkedin_wrong_link():
@@ -139,24 +139,25 @@ def test_add_post_linkedin_wrong_link():
     link = 'test'
     selenium_utils.add_new_post(pytest.driver, ['test_linkedin'], title, description, pytest.now, pytest.now, link=link)
 
-    assert pytest.driver.find_elements_by_css_selector('div[id="error_linkUrlPost"]')
+    assert pytest.driver.find_elements_by_css_selector('div[id="error_test_linkedin_linkurlpost"]')
 
 
 def test_add_post_slack_wrong_link():
     title = 'test_linkedin title'
     description = 'test_linkedin description'
     link = 'test'
-    selenium_utils.add_new_post(pytest.driver, ['test_linkedin'], title, description, pytest.now, pytest.now, link=link)
+    selenium_utils.add_new_post(pytest.driver, ['test_slack'], title, description, pytest.now, pytest.now, link=link)
 
-    assert pytest.driver.find_elements_by_css_selector('div[id="error_linkUrlPost"]')
+    assert pytest.driver.find_elements_by_css_selector('div[id="error_test_slack_linkurlpost"]')
 
 
+"""
 def test_add_post_linkedin_empty_begining_date():
     title = 'test_linkedin title'
     description = 'test_linkedin description'
     selenium_utils.add_new_post(pytest.driver, ['test_linkedin'], title, description, '', pytest.now)
 
-    assert pytest.driver.find_elements_by_css_selector('div[id="error_datefrompost"]')
+    assert pytest.driver.find_elements_by_css_selector('div[id="error_test_linkedin_datefrompost"]')
 
 
 def test_add_post_linkedin_empty_ending_date():
@@ -164,18 +165,9 @@ def test_add_post_linkedin_empty_ending_date():
     description = 'test_linkedin description'
     selenium_utils.add_new_post(pytest.driver, ['test_linkedin'], title, description, pytest.now, '')
 
-    assert pytest.driver.find_elements_by_css_selector('div[id="error_dateuntilpost"]')
-
-
-def test_add_post_linkedin_wrong_ending_date():
-    title = 'test_linkedin title'
-    description = 'test_linkedin description'
-    end_date = datetime.datetime.now() - datetime.timedelta(days=1)
-    selenium_utils.add_new_post(pytest.driver, ['test_linkedin'], title, description, pytest.now, end_date.strftime("%d%m%Y"))
-
-    assert pytest.driver.find_elements_by_css_selector('div[id="error_dateuntilpost"]')
-
-
+    assert pytest.driver.find_elements_by_css_selector('div[id="error_test_linkedin_dateuntilpost"]')
+    
+    
 def test_add_post_slack_empty_begining_date():
     title = 'test_slack title'
     description = 'test_slack description'
@@ -190,12 +182,22 @@ def test_add_post_slack_empty_ending_date():
     selenium_utils.add_new_post(pytest.driver, ['test_linkedin'], title, description, pytest.now, '')
 
     assert pytest.driver.find_elements_by_css_selector('div[id="error_dateuntilpost"]')
+"""
 
 
-def test_add_post_slack_wrong_ending_date():
-    title = 'test_slack title'
-    description = 'test_slack description'
-    end_date = datetime.datetime.now() - datetime.timedelta(days=1)
+def test_add_post_linkedin_wrong_begining_ending_date():
+    title = 'test_linkedin title'
+    description = 'test_linkedin description'
+    end_date = datetime.datetime.now() - datetime.timedelta(days=2)
     selenium_utils.add_new_post(pytest.driver, ['test_linkedin'], title, description, pytest.now, end_date.strftime("%d%m%Y"))
 
-    assert pytest.driver.find_elements_by_css_selector('div[id="error_dateuntilpost"]')
+    assert pytest.driver.find_elements_by_css_selector('div[id="error_test_linkedin_dateuntilpost"]')
+
+
+def test_add_post_slack_wrong_begining_ending_date():
+    title = 'test_slack title'
+    description = 'test_slack description'
+    end_date = datetime.datetime.now() - datetime.timedelta(days=2)
+    selenium_utils.add_new_post(pytest.driver, ['test_slack'], title, description, pytest.now, end_date.strftime("%d%m%Y"))
+
+    assert pytest.driver.find_elements_by_css_selector('div[id="error_test_slack_dateuntilpost"]')
