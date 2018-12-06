@@ -1,8 +1,28 @@
 import datetime
+import tempfile
+import os
+
 import pytest
 
 from superform.suputils import selenium_utils
 from superform.suputils import keepass
+from superform import app, db, Post
+
+
+@pytest.fixture
+def client():
+    app.app_context().push()
+    db_fd, app.config['DATABASE'] = tempfile.mkstemp()
+    app.config['TESTING'] = True
+    client = app.test_client()
+
+    with app.app_context():
+        db.create_all()
+
+    yield client
+
+    os.close(db_fd)
+    os.unlink(app.config['DATABASE'])
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -20,35 +40,42 @@ def prepare():
 
     keepass.set_entry_from_keepass('account_linkedin')
     selenium_utils.create_channel(pytest.driver, 'test_linkedin', keepass.KeepassEntry.username, keepass.KeepassEntry.password, 'linkedin')
+    pytest.linkedin_channel_id = 1
 
     keepass.set_entry_from_keepass('account_slack')
     selenium_utils.create_channel(pytest.driver, 'test_slack', keepass.KeepassEntry.username, keepass.KeepassEntry.password, 'slack')
-    selenium_utils.modify_config(pytest.driver, 2, 'testlingi2255team8', 'general')
+    pytest.slack_channel_id = 2
+    selenium_utils.modify_config(pytest.driver, pytest.slack_channel_id, 'testlingi2255team8', 'general')
 
-    selenium_utils.add_authorization(pytest.driver, 'test_linkedin', 'superego', 2)
-    selenium_utils.add_authorization(pytest.driver, 'test_slack', 'superego', 2)
+
+    selenium_utils.add_authorization(pytest.driver, 'test_linkedin', 'superego', pytest.slack_channel_id)
+    selenium_utils.add_authorization(pytest.driver, 'test_slack', 'superego', pytest.slack_channel_id)
 
     yield
 
     pytest.driver.close()
 
 
-def test_add_post_linkedin():
+def test_add_post_linkedin(client):
     title = 'test_linkedin title'
     description = 'test_linkedin description'
     selenium_utils.add_new_post(pytest.driver, ['test_linkedin'], title, description, pytest.now, pytest.now, 'https://www.google.be/')
     pytest.driver.get(selenium_utils.moderate_url)
+    posts = db.session.query(Post).all()
+    last = posts[-1]
+    assert pytest.driver.find_elements_by_css_selector('a[href="/moderate/' + str(last.id) + '/' +
+                                                       str(pytest.linkedin_channel_id) + '"]')
 
-    assert pytest.driver.find_elements_by_css_selector('a[href="/moderate/1/1"]')
 
-
-def test_add_post_slack():
+def test_add_post_slack(client):
     title = 'test_slack title'
     description = 'test_slack description'
     selenium_utils.add_new_post(pytest.driver, ['test_slack'], title, description, pytest.now, pytest.now, 'https://www.google.be/')
     pytest.driver.get(selenium_utils.moderate_url)
-
-    assert pytest.driver.find_elements_by_css_selector('a[href="/moderate/2/2"]')
+    posts = db.session.query(Post).all()
+    last = posts[-1]
+    assert pytest.driver.find_elements_by_css_selector('a[href="/moderate/' + str(last.id) + '/'
+                                                       + str(pytest.slack_channel_id) + '"]')
 
 
 def test_publish_post_linkedin_1():
@@ -217,13 +244,13 @@ def test_resubmit_post():
 
     assert pytest.driver.find_elements_by_css_selector('a[href="/moderate/4/1"]')
 
-    selenium_utils.moderate_post_with_reject(pytest.driver, 4, 1, "your post not good")
+    selenium_utils.moderate_post_with_reject(pytest.driver, 1, 4, "your post not good")
 
     #check that the post have been really refused
     assert not pytest.driver.find_elements_by_css_selector('a[href="/moderate/4/1"]')
 
     pytest.driver.get(selenium_utils.index_url)
-    assert pytest.driver.find_elements_by_css_selector('a[href="/resubmit/5"]')
+    assert pytest.driver.find_elements_by_css_selector('a[href="/publishing/resubmit/5"]')
 
     selenium_utils.resubmit_post(pytest.driver, 5, "oups i forgot")
 
@@ -234,20 +261,20 @@ def test_resubmit_post():
 
 
 def test_comments_displayed():
-
     #check if all commemments are displayed at the moderation
     #are all two comment displayed
-    pytest.driver.get(selenium_utils.moderate_url+"4/1")
-    assert pytest.driver.find_elements_by_css_selector('div[mod_2]')
+    pytest.driver.get(selenium_utils.moderate_url+"/4/" + str(pytest.linkedin_channel_id))
+    assert pytest.driver.find_elements_by_css_selector('div[id="mod_1"]')
 
-    selenium_utils.moderate_post_with_reject(pytest.driver, 4, 1, "hahha no way, you troll")
+    selenium_utils.moderate_post_with_reject(pytest.driver, 1, 4, "hahha no way, you troll")
 
     pytest.driver.get(selenium_utils.index_url)
-    assert pytest.driver.find_elements_by_css_selector('a[href="/resubmit/6"]')
+    assert pytest.driver.find_elements_by_css_selector('a[href="/publishing/resubmit/6"]')
 
     # check if all commemments are displayed at the moderation
     # are all two comment displayed
-    pytest.driver.get(selenium_utils.resubmit_url+"6")
-    assert pytest.driver.find_elements_by_css_selector('div[mod_2]')
+    pytest.driver.get(selenium_utils.resubmit_url+"/6")
+    assert pytest.driver.find_elements_by_css_selector('div[id="user_2"]')
+    assert pytest.driver.find_elements_by_css_selector('div[id="mod_2"]')
 
 
