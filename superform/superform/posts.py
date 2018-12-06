@@ -78,16 +78,13 @@ def create_a_publishing(post, chn, form):  # called in publish_from_new_post()
             date_until = datetime_converter(form.get(chan + '_dateuntilpost')) if datetime_converter(
                 form.get(chan + '_dateuntilpost')) is not None else post.date_until
         if chn.module == 'superform.plugins.ICTV':
-            template = form.get(chan + '_template')
             logo = form.get(chan + '_logo')
-            background = form.get(chan + '_background')
             subtitle = form.get(chan + '_subtitle')
             duration = form.get(chan + '_duration')
 
             pub = PubICTV(post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
                           link_url=link_post, image_url=image_post,
-                          date_from=date_from, date_until=date_until,
-                          template=template, logo=logo, background=background, subtitle=subtitle, duration=duration)
+                          date_from=date_from, date_until=date_until, logo=logo, subtitle=subtitle, duration=duration)
         else:
             pub = Publishing(post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
                              link_url=link_post, image_url=image_post,
@@ -121,7 +118,7 @@ def new_post():
             fields = clas.POST_FORM_VALIDATIONS
             post_form_validations[m] = fields
 
-        print(post_form_validations)
+        #print(post_form_validations)
         return render_template('new.html', l_chan=list_of_channels, post_form_validations=post_form_validations,
                                date=default_date)
     else:
