@@ -3,50 +3,27 @@
     "fields": {
       "title": "Ceci est mon titre",
       "description": "Ceci est ma description",
-      "link": "http://www.google.com",
-      "image": "http://www.google.com",
-      "publication_date": "2018-12-12",
-      "publication_until": "2018-12-12"
+      "link_url": "http://www.google.com",
+      "image_url": "http://www.google.com",
+      "date_from": "2018-12-12",
+      "date_until": "2018-12-12"
     }
   },
   "channels": [
     {
-      "module": "Twitter",
+      "module": "superform.plugins.twitter",
       "name": "My first Twitter account",
       "state": 0,
       "fields": {
         "description" : "Description 2",
-        "link": "http://www.google.com"
+        "link_url": "http://www.google.com"
       }
     },
     {
-      "module": "Twitter",
-      "name": "My second Twitter account",
-      "state": -1,
-      "fields": {}
-    },
-    {
-      "module": "Twitter",
-      "name": "My third Twitter account",
-      "state": -1,
-      "fields": {}
-    },
-    {
-      "module": "ICTV",
+      "module": "superform.plugins.ICTV",
       "name": "My ICTV channel",
-      "state": 0,
-      "fields": {
-        "title": "titre",
-        "description": "descr",
-        "image": "image.png",
-        "subtitle": "sub",
-        "logo": "http://www.google.com",
-        "duration": 5,
-        "publication_date": "2018-12-12",
-        "publication_until": "2018-12-12",
-        "template": "temp",
-        "background": "blue"
-      }
+      "state": -1,
+      "fields": {}
     }
   ]
 }

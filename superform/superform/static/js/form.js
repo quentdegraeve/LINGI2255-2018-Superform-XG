@@ -7,6 +7,11 @@ function createInput(field) {
     var component = 'undefined';
 
     switch (field.type) {
+        case "input[\"number\"]":
+            component = $("<input>");
+            component.attr("type", "number");
+            container.append(component);
+            break;
         case "input[\"text\"]":
             component = $("<input>");
             component.attr("type", "text");
@@ -327,6 +332,7 @@ function addTab(tabs, selector, fieldset) {
     selector.append(a);
 
     addRestoreFeature(fieldset);
+    addPreviewImageFeature(fieldset);
 }
 
 function createList() {
@@ -382,6 +388,25 @@ function addRestoreFeature(fieldset) {
     }
 }
 
+function addPreviewImageFeature(fieldset) {
+    if (fieldset.attr("name") === "General") {
+        fieldset.find(".form-control").each(function() {
+            var input = $(this);
+            var component = input.parents(".field");
+            // console.log(input);
+            // console.log(component);
+        });
+    } else {
+        fieldset.find(".form-control").each(function() {
+            var input = $(this);
+            var component = input.parents(".field");
+            // console.log(input);
+            // console.log(component);
+            // console.log(component);
+        });
+    }
+}
+
 function retrieveFormData() {
     var data = [];
     $("fieldset").each(function() {
@@ -412,14 +437,14 @@ function updateHeader(name) {
             if (name === data.channels[i].name) {
                 for (var j = 0; j < layout.channels.length; j++) {
                     if (data.channels[i].module === layout.channels[j].module) {
-                        container.append($("<hr>"));
-                        var module = $("<p>");
-                        module.addClass("lead");
-                        module.append(createIcon(layout.channels[j].icon));
-                        module.append(layout.channels[j].module);
-                        container.append(module);
-                        var badge = createBadge(data.channels[i].state);
-                        container.append(badge);
+                        var p = $("<p>");
+                        p.addClass("lead");
+                        var span = $("<span>");
+                        span.text(layout.channels[j].module);
+                        p.append(createIcon(layout.channels[j].icon));
+                        p.append(span);
+                        p.append(createBadge(data.channels[i].state));
+                        container.append(p);
                         return;
                     }
                 }

@@ -23,6 +23,10 @@
 
         /* Adjustments */
 
+        .jumbotron span,
+        .jumbotron i {
+            margin: 5px;
+        }
         #tabs {
             padding: 2rem;
         }
@@ -73,15 +77,13 @@
         </form>
     </div>
     <!-- Modals -->
-    {% call modal.modal_block(id='copy_from', title='Copy from...') %}{% endcall %}
-    {% call modal.modal_block(id='copy_to', title='Copy to...') %}{% endcall %}
     {% call modal.modal_block(id='channels', title='Channels') %}{% endcall %}
 {% endblock %}
 
 {% block scripts %}
     <script>
         var layout_url = "{{ url_for('static', filename='form/layout.json') }}";
-        var data_url = "{{ url_for('static', filename='form/data.json') }}";
+        var data_url = "{{ url_for('edit.generate_layout_with_data', post_id=post_id) }}";
         var server_url = "{{ url_for('edit.publish_edit_post', post_id=post_id) }}";
     </script>
     <script src="{{ url_for('static', filename='js/form.js') }}"></script>
