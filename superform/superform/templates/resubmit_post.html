@@ -221,7 +221,7 @@
                     </div>
                 </div>
             </div>
-            <button id="publish" class="btn btn-success" type="submit" formaction="{{ url_for('posts.resubmit_publishing', id=pub.publishing_id) }}" formmethod="post">re-submit</button>
+            <button id="resubmit" class="btn btn-success" type="submit" formaction="{{ url_for('posts.resubmit_publishing', id=pub.publishing_id) }}" formmethod="post">re-submit</button>
         </form>
     {% else %}
         You are not logged in.
