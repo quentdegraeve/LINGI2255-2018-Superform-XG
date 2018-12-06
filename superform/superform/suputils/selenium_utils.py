@@ -2,6 +2,7 @@ import os
 import platform
 import sys
 import time
+from os import path
 
 from selenium import webdriver, common
 from time import sleep
@@ -11,11 +12,9 @@ def get_headless_chrome():
     options = webdriver.ChromeOptions()
     options.add_argument('headless')
     try:
-        if platform.system() == 'Windows':
-            return webdriver.Chrome(sys.path[0] + '\superform\selenium_drivers\chromedriver.exe',
-                                    chrome_options=options)
-        else:
-            return webdriver.Chrome(sys.path[0] + '/superform/selenium_drivers/chromedriver', chrome_options=options)
+        driver_path = path.join(path.join(path.join(path.dirname(__file__), '..'), 'selenium_drivers'),
+                                'chromedriver')
+        return webdriver.Chrome(driver_path)
     except common.exceptions.WebDriverException:
         print(
             'Can not find a valid selenium_drivers driver. it should be named chromedriver on linux or chromedriver.exe '
@@ -25,10 +24,9 @@ def get_headless_chrome():
 
 def get_chrome():
     try:
-        if platform.system() == 'Windows':
-            return webdriver.Chrome(sys.path[0] + '\superform\selenium_drivers\chromedriver.exe')
-        else:
-            return webdriver.Chrome(sys.path[0] + '/superform/selenium_drivers/chromedriver')
+        driver_path = path.join(path.join(path.join(path.dirname(__file__), '..'), 'selenium_drivers'),
+                                'chromedriver')
+        return webdriver.Chrome(driver_path)
     except common.exceptions.WebDriverException as e:
         print(e)
         print(
@@ -94,7 +92,7 @@ def create_channel(driver, name, username, password, module):
 
 
 def modify_config(driver, chan_number, domain_name, channel_name):
-    driver.get(configure_url + str(chan_number))
+    driver.get(configure_url + '/' + str(chan_number))
     input_domain_name = driver.find_element_by_name("slack_domain_name")
     input_channel_name = driver.find_element_by_name("slack_channel_name")
     input_domain_name.clear()
@@ -146,5 +144,20 @@ def add_new_post(driver, name_array, title, description, date_from, date_to, lin
 
 
 def moderate_post(driver, chan_number, post_number):
-    driver.get(moderate_url + str(post_number) + '/' + str(chan_number))
+    driver.get(moderate_url + '/' + str(post_number) + '/' + str(chan_number))
     driver.find_element_by_css_selector('button[id="publish"]').click()
+
+
+def moderate_post_with_reject(driver, chan_number, post_number, comment):
+    driver.get(moderate_url + '/' + str(post_number) + '/' + str(chan_number))
+    print('url', moderate_url + '/' + str(post_number) + '/' + str(chan_number))
+    input_comment = driver.find_element_by_css_selector('textarea[id="moderator_comment"]')
+    input_comment.send_keys(comment)
+    driver.find_element_by_css_selector('button[id="unvalidate"]').click()
+
+
+def resubmit_post(driver, publishing_id, comment):
+    driver.get(resubmit_url + '/' + str(publishing_id))
+    input_comment = driver.find_element_by_css_selector('textarea[id="user_comment"]')
+    input_comment.send_keys(comment)
+    driver.find_element_by_css_selector('button[id="resubmit"]').click()
