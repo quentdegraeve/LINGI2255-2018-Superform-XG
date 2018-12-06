@@ -43,10 +43,10 @@ logout_url = 'http://localhost:5000/logout'
 authorization_url = 'http://localhost:5000/authorizations'
 new_post_url = 'http://localhost:5000/new'
 index_url = 'http://localhost:5000'
-configure_url = 'http://localhost:5000/configure/'
-moderate_url = 'http://localhost:5000/moderate/'
-linkedin_url = 'https://www.linkedin.com/'
-resubmit_url = 'http://localhost:5000/publishing/resubmit/'
+configure_url = 'http://localhost:5000/configure'
+moderate_url = 'http://localhost:5000/moderate'
+linkedin_url = 'https://www.linkedin.com'
+resubmit_url = 'http://localhost:5000/publishing/resubmit'
 
 
 #---------- Autolog methods

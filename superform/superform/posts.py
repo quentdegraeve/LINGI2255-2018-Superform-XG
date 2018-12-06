@@ -191,12 +191,13 @@ def resubmit_publishing(id):
             pub_ids.insert(0, pub_ver.publishing_id)
         pub_comments = db.session.query(Comment).filter(Comment.publishing_id.in_(pub_ids)).all()
         pub_versions = json.dumps(pub_versions, cls=AlchemyEncoder)
+        pub_comments_json = json.dumps(pub_comments, cls=AlchemyEncoder)
         pub.date_from = str_converter(pub.date_from)
         pub.date_until = str_converter(pub.date_until)
 
         post_form_validations = get_post_form_validations()
 
-        return render_template('resubmit_post.html', pub=pub, channel=chn, pub_versions=pub_versions, comments=pub_comments, post_form_validations=post_form_validations)
+        return render_template('resubmit_post.html', pub=pub, channel=chn, pub_versions=pub_versions, pub_comments=pub_comments_json, comments=pub_comments, post_form_validations=post_form_validations)
 
 
 def create_a_resubmit_publishing(pub, chn, form):

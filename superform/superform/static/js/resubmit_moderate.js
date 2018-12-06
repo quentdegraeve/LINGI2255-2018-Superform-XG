@@ -39,6 +39,7 @@ if(pubs.length > 1){
     $('#prev_button').removeClass('disabled');
     current = pubs.length-1;
 }
+updateFields()
 
 function updateFields(){
     $('#titlepost_old').val(pubs[current].title);
@@ -47,6 +48,7 @@ function updateFields(){
     $('#imagepost_old').val(pubs[current].image_url);
     $('#datefrompost_old').val(pubs[current].date_from);
     $('#dateuntilpost_old').val(pubs[current].date_until);
+    $('#current_date').text(coms[current].date_user_comment);
 
     if(current == 0){
         $('#prev_button').addClass('disabled');
