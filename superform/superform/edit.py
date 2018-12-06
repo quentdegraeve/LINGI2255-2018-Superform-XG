@@ -2,14 +2,18 @@ from flask import Blueprint, url_for, request, redirect, render_template, sessio
 
 from superform.utils import login_required, datetime_converter
 from superform.models import db, Post, Publishing, Channel, User
+import json
 
 from datetime import date, timedelta
+
+from users import channels_available_for_user
 
 edit_page = Blueprint('edit', __name__)
 
 @edit_page.route('/edit/<int:post_id>', methods=['GET'])
 @login_required()
 def edit_post(post_id):
+    create_data_json(post_id)
     return render_template('edit.html', post_id=post_id)
 
 @edit_page.route('/edit/publish_edit_post/<int:post_id>', methods=['POST'])
@@ -68,3 +72,46 @@ def publish_edit_post(post_id):
                     db.session.commit()
 
     return ('', 200)
+
+
+def create_data_json(post_id):
+    current_user_id = session.get("user_id", "")
+
+    json_output = dict()
+    dic_second = dict()
+
+    query_post = db.session.query(Post).filter(Post.id == post_id, Post.user_id == current_user_id).first()
+    query_pubs = (db.session.query(Publishing).filter((Publishing.post_id == post_id)))
+
+    fields = dict((col, getattr(query_post, col)) for col in query_post.__table__.columns.keys())
+    entries_to_delete = ('id', 'user_id', 'date_created')
+    for entries in entries_to_delete:
+        del fields[entries]
+
+    dic_second["fields"] = fields
+    json_output["default"] = dic_second
+
+    module = list()
+    for pub in query_pubs:
+        channel = dict()
+        p = (db.session.query(Channel).filter((Channel.id == pub.channel_id))).first()
+        elem = dict((col, getattr(p, col)) for col in p.__table__.columns.keys())
+        for e in elem:
+            if e == "module" or e == "name":
+                channel[e] = elem[e]
+        fields = dict()
+        for col in pub.__table__.columns.keys():
+            try:
+                val = getattr(pub, col)
+                if col == "state":
+                    channel[col] = val
+                elif not col == "post_id" and not col == "channel_id":
+                    fields[col] = val
+            except AttributeError as error:
+                pass
+        channel["fields"] = fields
+        module.append(channel)
+    json_output["channels"] = module
+    with open("superform/static/form/json_de_ses_morts.json", "w") as outfile:
+        json.dump(json_output, outfile, default=str)
+    print()
