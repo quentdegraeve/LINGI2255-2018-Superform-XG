@@ -32,9 +32,10 @@ def moderate_publishing(id, idc):
     SHOULD BE IN THE if request.method == 'GET' (BUT pub.date_from = str_converter(pub.date_from) PREVENT US)"""
     pub_versions = db.session.query(Publishing).filter(Publishing.post_id == id, Publishing.channel_id == idc). \
         order_by(Publishing.num_version.desc()).all()
+    pub_ids = []
     for pub_ver in pub_versions:
-        com = db.session.query(Comment).filter(Comment.publishing_id == pub_ver.publishing_id).first()
-        pub_comments.insert(0, com)
+        pub_ids.insert(0, pub_ver.publishing_id)
+    pub_comments = db.session.query(Comment).filter(Comment.publishing_id.in_(pub_ids)).all()
     """TO THIS"""
     pub_versions = json.dumps(pub_versions, cls=AlchemyEncoder)
     if chn.module == 'superform.plugins.gcal':

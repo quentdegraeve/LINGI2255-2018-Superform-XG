@@ -53,12 +53,14 @@ def test_add_post_slack():
 
 def test_publish_post_linkedin_1():
     selenium_utils.moderate_post(pytest.driver, 1, 1)
+    pytest.driver.get(selenium_utils.moderate_url)
 
     assert not pytest.driver.find_elements_by_css_selector('a[href="/moderate/1/1"]')
 
 
 def test_publish_post_slack_1():
     selenium_utils.moderate_post(pytest.driver, 2, 2)
+    pytest.driver.get(selenium_utils.moderate_url)
 
     assert not pytest.driver.find_elements_by_css_selector('a[href="/moderate/2/2"]')
 
@@ -75,12 +77,14 @@ def test_add_post_linkedin_slack():
 
 def test_publish_post_linkedin_2():
     selenium_utils.moderate_post(pytest.driver, 1, 3)
+    pytest.driver.get(selenium_utils.moderate_url)
 
     assert not pytest.driver.find_elements_by_css_selector('a[href="/moderate/3/1"]')
 
 
 def test_publish_post_slack_2():
     selenium_utils.moderate_post(pytest.driver, 2, 3)
+    pytest.driver.get(selenium_utils.moderate_url)
 
     assert not pytest.driver.find_elements_by_css_selector('a[href="/moderate/3/2"]')
 

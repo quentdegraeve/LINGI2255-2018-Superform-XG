@@ -186,10 +186,10 @@ def resubmit_publishing(id):
     else:
         pub_versions = db.session.query(Publishing).filter(Publishing.post_id == pub.post_id, Publishing.channel_id == pub.channel_id). \
             order_by(Publishing.num_version.desc()).all()
-        pub_comments = []
+        pub_ids = []
         for pub_ver in pub_versions:
-            com = db.session.query(Comment).filter(Comment.publishing_id == pub_ver.publishing_id).first()
-            pub_comments.insert(0, com)
+            pub_ids.insert(0, pub_ver.publishing_id)
+        pub_comments = db.session.query(Comment).filter(Comment.publishing_id.in_(pub_ids)).all()
         pub_versions = json.dumps(pub_versions, cls=AlchemyEncoder)
         pub.date_from = str_converter(pub.date_from)
         pub.date_until = str_converter(pub.date_until)
@@ -224,13 +224,12 @@ def create_a_resubmit_publishing(pub, chn, form):
 
     latest_version_publishing = db.session.query(Publishing).filter(Publishing.post_id == pub.post_id,
                                                                     Publishing.channel_id == chn.id).order_by(
-        Publishing.num_version.desc()).first()
-    print(" last publishing + ", latest_version_publishing)
+                                                                    Publishing.num_version.desc()
+                                                                    ).first()
     new_pub = Publishing(num_version=latest_version_publishing.num_version + 1, post_id=pub.post_id, channel_id=chn.id,
                      state=State.NOT_VALIDATED.value, title=title_post, description=descr_post,
                      link_url=link_post, image_url=image_post,
                      date_from=date_from, date_until=date_until)
-    print("new Pub", new_pub)
     return new_pub
 
 
