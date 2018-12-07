@@ -236,6 +236,13 @@ function createWarningMessage(content) {
     return container;
 }
 
+function createLoadingMessage() {
+    var content = $("<div>");
+    content.append(createIcon("fas fa-spinner spin"));
+    content.append("Loading...");
+    return createWarningMessage(content);
+}
+
 function createFieldset(name) {
     var fieldset = $("<fieldset>");
     fieldset.attr("name", name);
@@ -331,8 +338,9 @@ function addTab(tabs, selector, fieldset) {
     tabs.append(tab);
     selector.append(a);
 
+    addImagePreviewFeature(fieldset);
+    addTweetPreviewFeature(fieldset);
     addRestoreFeature(fieldset);
-    addPreviewImageFeature(fieldset);
 }
 
 function createList() {
@@ -353,7 +361,8 @@ function addToList(list, name, onclick) {
 // Features :
 
 function addRestoreFeature(fieldset) {
-    if (fieldset.attr("name") === "General") {
+    var name = fieldset.attr("name");
+    if (name === "General") {
         fieldset.find(".form-control").each(function() {
             var input = $(this);
             var component = input.parents(".field");
@@ -388,22 +397,90 @@ function addRestoreFeature(fieldset) {
     }
 }
 
-function addPreviewImageFeature(fieldset) {
-    if (fieldset.attr("name") === "General") {
-        fieldset.find(".form-control").each(function() {
-            var input = $(this);
-            var component = input.parents(".field");
-            // console.log(input);
-            // console.log(component);
-        });
-    } else {
-        fieldset.find(".form-control").each(function() {
-            var input = $(this);
-            var component = input.parents(".field");
-            // console.log(input);
-            // console.log(component);
-            // console.log(component);
-        });
+function showImagePreview(container, src) {
+
+    var message = createLoadingMessage();
+    var body = container.find(".modal-body");
+    body.empty();
+    body.append(message);
+
+    var img = $("<img>");
+    img.addClass("img-fluid");
+    img.attr("src", src);
+    img.on("load", function () {
+        body.empty();
+        body.append(img);
+    });
+    img.on("error", function () {
+        var content = $("<div>");
+        content.append("Image not found");
+        var message = createErrorMessage(content);
+        body.empty();
+        body.append(message);
+    });
+
+    container.modal();
+}
+
+function addImagePreviewFeature(fieldset) {
+    var input = fieldset.find("input[name=\"image_url\"]");
+    var component = input.parents(".field");
+    addOptionToComponent(component, "Image preview", function() {
+        var modal = $("#picture");
+        showImagePreview(modal, input.val());
+    });
+}
+
+function showTweetPreview(container, text) {
+
+    var message = createLoadingMessage();
+    var body = container.find(".modal-body");
+    body.empty();
+    body.append(message);
+
+    $.getJSON(split_url, {
+        "descr": text
+    }, function(json) {
+        var tweets = json.tweetpreview;
+        if (tweets !== 'undefined') {
+            var ul = $("<ul>");
+            ul.addClass("list-group");
+            ul.addClass("list-group-flush");
+            for (var k = 0; k < tweets.length; k++) {
+                var li = $("<li>");
+                li.addClass("list-group-item");
+                li.text(tweets[k]);
+                ul.append(li);
+            }
+            body.empty();
+            body.append(ul);
+        }
+    }).fail(function() {
+        var content = $("<div>");
+        content.text("Error while loading the tweet preview");
+        var message = createErrorMessage(content);
+        body.empty();
+        body.append(message);
+    });
+
+    container.modal();
+}
+
+function addTweetPreviewFeature(fieldset) {
+    var name = fieldset.attr("name");
+    if (name !== "General") {
+        for (var k = 0; k < data.channels.length; k++) {
+            if (name === data.channels[k].name) {
+                if (data.channels[k].module === "superform.plugins.twitter") {
+                    var input = fieldset.find("[name=\"description\"]");
+                    var component = input.parents(".field");
+                    addOptionToComponent(component, "Tweet Preview", function() {
+                        var modal = $("#twitter");
+                        showTweetPreview(modal, input.val());
+                    })
+                }
+            }
+        }
     }
 }
 
@@ -465,14 +542,11 @@ $("#validate").click(function() {
 
     var button = $(this);
     button.attr("disabled", true);
-
-    var content = $("<div>");
-    content.append(createIcon("fas fa-spinner spin"));
-    content.append("Loading...");
+    var message = createLoadingMessage();
 
     var logs = $("#logs");
     logs.empty();
-    logs.append(createWarningMessage(content));
+    logs.append(message);
 
     var form = $(this).parents("form");
     if (form.get(0).checkValidity()) {
