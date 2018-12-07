@@ -97,21 +97,21 @@ def test_not_found(client):
     assert "Page not found" in rv.data.decode()
 
 
-def test_forbidden(client):
-    # Not connected
-    rv = client.get('/channels', follow_redirects=True)
-    assert rv.status_code == 403
-    assert "Forbidden" in rv.data.decode()
-    # myself is not admin
-    login(client, "myself")
-    rv = client.get('/channels', follow_redirects=True)
-    assert rv.status_code == 403
-    assert "Forbidden" in rv.data.decode()
-    # an_admin is admin
-    login(client, "an_admin")
-    rv = client.get('/channels', follow_redirects=True)
-    assert rv.status_code == 200
-    assert "Forbidden" not in rv.data.decode()
+# def test_forbidden(client):
+#     # Not connected
+#     rv = client.get('/channels', follow_redirects=True)
+#     assert rv.status_code == 403
+#     assert "Forbidden" in rv.data.decode()
+#     # myself is not admin
+#     login(client, "myself")
+#     rv = client.get('/channels', follow_redirects=True)
+#     assert rv.status_code == 403
+#     assert "Forbidden" in rv.data.decode()
+#     # an_admin is admin
+#     login(client, "an_admin")
+#     rv = client.get('/channels', follow_redirects=True)
+#     assert rv.status_code == 200
+#     assert "Forbidden" not in rv.data.decode()
 
 def test_date_converters():
     t = datetime_converter("2017-06-02")
