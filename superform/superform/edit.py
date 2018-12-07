@@ -22,8 +22,8 @@ def is_in_channels(channels, name):
             return True
     return False
 
-@edit_page.route('/edit/layout/<int:post_id>', methods=['GET'])
-@login_required()
+#@edit_page.route('/edit/layout/<int:post_id>', methods=['GET'])
+#@login_required()
 def generate_layout_with_data(post_id):
 
     user_id = session.get("user_id", "") if session.get("logged_in", False) else -1
@@ -81,7 +81,6 @@ def generate_layout_with_data(post_id):
 @edit_page.route('/edit/<int:post_id>', methods=['GET'])
 @login_required()
 def edit_post(post_id):
-    create_data_json(post_id)
     return render_template('edit.html', post_id=post_id)
 
 @edit_page.route('/edit/publish_edit_post/<int:post_id>', methods=['POST'])
@@ -207,6 +206,8 @@ def publish_edit_post(post_id):
     return ('', 200)
 
 
+@edit_page.route('/edit/layout/<int:post_id>', methods=['GET'])
+@login_required()
 def create_data_json(post_id):
     current_user_id = session.get("user_id", "")
 
@@ -214,7 +215,7 @@ def create_data_json(post_id):
     dic_second = dict()
 
     query_post = db.session.query(Post).filter(Post.id == post_id, Post.user_id == current_user_id).first()
-    query_pubs = (db.session.query(Publishing).filter((Publishing.post_id == post_id)))
+    query_pubs = db.session.query(Publishing and PubICTV).filter(Publishing.post_id == post_id).all()
 
     fields = dict((col, getattr(query_post, col)) for col in query_post.__table__.columns.keys())
     entries_to_delete = ('id', 'user_id', 'date_created')
@@ -245,6 +246,4 @@ def create_data_json(post_id):
         channel["fields"] = fields
         module.append(channel)
     json_output["channels"] = module
-    with open("superform/static/form/json_de_ses_morts.json", "w") as outfile:
-        json.dump(json_output, outfile, default=str)
-    print()
+    return jsonify(json_output)
