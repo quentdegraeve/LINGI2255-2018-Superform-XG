@@ -106,7 +106,6 @@ def make_template_html():
 
 def post_pre_validation(post):
     return plugin_utils.post_pre_validation_plugins(post, 40000, 40000)
-    return plugin_utils.post_pre_validation_plugins(post, 40000, 40000)
 
 
 def deletable():
