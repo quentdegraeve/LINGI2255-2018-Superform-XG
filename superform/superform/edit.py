@@ -7,7 +7,7 @@ from superform.users import channels_available_for_user
 
 from datetime import date, timedelta
 
-from users import channels_available_for_user
+#from users import channels_available_for_user
 
 edit_page = Blueprint('edit', __name__)
 

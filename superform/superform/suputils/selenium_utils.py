@@ -248,7 +248,6 @@ def add_new_ictv_publishing(driver, name_array, channel_id, title, description, 
     #driver.find_element_by_css_selector('div[id="previewModal"]').send_keys(Keys.ESCAPE)
     #  driver.find_element_by_css_selector('button[id="navbarTogglerDemo03"]').click()
 
-    sleep(1)
     driver.find_element_by_css_selector('button[id="publish-button"]').click()
 
 
