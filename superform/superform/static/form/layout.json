@@ -14,25 +14,25 @@
         "type": "textarea"
       },
       {
-        "name": "link",
+        "name": "link_url",
         "label": "Link",
         "required": false,
         "type": "input[\"text\"]"
       },
       {
-        "name": "image",
+        "name": "image_url",
         "label": "Image",
         "required": false,
         "type": "input[\"text\"]"
       },
       {
-        "name": "publication_date",
+        "name": "date_from",
         "label": "Publication Date",
         "required": false,
         "type": "input[\"date\"]"
       },
       {
-        "name": "publication_until",
+        "name": "date_until",
         "label": "Publication Until",
         "required": false,
         "type": "input[\"date\"]"
@@ -41,80 +41,15 @@
   },
   "channels": [
     {
-      "module": "Twitter",
+      "module": "superform.plugins.twitter",
       "icon": "fab fa-twitter",
       "disabled_fields": ["title"],
       "additional_fields": []
     },
     {
-      "module": "Linkedin",
-      "icon": "fab fa-linkedin",
-      "disabled_fields": [],
-      "additional_fields": []
-    },
-    {
-      "module": "Mail",
-      "icon": "fas fa-envelope",
-      "disabled_fields": ["image"],
-      "additional_fields": []
-    },
-    {
-      "module": "Gcal",
-      "icon": "fas fa-calendar",
-      "disabled_fields": [],
-      "additional_fields": [
-        {
-          "name": "color",
-          "label": "Color",
-          "required": true,
-          "type": "option"
-        },
-        {
-          "name": "visibility",
-          "label": "Visibility",
-          "required": true,
-          "type": "radio",
-          "options": [
-            "yes",
-            "no"
-          ]
-        },
-        {
-          "name": "availability",
-          "label": "Availability",
-          "required": true,
-          "type": "option"
-        },
-        {
-          "name": "guest_email",
-          "label": "Guest_Email",
-          "required": false,
-          "type": "textarea"
-        },
-        {
-          "name": "starting_time",
-          "label": "Starting_Time",
-          "required": false,
-          "type": "time"
-        },
-        {
-          "name": "ending_time",
-          "label": "Ending_Time",
-          "required": false,
-          "type": "time"
-        }
-      ]
-    },
-    {
-      "module": "Slack",
-      "icon": "fas fa-calendar",
-      "disabled_fields": [],
-      "additional_fields": []
-    },
-    {
-      "module": "ICTV",
+      "module": "superform.plugins.ICTV",
       "icon": "fas fa-tv",
-      "disabled_fields": ["link"],
+      "disabled_fields": ["link_url"],
       "additional_fields": [
         {
           "name": "subtitle",
@@ -126,27 +61,39 @@
           "name": "logo",
           "label": "Logo",
           "required": false,
-          "type": "url"
-        },
-        {
-          "name": "template",
-          "label": "Template",
-          "required": true,
-          "type": "option"
-        },
-        {
-          "name": "background",
-          "label": "Background",
-          "required": false,
-          "type": "color"
+          "type": "input[\"text\"]"
         },
         {
           "name": "duration",
-          "label": "Duration",
+          "label": "Duration (in seconds)",
           "required": true,
-          "type": "number"
+          "type": "input[\"number\"]"
         }
       ]
+    },
+    {
+      "module": "superform.plugins.linkedin",
+      "icon": "fab fa-linkedin",
+      "disabled_fields": [],
+      "additional_fields": []
+    },
+    {
+      "module": "superform.plugins.mail",
+      "icon": "fas fa-envelope",
+      "disabled_fields": ["image_url"],
+      "additional_fields": []
+    },
+    {
+      "module": "superform.plugins.gcal",
+      "icon": "fas fa-calendar",
+      "disabled_fields": [],
+      "additional_fields": []
+    },
+    {
+      "module": "superform.plugins.slack",
+      "icon": "fas fa-calendar",
+      "disabled_fields": [],
+      "additional_fields": []
     }
   ]
 }

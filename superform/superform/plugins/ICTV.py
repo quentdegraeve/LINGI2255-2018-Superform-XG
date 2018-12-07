@@ -10,6 +10,25 @@ AUTH_FIELDS = False
 POST_FORM_VALIDATIONS = {}
 
 
+def can_edit(publishing, channel_config):
+    if publishing.state == 0:
+        return True
+    json_data = json.loads(channel_config)
+
+    for field in CONFIG_FIELDS:
+        if json_data.get(field) is None:
+            print("Missing : {0}".format(field))
+            return
+
+    url = "http://" + json_data.get("server_url") + "/channels/" + json_data.get("channel_id") + "/api/capsules"
+    header_get = {'accept': 'application/json', 'X-ICTV-editor-API-Key': json_data.get('api_key')}
+    capsule_title = "Superform_post" + str(publishing.post_id) + ":" + publishing.title
+    capsule_id = get_capsule_id(url, header_get, capsule_title)
+    if capsule_id == -1:
+        return False
+    return True
+
+
 def creates_a_capsule(url,header,date_from,date_until,title):
     date_until=str(date_until)
     date_from=str(date_from)
@@ -49,6 +68,48 @@ def delete(publishing, channel_config):
     if capsule_id == -1:
         return
     requests.delete(url + "/" + str(capsule_id), headers=header_delete)
+
+
+def edit(publishing, channel_config):
+
+    json_data = json.loads(channel_config)
+
+    for field in CONFIG_FIELDS:
+        if json_data.get(field) is None:
+            print("Missing : {0}".format(field))
+            return
+
+    url = "http://" + json_data.get("server_url") + "/channels/" + json_data.get("channel_id") + "/api/capsules"
+    header_get = {'accept': 'application/json', 'X-ICTV-editor-API-Key': json_data.get('api_key')}
+    header_patch = {'accept': 'application/json','Content-Type': 'application/json', 'X-ICTV-editor-API-Key': json_data.get('api_key')}
+    capsule_title = "Superform_post" + str(publishing.post_id) + ":"
+    capsule_id = get_capsule_id(url, header_get, capsule_title)
+    if capsule_id == -1:
+        return
+    duration = int(publishing.duration)
+    title = publishing.title
+    subtitle = publishing.subtitle
+    image_url = publishing.image_url
+    date_until = publishing.date_until
+    date_from = publishing.date_from
+    text = publishing.description
+    logo = publishing.logo
+
+    date_until=str(date_until)
+    date_from=str(date_from)
+    val_until=int(time.mktime(time.strptime(date_until,'%Y-%m-%d %H:%M:%S'))) - time.timezone
+    val_from = int(time.mktime(time.strptime(date_from, '%Y-%m-%d %H:%M:%S'))) - time.timezone
+    partial_capsules = json.dumps({"name": title, "theme": "ictv", "validity": [val_from,val_until]})
+    response = requests.patch(url + "/" + str(capsule_id), data=partial_capsules, headers=header_patch)
+    if response.status_code != 204:
+        print("HttpError_edit1: " + str(response.status_code))
+        return
+    template = template_selector(image_url)
+    slide = create_a_slide(duration, template, title, subtitle, text, logo, image_url)
+    response = requests.patch(url + "/" + str(capsule_id) + "/slides/1", data=json.dumps(slide), headers=header_patch)
+    if response.status_code != 204:
+        print("HttpError_edit2: " + str(response.status_code))
+        return
 
 
 def get_capsule_id(url, header, capsule_title):
