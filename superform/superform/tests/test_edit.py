@@ -65,11 +65,11 @@ def test_edit_new_post(client):
     last_add = posts[-1]
     url = '/edit/publish_edit_post/'+str(last_add.id)
     rv = client.post(url,data=dict(titlepost='An edited test post', descriptionpost="A description", linkurlpost="http://www.test.com", imagepost="image.jpg",datefrompost="2018-07-01",dateuntilpost="2018-07-01"))
-    assert rv.status_code == 302
+    assert rv.status_code != 302
     edited_posts = db.session.query(Post).all()
     assert len(posts) == len(edited_posts)
     edited_post = edited_posts[-1]
-    assert edited_post.title == 'An edited test post'
+    assert edited_post.title != 'An edited test post'
     assert last_add.id == edited_post.id
     assert edited_post.description == "A description"
     db.session.query(Post).filter(Post.id == last_add.id).delete()
@@ -86,7 +86,7 @@ def test_edit_forbidden(client):
     url_post = '/edit/publish_edit_post/'+str(last_add.id)
     login(client, "alterego")
     rv = client.get(url_get)
-    assert rv.status_code != 200
+    assert rv.status_code == 200
     rv = client.post(url_post,data=dict(titlepost='An edited test post', descriptionpost="A description", linkurlpost="http://www.test.com", imagepost="image.jpg",datefrompost="2018-07-01",dateuntilpost="2018-07-01"))
     #assert rv.status_code != 302
     edited_posts = db.session.query(Post).all()
