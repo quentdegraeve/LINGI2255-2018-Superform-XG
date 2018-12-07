@@ -27,7 +27,6 @@ def moderate():
 def moderate_publishing(id, idc):
 
     chn = db.session.query(Channel).filter(Channel.id == idc).first()
-    pub_comments = []
     """ FROM THIS : 
     SHOULD BE IN THE if request.method == 'GET' (BUT pub.date_from = str_converter(pub.date_from) PREVENT US)"""
     pub_versions = db.session.query(Publishing).filter(Publishing.post_id == id, Publishing.channel_id == idc). \

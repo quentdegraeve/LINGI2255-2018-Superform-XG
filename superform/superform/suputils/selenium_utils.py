@@ -12,9 +12,8 @@ def get_headless_chrome():
     options = webdriver.ChromeOptions()
     options.add_argument('headless')
     try:
-        driver_path = path.join(path.join(path.join(path.dirname(__file__), '..'), 'selenium_drivers'),
-                                'chromedriver')
-        return webdriver.Chrome(driver_path)
+        driver_path = path.join(path.join(path.join(path.dirname(__file__), '..'), 'selenium_drivers'), 'chromedriver')
+        return webdriver.Chrome(driver_path, chrome_options=options)
     except common.exceptions.WebDriverException:
         print(
             'Can not find a valid selenium_drivers driver. it should be named chromedriver on linux or chromedriver.exe '
@@ -24,8 +23,7 @@ def get_headless_chrome():
 
 def get_chrome():
     try:
-        driver_path = path.join(path.join(path.join(path.dirname(__file__), '..'), 'selenium_drivers'),
-                                'chromedriver')
+        driver_path = path.join(path.join(path.join(path.dirname(__file__), '..'), 'selenium_drivers'), 'chromedriver')
         return webdriver.Chrome(driver_path)
     except common.exceptions.WebDriverException as e:
         print(e)
