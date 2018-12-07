@@ -95,17 +95,17 @@ def test_add_post_rss_1():
     selenium_utils.add_new_post(pytest.driver, ['test_rss'], title, description, pytest.now, pytest.now, 'https://www.google.be/')
     pytest.driver.get(selenium_utils.index_url)
 
-    assert pytest.driver.find_elements_by_css_selector('a[href="/moderate/2/1"]')
+    assert pytest.driver.find_elements_by_css_selector('a[href="/moderate/1/1"]')
 
 def test_publish_post_rss_1():
-    selenium_utils.moderate_post(pytest.driver, 1, 2)
+    selenium_utils.moderate_post(pytest.driver, 1, 1)
 
-    assert not pytest.driver.find_elements_by_css_selector('a[href="/moderate/2/1"]')
+    assert not pytest.driver.find_elements_by_css_selector('a[href="/moderate/1/1"]')
     assert "Internal Server Error" not in pytest.driver.title
 
 def test_delete_post_rss_1():
-    selenium_utils.delete_post(pytest.driver, 2)
-    assert not pytest.driver.find_elements_by_css_selector('a[href="/delete/2"]')
+    selenium_utils.delete_post(pytest.driver, 1)
+    assert not pytest.driver.find_elements_by_css_selector('a[href="/delete/1"]')
 
 def test_add_post_rss_2():
     title = 'test_rss title 2'
@@ -113,12 +113,12 @@ def test_add_post_rss_2():
     selenium_utils.add_new_post(pytest.driver, ['test_rss'], title, description, pytest.now, pytest.now, 'https://www.google.be/')
     pytest.driver.get(selenium_utils.index_url)
 
-    assert pytest.driver.find_elements_by_css_selector('a[href="/moderate/3/1"]')
+    assert pytest.driver.find_elements_by_css_selector('a[href="/moderate/2/1"]')
 
 def test_publish_post_rss_2():
-    selenium_utils.moderate_post(pytest.driver, 1, 3)
+    selenium_utils.moderate_post(pytest.driver, 1, 2)
 
-    assert not pytest.driver.find_elements_by_css_selector('a[href="/moderate/3/1"]')
+    assert not pytest.driver.find_elements_by_css_selector('a[href="/moderate/2/1"]')
     assert "Internal Server Error" not in pytest.driver.title
 
 def test_add_post_rss_empty_begining_date():
@@ -142,24 +142,29 @@ def test_add_post_gcal_1():
     selenium_utils.add_new_post(pytest.driver, ['test_gcal'], title, description, pytest.now, pytest.now, 'https://www.google.be/')
     pytest.driver.get(selenium_utils.index_url)
 
-    assert pytest.driver.find_elements_by_css_selector('a[href="/moderate/4/2"]')
+    assert pytest.driver.find_elements_by_css_selector('a[href="/moderate/3/2"]')
 def test_publish_post_gcal_1():
-    selenium_utils.moderate_post(pytest.driver, 2, 4)
+    selenium_utils.moderate_post(pytest.driver, 2, 3)
 
-    assert not pytest.driver.find_elements_by_css_selector('a[href="/moderate/4/2"]')
+    assert not pytest.driver.find_elements_by_css_selector('a[href="/moderate/3/2"]')
     assert "Internal Server Error" not in pytest.driver.title
+
+def test_delete_post_gcal_1():
+    selenium_utils.delete_post(pytest.driver, 3)
+    assert not pytest.driver.find_elements_by_css_selector('a[href="/delete/3"]')
+
 def test_add_post_gcal_2():
     title = 'test_gcal title 2'
     description = 'test_gcal description 2'
     selenium_utils.add_new_post(pytest.driver, ['test_gcal'], title, description, pytest.now, pytest.now, 'https://www.google.be/')
     pytest.driver.get(selenium_utils.index_url)
 
-    assert pytest.driver.find_elements_by_css_selector('a[href="/moderate/5/2"]')
+    assert pytest.driver.find_elements_by_css_selector('a[href="/moderate/4/2"]')
 
 def test_publish_post_gcal_2():
-    selenium_utils.moderate_post(pytest.driver, 2, 5)
+    selenium_utils.moderate_post(pytest.driver, 2, 4)
 
-    assert not pytest.driver.find_elements_by_css_selector('a[href="/moderate/5/2"]')
+    assert not pytest.driver.find_elements_by_css_selector('a[href="/moderate/4/2"]')
     assert "Internal Server Error" not in pytest.driver.title
 
 def test_add_post_gcal_empty_begining_date():

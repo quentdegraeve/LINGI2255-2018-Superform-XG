@@ -36,16 +36,3 @@ def test_deletable():
     ret_code = rss.deletable()
     assert ret_code == True
 
-# def test_post_db(): #Test on publishing in the DB, create a publication and test it is in then rollback DB
-#     cursor = db.cursor()
-#     sql_command = """
-#             INSERT INTO publishing (state)
-#             VALUES (0);
-#             """
-#     cursor.execute(sql_command)
-#     db.session.commit()
-#
-#     pub = db.session.query(Publishing).filter((Publishing.state == 0))
-#     rss.run(pub, "config")
-#
-#     assert db.session.query(Publishing).filter((Publishing.state == 1))

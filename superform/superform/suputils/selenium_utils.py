@@ -161,6 +161,7 @@ def moderate_post(driver, chan_number, post_number):
 def modify_config_gcal(driver, chan_number, token):
     driver.get(configure_url + str(chan_number))
     input_token = driver.find_element_by_name("token")
+    input_token.clear()
     input_token.send_keys(token)
     driver.find_element_by_css_selector('button[type="submit"]').click()
 
