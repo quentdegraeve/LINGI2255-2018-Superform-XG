@@ -426,12 +426,15 @@ function addImagePreviewFeature(fieldset) {
     var input = fieldset.find("input[name=\"image_url\"]");
     var component = input.parents(".field");
     addOptionToComponent(component, "Image preview", function() {
-        var modal = $("#picture");
+        var modal = $("#picture_modal");
         showImagePreview(modal, input.val());
     });
 }
 
 function showTweetPreview(container, text) {
+
+    console.log(container);
+    console.log(text);
 
     var message = createLoadingMessage();
     var body = container.find(".modal-body");
@@ -442,6 +445,7 @@ function showTweetPreview(container, text) {
         "descr": text
     }, function(json) {
         var tweets = json.tweetpreview;
+        console.log(tweets);
         if (tweets !== 'undefined') {
             var ul = $("<ul>");
             ul.addClass("list-group");
@@ -475,7 +479,7 @@ function addTweetPreviewFeature(fieldset) {
                     var input = fieldset.find("[name=\"description\"]");
                     var component = input.parents(".field");
                     addOptionToComponent(component, "Tweet Preview", function() {
-                        var modal = $("#twitter");
+                        var modal = $("#twitter_modal");
                         showTweetPreview(modal, input.val());
                     })
                 }
@@ -581,7 +585,7 @@ $("#validate").click(function() {
 
 $("#add").on("click", function() {
 
-    var container = $("#channels");
+    var container = $("#channels_modal");
     var list = createList();
     var content = container.find(".modal-body");
 
@@ -614,7 +618,7 @@ $("#add").on("click", function() {
 
 $("#delete").on("click", function() {
 
-    var container = $("#channels");
+    var container = $("#channels_modal");
     var list = createList();
     var content = container.find(".modal-body");
 

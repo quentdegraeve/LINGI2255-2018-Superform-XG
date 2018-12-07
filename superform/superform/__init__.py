@@ -55,7 +55,7 @@ def index():
     user_id = session.get("user_id", "") if session.get("logged_in", False) else -1
     posts = []
     if user_id != -1:
-        posts = Post.query.order_by(Post.date_created.desc()).paginate(page, 5, error_out=False)
+        posts = db.session.query(Post).filter(Post.user_id == user_id).order_by(Post.date_created.desc()).paginate(page, 5, error_out=False)
         for post in posts.items:
             publishings = db.session.query(Publishing).filter(Publishing.post_id == post.id).all()
             channels = []
