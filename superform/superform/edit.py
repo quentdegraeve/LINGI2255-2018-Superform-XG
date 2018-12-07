@@ -123,6 +123,7 @@ def publish_edit_post(post_id):
                     if chn.name == name:
 
                         db.session.delete(p)  # remove old publication
+                        db.session.commit()
 
                         # create new updated publication:
                         title_post = fields.get('title') if (
