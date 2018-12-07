@@ -8,6 +8,7 @@ __pycache__/
 /superform/setup.py/
 /superform/superform/config.json
 /superform/superform/superform.db
+/superform/superform/superformClean.db
 /venv/
 /superform/superform/suputils/NewKey.key
 /superform/superform/suputils/Superform.kdbx
