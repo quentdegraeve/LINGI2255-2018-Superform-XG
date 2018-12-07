@@ -44,8 +44,9 @@ def run(gcal_publishing,channel_config):
         Handling of the future deletion.
         It is put in comment for now to avoid errors, but should be tested
         """
-        #gcal_publishing.misc['id'] = event.get('id')
-        #db.session.commit()
+        misc = json.loads(gcal_publishing.misc)
+        gcal_publishing.misc = saveID(event[id], misc)
+        db.session.commit()
     except Exception as e:
         #TODO should add log here
         print(e)
@@ -64,6 +65,22 @@ def saveExtraFields(channel, form):
     fields["guests"] = form.get(channel + '_guests')
     str = json.dumps(fields)
     return str
+
+def saveID(id, f):
+    fields = {}
+    fields["date_start"] = f["date_start"]
+    fields["date_end"] = f["date_end"]
+    fields["time_start"] = f["time_start"]
+    fields["time_end"] = f["time_end"]
+    fields["location"] = f["location"]
+    fields["color"] = f["color"]
+    fields["visibility"] = f["visibility"]
+    fields["availability"] = f["availability"]
+    fields["guests"] = f["guests"]
+    fields['google_id'] = id
+    str = json.dumps(fields)
+    return str
+
 
 def post_pre_validation(post):
     return 1
@@ -115,18 +132,21 @@ def deletable():
 #To make delete(pub) work, the 'pass' should be replaced by the code
 #in comment beneath it.
 def delete(pub):
-    pass
-"""
     c = db.session.query(Channel).filter(Channel.id == pub.channel_id).first()
     data = json.loads(c.config)
     token = data['token']
+
     credentials = None
     try:
         credentials = client.Credentials.new_from_json(json.dumps(token))
         service = build('calendar', 'v3', http=credentials.authorize(Http()))
-        service.events().delete(calendarId='primary', eventId=pub.misc.get('id')).execute()
+        misc = json.loads(pub.misc)
+        service.events().delete(calendarId='primary', eventId=misc['google_id']).execute()
     except ValueError:
         pass
     except Exception as e:
         print(e)
-"""
+
+def authenticate(channel_id, publishing_id):
+    return "AlreadyAuthenticated"
+
