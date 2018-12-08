@@ -1,6 +1,6 @@
 from flask import Blueprint, url_for, request, redirect, session, render_template
 from superform.utils import login_required, datetime_converter, str_converter
-from superform.models import db, User, Publishing, Channel, PubGCal, PubICTV
+from superform.models import db, User, Publishing, Channel, PubGCal
 from superform.users import get_moderate_channels_for_user
 
 pub_page = Blueprint('publishings', __name__)
@@ -27,10 +27,7 @@ def moderate_publishing(id, idc):
         pub.date_start = str_converter(pub.date_start)
         pub.date_end = str_converter(pub.date_end)
     else:
-        if chn.module == 'superform.plugins.ICTV':
-            pub = db.session.query(PubICTV).filter(Publishing.post_id == id, PubICTV.channel_id == idc).first()
-        else:
-            pub = db.session.query(Publishing).filter(Publishing.post_id == id, Publishing.channel_id == idc).first()
+        pub = db.session.query(Publishing).filter(Publishing.post_id == id, Publishing.channel_id == idc).first()
         pub.date_from = str_converter(pub.date_from)
         pub.date_until = str_converter(pub.date_until)
 

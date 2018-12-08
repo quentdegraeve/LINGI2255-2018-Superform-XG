@@ -3,7 +3,7 @@ from flask import Blueprint, url_for, current_app, request, redirect, session, r
 from superform.users import channels_available_for_user
 from superform.utils import login_required, datetime_converter, str_converter, get_instance_from_module_path, \
     get_modules_names, get_module_full_name
-from superform.models import db, Post, Publishing, Channel, PubGCal, PubICTV
+from superform.models import db, Post, Publishing, Channel, PubGCal
 
 from importlib import import_module
 from datetime import date, timedelta
@@ -82,9 +82,9 @@ def create_a_publishing(post, chn, form):  # called in publish_from_new_post()
             subtitle = form.get(chan + '_subtitle')
             duration = form.get(chan + '_duration')
 
-            pub = PubICTV(post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
-                          link_url=link_post, image_url=image_post,
-                          date_from=date_from, date_until=date_until, logo=logo, subtitle=subtitle, duration=duration)
+            pub = Publishing(post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
+                             link_url=link_post, image_url=image_post,
+                             date_from=date_from, date_until=date_until, logo=logo, subtitle=subtitle, duration=duration)
         else:
             pub = Publishing(post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
                              link_url=link_post, image_url=image_post,

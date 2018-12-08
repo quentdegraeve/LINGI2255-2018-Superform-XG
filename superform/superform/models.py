@@ -61,7 +61,13 @@ class Publishing(db.Model):
     date_from = db.Column(db.DateTime)
     date_until = db.Column(db.DateTime)
 
+    # ICTV variables
+    logo = db.Column(db.Text, nullable=True, default=None)
+    subtitle = db.Column(db.Text, nullable=True, default=None)
+    duration = db.Column(db.Text, nullable=True, default=None)
+
     __table_args__ = (db.PrimaryKeyConstraint('post_id', 'channel_id'),)
+
 
     def __repr__(self):
         return '<Publishing {} {}>'.format(repr(self.post_id), repr(self.channel_id))
@@ -81,13 +87,6 @@ class PubGCal(Publishing):
     guests = db.Column(db.Text, nullable=True)
     visibility = db.Column(db.Text, nullable=True)
     availability = db.Column(db.Text, nullable=True)
-
-
-class PubICTV(Publishing):
-
-    logo = db.Column(db.Text, nullable=True)
-    subtitle = db.Column(db.Text, nullable=True)
-    duration = db.Column(db.Text, nullable=True)
 
 
 class Channel(db.Model):
