@@ -34,11 +34,11 @@ def prepare():
 
     selenium_utils.login(pytest.driver, "superego", "superego")
 
-    selenium_utils.create_channel(pytest.driver, TWITTER_NAME, 'twitter')
-    selenium_utils.create_channel(pytest.driver, ICTV_NAME, 'ICTV')
+    #selenium_utils.create_channel(pytest.driver, TWITTER_NAME, 'twitter')
+    #selenium_utils.create_channel(pytest.driver, ICTV_NAME, 'ICTV')
 
-    selenium_utils.add_authorization(pytest.driver, TWITTER_NAME, "superego", 2)
-    selenium_utils.add_authorization(pytest.driver, ICTV_NAME, "superego", 2)
+    #selenium_utils.add_authorization(pytest.driver, TWITTER_NAME, "superego", 2)
+    #selenium_utils.add_authorization(pytest.driver, ICTV_NAME, "superego", 2)
 
     yield
 
@@ -55,9 +55,9 @@ def test_edit_post(client):
     assert len(posts) > 0
     post = posts[-1]
     sleep(1)
+    title = 'NEW EDIT TITLE'
+    description = 'NEW EDIT DESCRIPTION'
     selenium_utils.edit_post(pytest.driver, post.id, title, description, pytest.now, pytest.now)
-
-
 
 
 def test_ictv_post(client):
@@ -70,8 +70,6 @@ def test_ictv_post(client):
     post = posts[-1]
 
 
-
-
 def test_twitter_post(client):
     description = 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.'
     channels = db.session.query(Channel).filter(Channel.name == TWITTER_NAME)
@@ -81,7 +79,6 @@ def test_twitter_post(client):
     posts = db.session.query(Post).all()
     assert len(posts) > 0
     post = posts[-1]
-
 
 
 def test_ictv_post(client):

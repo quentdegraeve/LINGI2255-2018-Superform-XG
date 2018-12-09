@@ -178,16 +178,20 @@ def resubmit_post(driver, publishing_id, comment):
 
 def edit_post(driver, post_id, title, description, date_from, date_to, link=''):
     driver.get(edit_url + '/' + str(post_id))
+    sleep(2)
     input_title = driver.find_element_by_name("title")
     input_description = driver.find_element_by_name("description")
-    input_link = driver.find_element_by_name("link")
-    input_date_from = driver.find_element_by_name("publication_date")
-    input_date_to = driver.find_element_by_name("publication_until")
+    input_link = driver.find_element_by_name("link_url")
+    input_date_from = driver.find_element_by_name("date_from")
+    input_date_to = driver.find_element_by_name("date_until")
 
+    input_title.clear()
     input_title.send_keys(title)
+    input_description.clear()
     input_description.send_keys(description)
-    input_link.send_keys(link)
+    input_date_from.clear()
     input_date_from.send_keys(date_from)
+    input_date_to.clear()
     input_date_to.send_keys(date_to)
 
     driver.find_element_by_id('validate').click()
