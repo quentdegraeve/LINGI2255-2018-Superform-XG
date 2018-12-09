@@ -34,11 +34,11 @@ def prepare():
 
     selenium_utils.login(pytest.driver, "superego", "superego")
 
-    #selenium_utils.create_channel(pytest.driver, TWITTER_NAME, 'twitter')
-    #selenium_utils.create_channel(pytest.driver, ICTV_NAME, 'ICTV')
+    selenium_utils.create_channel(pytest.driver, TWITTER_NAME, 'twitter')
+    selenium_utils.create_channel(pytest.driver, ICTV_NAME, 'ICTV')
 
-    #selenium_utils.add_authorization(pytest.driver, TWITTER_NAME, "superego", 2)
-    #selenium_utils.add_authorization(pytest.driver, ICTV_NAME, "superego", 2)
+    selenium_utils.add_authorization(pytest.driver, TWITTER_NAME, "superego", 2)
+    selenium_utils.add_authorization(pytest.driver, ICTV_NAME, "superego", 2)
 
     yield
 
