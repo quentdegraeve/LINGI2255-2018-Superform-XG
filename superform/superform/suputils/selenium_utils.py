@@ -125,9 +125,10 @@ def add_authorization(driver, name, username, permission):
     input_username.send_keys(username)
     if permission == 2:
         select = driver.find_element_by_css_selector('select[name="permission' + name_id + '"]')
-        select.click()
-        select.send_keys(u'\ue015')
-        select.send_keys(u'\ue007')
+        for option in select.find_elements_by_tag_name('option'):
+            if option.text == 'Permission.MODERATOR':
+                option.click()
+                break
 
     driver.find_element_by_css_selector('a[data-channelid="' + name_id + '"]').click()
     driver.find_element_by_css_selector('button[id="update"]').click()

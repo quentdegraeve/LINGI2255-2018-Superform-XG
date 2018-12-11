@@ -1,5 +1,5 @@
 # Created by .ignore support plugin (hsz.mobi)
-superform/venv/
+venv/
 .idea
 *.DS_Store
 superform/superform/__pycache__/
@@ -11,3 +11,7 @@ superform/superform/__pycache__/
 /superform/superform/superform.db
 *.pyc
 *.db
+superform/superform/selenium_drivers/
+superform/superform/suputils/NewKey.key
+superform/superform/suputils/Superform.kdbx
+superform/superform/suputils/keepass.py
