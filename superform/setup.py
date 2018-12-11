@@ -13,6 +13,9 @@ setup(
         'python3-linkedin',
         'pykeepass',
         'slackclient',
-        'selenium', 'pytest'
+        'selenium',
+        'pytest',
+        'oauth2client',
+        'google-api-python-client'
     ],
 )

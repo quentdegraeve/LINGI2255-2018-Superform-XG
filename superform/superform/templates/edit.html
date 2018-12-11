@@ -43,6 +43,7 @@
             margin-bottom: 1rem;
         }
         #channels a:hover,
+        .list-group-item:hover,
         .dropdown-item:hover {
             cursor: pointer;
         }
@@ -80,6 +81,8 @@
     {% call modal.modal_block(id='channels_modal', title='Channels') %}{% endcall %}
     {% call modal.modal_block(id='picture_modal', title='Image Preview') %}{% endcall %}
     {% call modal.modal_block(id='twitter_modal', title='Tweet Preview') %}{% endcall %}
+    {% call modal.modal_block(id='copy_to_modal', title='Copy to...') %}{% endcall %}
+    {% call modal.modal_block(id='copy_from_modal', title='Copy to...') %}{% endcall %}
 {% endblock %}
 
 {% block scripts %}
