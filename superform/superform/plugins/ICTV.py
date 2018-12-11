@@ -11,6 +11,12 @@ POST_FORM_VALIDATIONS = {}
 
 
 def can_edit(publishing, channel_config):
+    """
+    Return true if a publishing can be edited
+    :param publishing: an ictv publishing
+    :param channel_config: the ictv channel configuration
+    :return: TRUE if the publishing can be edited, FALSE otherwise
+    """
     if publishing.state == 0:
         return True
     json_data = json.loads(channel_config)
@@ -30,6 +36,15 @@ def can_edit(publishing, channel_config):
 
 
 def creates_a_capsule(url,header,date_from,date_until,title):
+    """
+    Create a partial ictv capsule and send it to the server
+    :param url: url to send the request to
+    :param header: header of the request
+    :param date_from: date after witch the capsule should be displayed
+    :param date_until: date after witch the capsule should not be displayed anymore
+    :param title: title of the capsule, should be of the format Superform_post[post_id]:[any text you want here]
+    :return: response of the server after the capsule creation
+    """
     date_until=str(date_until)
     date_from=str(date_from)
     val_until=int(time.mktime(time.strptime(date_until,'%Y-%m-%d %H:%M:%S'))) - time.timezone
@@ -39,6 +54,17 @@ def creates_a_capsule(url,header,date_from,date_until,title):
 
 
 def create_a_slide(duration, template, title, subtitle, text, logo, image):
+    """
+    Create an ictv slide to be inserted into an ictv capsule
+    :param duration: the duration in second the slide should be displayed on screen, -1 for default channel duration
+    :param template: the template the slide should use
+    :param title: the title of the slide
+    :param subtitle: the subtitle of the slide
+    :param text: the body of the slide
+    :param logo: a link to a logo image
+    :param image: a link to an image
+    :return: a dict containing the slide
+    """
     content = dict()
     content["title-1"] = {"text": title}
     content["subtitle-1"] = {"text": subtitle}
@@ -52,6 +78,12 @@ def create_a_slide(duration, template, title, subtitle, text, logo, image):
 
 
 def delete(publishing, channel_config):
+    """
+    Delete a publishing form the ictv server
+    :param publishing: the publishing to be deleted
+    :param channel_config: the channel configuration
+    :return: nothing
+    """
 
     json_data = json.loads(channel_config)
 
@@ -71,6 +103,12 @@ def delete(publishing, channel_config):
 
 
 def edit(publishing, channel_config):
+    """
+    Edit a publishing on the ictv server
+    :param publishing: the publishing to be edited
+    :param channel_config: the channel configuration
+    :return: nothing
+    """
 
     json_data = json.loads(channel_config)
 
@@ -115,6 +153,13 @@ def edit(publishing, channel_config):
 
 
 def get_capsule_id(url, header, capsule_title):
+    """
+    Return the capsule id associated with capsule_title
+    :param url: url to send the request to
+    :param header: header of the request
+    :param capsule_title: the title or part of the title of the capsule we want the id from
+    :return: the capsule id or -1 if no capsule were found/an error occurred
+    """
     all_capsules = requests.get(url, headers=header)
     if all_capsules.status_code != 200:
         print("HttpError_get_capsule_id: " + all_capsules.status_code)
@@ -127,6 +172,13 @@ def get_capsule_id(url, header, capsule_title):
 
 
 def get_slide_id(url, header, capsule_id):
+    """
+    Return the slide id of the first slide in the capsule given by capsule id
+    :param url: the url to send the request to
+    :param header: the header of the request
+    :param capsule_id: the id of the capsule we want to retrieve the id of the first slide from
+    :return: the id of the first slide in the capsule given by capsule id or -1 if an error occurred
+    """
     all_capsules = requests.get(url, headers=header)
     if all_capsules.status_code != 200:
         print("HttpError_get_capsule_id: " + all_capsules.status_code)
@@ -139,6 +191,12 @@ def get_slide_id(url, header, capsule_id):
 
 
 def run(publishing, channel_config):
+    """
+    Create or edit a capsule and a slide on the ictv server
+    :param publishing: the publishing to be posted on the ictv server
+    :param channel_config: the channel configuration
+    :return: nothing
+    """
 
     json_data = json.loads(channel_config)
 
@@ -191,6 +249,11 @@ def run(publishing, channel_config):
 
 
 def template_selector(image):
+    """
+    Return the appropriate template to use
+    :param image: a link to an image
+    :return: the template to use
+    """
     if image is '':
         return "template-text-center"
     return "template-text-image"
@@ -200,6 +263,7 @@ def template_selector(image):
 
 def post_pre_validation(post):
     return 1;
+
 
 def authenticate(channel_name, publishing_id):
     return 'AlreadyAuthenticated'
