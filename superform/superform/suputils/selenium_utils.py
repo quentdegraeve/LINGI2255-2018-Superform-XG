@@ -155,6 +155,38 @@ def add_new_post(driver, name_array, title, description, date_from, date_to, lin
     driver.find_element_by_css_selector('button[id="publish-button"]').click()
 
 
+
+def add_new_post_gcal(driver, name_array, title, description, date_from, date_to, link=''):
+    driver.get(new_post_url)
+
+    input_title = driver.find_element_by_name("titlepost")
+    input_description = driver.find_element_by_name("descriptionpost")
+    input_link = driver.find_element_by_name("linkurlpost")
+    input_date_from = driver.find_element_by_name("datefrompost")
+    input_date_to = driver.find_element_by_name("dateuntilpost")
+
+    input_title.send_keys(title)
+    input_description.send_keys(description)
+    input_link.send_keys(link)
+    input_date_from.send_keys(date_from)
+    input_date_to.send_keys(date_to)
+
+    for name in name_array:
+        driver.find_element_by_css_selector('input[data-namechan = "' + name + '"]').click()
+    sleep(2)
+    driver.find_element_by_css_selector('a[href="#menu2"]').click()
+    input_date_debut = driver.find_element_by_name("test_gcal_datedebut")
+    input_date_fin = driver.find_element_by_name("test_gcal_datefin")
+    input_heure_debut = driver.find_element_by_name("test_gcal_heuredebut")
+    input_heure_fin = driver.find_element_by_name("test_gcal_heurefin")
+
+    input_date_fin.send_keys(date_to)
+    input_date_debut.send_keys(date_from)
+    input_heure_debut.send_keys('1000')
+    input_heure_fin.send_keys('1200')
+    driver.find_element_by_css_selector('button[id="publish-button"]').click()
+
+
 def moderate_post(driver, chan_number, post_number):
     driver.get(moderate_url + str(post_number) + '/' + str(chan_number))
     driver.find_element_by_css_selector('button[id="publish"]').click()

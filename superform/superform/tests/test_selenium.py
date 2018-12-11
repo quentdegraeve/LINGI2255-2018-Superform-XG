@@ -8,6 +8,7 @@ from superform import app
 from superform import models
 import sqlite3
 import platform
+import time
 
 if platform.system() == 'Windows':
     TESTDB_PATH = "superform\superform\superform.db"
@@ -139,7 +140,7 @@ def test_add_post_rss_empty_ending_date():
 def test_add_post_gcal_1():
     title = 'test_gcal title 1'
     description = 'test_gcal description 1'
-    selenium_utils.add_new_post(pytest.driver, ['test_gcal'], title, description, pytest.now, pytest.now, 'https://www.google.be/')
+    selenium_utils.add_new_post_gcal(pytest.driver, ['test_gcal'], title, description, pytest.now, pytest.now, 'https://www.google.be/')
     pytest.driver.get(selenium_utils.index_url)
 
     assert pytest.driver.find_elements_by_css_selector('a[href="/moderate/3/2"]')
@@ -156,7 +157,7 @@ def test_delete_post_gcal_1():
 def test_add_post_gcal_2():
     title = 'test_gcal title 2'
     description = 'test_gcal description 2'
-    selenium_utils.add_new_post(pytest.driver, ['test_gcal'], title, description, pytest.now, pytest.now, 'https://www.google.be/')
+    selenium_utils.add_new_post_gcal(pytest.driver, ['test_gcal'], title, description, pytest.now, pytest.now, 'https://www.google.be/')
     pytest.driver.get(selenium_utils.index_url)
 
     assert pytest.driver.find_elements_by_css_selector('a[href="/moderate/4/2"]')

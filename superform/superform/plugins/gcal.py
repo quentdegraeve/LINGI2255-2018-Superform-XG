@@ -146,9 +146,8 @@ def deletable():
 #in comment beneath it.
 def delete(pub):
     c = db.session.query(Channel).filter(Channel.id == pub.channel_id).first()
-    data = json.loads(c.config)
-    token = data['token']
-
+    data = ast.literal_eval(c.config)
+    token = ast.literal_eval(data['token'])
     credentials = None
     try:
         credentials = client.Credentials.new_from_json(json.dumps(token))
@@ -162,4 +161,3 @@ def delete(pub):
 
 def authenticate(channel_id, publishing_id):
     return "AlreadyAuthenticated"
-
