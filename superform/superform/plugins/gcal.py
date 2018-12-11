@@ -6,16 +6,19 @@ from superform.suputils import plugin_utils
 from superform.models import db, Publishing, Channel
 from flask import current_app
 import json
+import ast
 
 SCOPES = 'https://www.googleapis.com/auth/calendar'
 FIELDS_UNAVAILABLE = []
 
 CONFIG_FIELDS = ['token']
 
-def run(gcal_publishing,channel_config):
+def run(pub,channel_config):
 
-    data = json.loads(channel_config)
-    token = data['token']
+    #data = json.loads(channel_config)
+    data = ast.literal_eval(channel_config)
+    token = ast.literal_eval(data['token'])
+    #token = data['token']
 
     #token = {"access_token": "ya29.GlxFBgl-MEOI2NojpWSffhjjcfLPhIT55MNauXbQGD4JZQttj45NUKTtaGEd6GpA1GqRUAAhcDYNnK6s7Dyxpx_50N0EPGiKZJrUcPujhrx2eFaRHO94nGrVDpOlVg", "client_id": "408596117278-fkeuv3g0rdkrdpqsch2i1u18h0lgsakm.apps.googleusercontent.com", "client_secret": "EEZoDYXiIq3q-6zoSUrl9ec8", "refresh_token": "1/OEYHMvVkUmfS9C_CVqYccME6zKCANhB_YcU3SwzA2I3VjsBTr4ecnN1CqSchdDXs", "token_expiry": "2018-10-29T17:15:53Z", "token_uri": "https://www.googleapis.com/oauth2/v3/token", "user_agent": None, "revoke_uri": "https://oauth2.googleapis.com/revoke", "id_token": None, "id_token_jwt": None, "token_response": {"access_token": "ya29.GlxFBgl-MEOI2NojpWSffhjjcfLPhIT55MNauXbQGD4JZQttj45NUKTtaGEd6GpA1GqRUAAhcDYNnK6s7Dyxpx_50N0EPGiKZJrUcPujhrx2eFaRHO94nGrVDpOlVg", "expires_in": 3600, "scope": "https://www.googleapis.com/auth/calendar", "token_type": "Bearer"}, "scopes": ["https://www.googleapis.com/auth/calendar"], "token_info_uri": "https://oauth2.googleapis.com/tokeninfo", "invalid": False, "_class": "OAuth2Credentials", "_module": "oauth2client.client"}
     credentials = None
@@ -24,18 +27,29 @@ def run(gcal_publishing,channel_config):
     except ValueError:
         pass
     service = build('calendar', 'v3', http=credentials.authorize(Http()))
+    extras = json.loads(pub.misc)
     template = {}
-    template['summary'] = gcal_publishing.title
-    template['location'] = gcal_publishing.location
-    template['description'] = gcal_publishing.description
-    template['start'] = {'dateTime': '{}-{}-{}T{}:00.000'.format(gcal_publishing.date_start.year, gcal_publishing.date_start.month, gcal_publishing.date_start.day,gcal_publishing.hour_start), 'timeZone': 'Europe/Brussels'}
-    template['end'] = {'dateTime': '{}-{}-{}T{}:00.000'.format(gcal_publishing.date_end.year, gcal_publishing.date_end.month, gcal_publishing.date_end.day,gcal_publishing.hour_end), 'timeZone': 'Europe/Brussels'}
-    template['colorId'] = gcal_publishing.color_id
+    template['summary'] = pub.title
+    template['location'] = extras['location']
+    template['description'] = pub.description
+    print(extras['date_start'])
+    tmp = extras['date_start'].split('-')
+    y1 = int(tmp[0])
+    m1 = int(tmp[1])
+    d1 = int(tmp[2])
+    tmp = extras['date_end'].split('-')
+    y2 = int(tmp[0])
+    m2 = int(tmp[1])
+    d2 = int(tmp[2])
+    template['start'] = {'dateTime': '{}-{}-{}T{}:00.000'.format(y1, m1, d1, extras['time_start']), 'timeZone': 'Europe/Brussels'}
+    template['end'] = {'dateTime': '{}-{}-{}T{}:00.000'.format(y2, m2, d2, extras['time_end']), 'timeZone': 'Europe/Brussels'}
+    template['colorId'] = extras['color']
+
     #if gcal_publishing.visibility:
     #    template['visibility'] = 'public'
     #else:
     #    template['visibility'] = 'private'
-    template['attendees'] = gcal_publishing.guests
+    template['attendees'] = extras['guests']
     #template['source'] = {"url": gcal_publishing.link_url, "title": 'link'}
     try:
         event = service.events().insert(calendarId='primary', body=template).execute()
@@ -44,8 +58,7 @@ def run(gcal_publishing,channel_config):
         Handling of the future deletion.
         It is put in comment for now to avoid errors, but should be tested
         """
-        misc = json.loads(gcal_publishing.misc)
-        gcal_publishing.misc = saveID(event[id], misc)
+        pub.misc = saveID(event[id], extras)
         db.session.commit()
     except Exception as e:
         #TODO should add log here

@@ -64,6 +64,7 @@ def configure_channel(id):
             d = ast.literal_eval(c.config)
             setattr(c, "config_dict", d)
         return render_template("channel_configure.html", channel=c, config_fields=config_fields)
+    '''
     str_conf = "{"
     cfield = 0
     for field in config_fields:
@@ -73,5 +74,10 @@ def configure_channel(id):
         cfield += 1
     str_conf += "}"
     c.config = str_conf
+    '''
+    cfg = {}
+    for field in config_fields:
+        cfg[field] = request.form.get(field)
+    c.config = json.dumps(cfg)
     db.session.commit()
     return redirect(url_for('channels.channel_list'))
