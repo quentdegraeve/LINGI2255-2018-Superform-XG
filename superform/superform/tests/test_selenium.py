@@ -105,7 +105,7 @@ def test_publish_post_rss_1():
     assert "Internal Server Error" not in pytest.driver.title
 
 def test_delete_post_rss_1():
-    selenium_utils.delete_post(pytest.driver, 1)
+    pytest.driver.find_element_by_css_selector('a[href="/delete/1' ).click()
     assert not pytest.driver.find_elements_by_css_selector('a[href="/delete/1"]')
 
 def test_add_post_rss_2():
@@ -151,7 +151,7 @@ def test_publish_post_gcal_1():
     assert "Internal Server Error" not in pytest.driver.title
 
 def test_delete_post_gcal_1():
-    selenium_utils.delete_post(pytest.driver, 3)
+    pytest.driver.find_element_by_css_selector('a[href="/delete/3').click()
     assert not pytest.driver.find_elements_by_css_selector('a[href="/delete/3"]')
 
 def test_add_post_gcal_2():

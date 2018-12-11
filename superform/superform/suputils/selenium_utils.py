@@ -196,6 +196,3 @@ def modify_config_gcal(driver, chan_number, token):
     input_token.clear()
     input_token.send_keys(token)
     driver.find_element_by_css_selector('button[type="submit"]').click()
-
-def delete_post(driver, post_number):
-    driver.get(moderate_url + str(post_number))
