@@ -32,7 +32,6 @@ def run(pub,channel_config):
     template['summary'] = pub.title
     template['location'] = extras['location']
     template['description'] = pub.description
-    print(extras['date_start'])
     tmp = extras['date_start'].split('-')
     y1 = int(tmp[0])
     m1 = int(tmp[1])
@@ -58,11 +57,12 @@ def run(pub,channel_config):
         Handling of the future deletion.
         It is put in comment for now to avoid errors, but should be tested
         """
-        pub.misc = saveID(event[id], extras)
+        pub.misc = saveID(event['id'], extras)
+        pub.state = 1
         db.session.commit()
     except Exception as e:
         #TODO should add log here
-        print(e)
+        print('exception gcal: ',e)
 
 # this function add all extra fields inside a json file and return it.
 def saveExtraFields(channel, form):
