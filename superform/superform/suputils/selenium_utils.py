@@ -173,7 +173,6 @@ def add_new_post_gcal(driver, name_array, title, description, date_from, date_to
 
     for name in name_array:
         driver.find_element_by_css_selector('input[data-namechan = "' + name + '"]').click()
-    sleep(2)
     driver.find_element_by_css_selector('a[href="#menu2"]').click()
     input_date_debut = driver.find_element_by_name("test_gcal_datedebut")
     input_date_fin = driver.find_element_by_name("test_gcal_datefin")

@@ -15,3 +15,8 @@ superform/superform/selenium_drivers/
 superform/superform/suputils/NewKey.key
 superform/superform/suputils/Superform.kdbx
 superform/superform/suputils/keepass.py
+.coverage
+htmlcov/
+pip
+superform/.coverage
+superform/htmlcov/
