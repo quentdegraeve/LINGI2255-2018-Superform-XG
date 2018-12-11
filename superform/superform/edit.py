@@ -11,81 +11,27 @@ from datetime import date, timedelta
 
 edit_page = Blueprint('edit', __name__)
 
-def load_layout():
-    path = os.path.realpath(os.path.dirname(__file__))
-    url = os.path.join(path, "static/form", "layout.json")
-    return json.load(open(url))
-
-def is_in_channels(channels, name):
-    for channel in channels:
-        if channel.get("name") == name:
-            return True
-    return False
-
-#@edit_page.route('/edit/layout/<int:post_id>', methods=['GET'])
-#@login_required()
-def generate_layout_with_data(post_id):
-
-    user_id = session.get("user_id", "") if session.get("logged_in", False) else -1
-    post = db.session.query(Post).filter(Post.id == post_id, Post.user_id == user_id).first()
-    publishings = db.session.query(Publishing).filter(Publishing.post_id == post.id).all()
-
-    layout = load_layout()
-
-    default_fields = {}
-    for field in layout.get("default").get("fields"):
-        name = field.get("name")
-        value = getattr(post, name)
-        default_fields[name] = value
-
-    channels = []
-    for publishing in publishings:
-        channel_db = db.session.query(Channel).filter(Channel.id == publishing.channel_id).first()
-        channels.append({
-            "module": channel_db.module,
-            "name": channel_db.name,
-            "state": publishing.state
-        })
-        fields = {}
-        for channel_json in layout.get("channels"):
-            if channel_json.get("module") == channel_db.module:
-                for field in layout.get("default").get("fields"):
-                    name = field.get("name")
-                    if name not in channel_json.get("disabled_fields"):
-                        value = getattr(publishing, name)
-                        fields[name] = value
-                for field in channel_json.get("additional_fields"):
-                    name = field.get("name")
-                    value = getattr(publishing, name)
-                    fields[name] = value
-
-        channels[-1]["fields"] = fields
-
-    available_channels = channels_available_for_user(user_id)
-    for channel in available_channels:
-        if not is_in_channels(channels, channel.name):
-            channels.append({
-                "module": channel.module,
-                "name": channel.name,
-                "state": -1,
-                "fields": {}
-            })
-
-    return jsonify({
-        "default": {
-            "fields": default_fields
-        },
-        "channels": channels
-    })
-
 @edit_page.route('/edit/<int:post_id>', methods=['GET'])
 @login_required()
 def edit_post(post_id):
+    """
+    Method called in the home page, when the user clicks on the 'Edit' button on a post.
+    Generate the layout of the page, with the fields of the post filled with the values stored in the database.
+    :param post_id: The id of the post in the database
+    :return: The template of the html edition page
+    """
     return render_template('edit.html', post_id=post_id)
 
 @edit_page.route('/edit/publish_edit_post/<int:post_id>', methods=['POST'])
 @login_required()
 def publish_edit_post(post_id):
+    """
+    Method called in the edition page, when the user clicks on the 'Save and publish' button.
+    It is called with an http post request.
+    The method will save the changes to the post fields in the database.
+    :param post_id: The id of the post in the database
+    :return: An http error/sucess code
+    """
     data = request.get_json(force=True)
 
     current_user_id = session.get("user_id", "")
@@ -96,7 +42,6 @@ def publish_edit_post(post_id):
         return redirect('/403')
 
     for d in data:  # d is a post/publication
-        print(d)
         name = d.get('name')
         fields = d.get('fields')
         if d.get('name') == 'General':
@@ -135,6 +80,12 @@ def publish_edit_post(post_id):
 @edit_page.route('/edit/layout/<int:post_id>', methods=['GET'])
 @login_required()
 def create_data_json(post_id):
+    """
+    This method is called when loading the edition page.
+    It is responsible for getting the post and publication data from the database and encoding it inside a json.
+    :param post_id: The id of the post in the database
+    :return: The data related to the post/publication, in json format
+    """
     current_user_id = session.get("user_id", "")
 
     json_output = dict()

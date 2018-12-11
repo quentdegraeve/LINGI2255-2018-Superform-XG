@@ -5,7 +5,7 @@ from superform import db
 
 
 FIELDS_UNAVAILABLE = ["link_url"]
-CONFIG_FIELDS = ["server_url", "api_key","channel_id"]
+CONFIG_FIELDS = ["server_url", "api_key", "channel_id"]
 AUTH_FIELDS = False
 POST_FORM_VALIDATIONS = {}
 

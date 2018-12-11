@@ -54,7 +54,7 @@
         {
           "name": "subtitle",
           "label": "Subtitle",
-          "required": true,
+          "required": false,
           "type": "input[\"text\"]"
         },
         {
