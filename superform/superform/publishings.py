@@ -5,6 +5,7 @@ from superform.users import get_moderate_channels_for_user
 
 pub_page = Blueprint('publishings', __name__)
 
+
 @pub_page.route('/moderate', methods=["GET"])
 @login_required()
 def moderate():
@@ -12,10 +13,15 @@ def moderate():
     flattened_list_pubs = []
     if user is not None:
         chans = get_moderate_channels_for_user(user)
-        pubs_per_chan = (db.session.query(Publishing).filter((Publishing.channel_id == c.id) & (Publishing.state == 0))
-                         for c in chans)
+        pubs_per_chan = (db.session.query(Publishing).filter((Publishing.channel_id == c.id) &
+                                                             (Publishing.state == 0)) for c in chans)
         flattened_list_pubs = [y for x in pubs_per_chan for y in x]
+        pubs_per_edit = (db.session.query(Publishing).filter((Publishing.channel_id == c.id) &
+                                                             (Publishing.state == 4)) for c in chans)
+        flattened_list_edit = [y for x in pubs_per_edit for y in x]
+        flattened_list_pubs += flattened_list_edit
     return render_template("moderate.html", publishings=flattened_list_pubs)
+
 
 @pub_page.route('/moderate/<int:id>/<string:idc>', methods=["GET", "POST"])
 @login_required()
@@ -75,6 +81,19 @@ def moderate_publishing(id, idc):
             print("url", url)
             return plugin.auto_auth(url, pub.channel_id)
         print('publishing publishings.py', pub)
-        plugin.run(pub, c_conf)
+        if pub.state == 4:
+            try:
+                boolean = plugin.can_edit(pub, c_conf)
+                if boolean:
+                    plugin.edit(pub, c_conf)
+                else:
+                    pub.state = 1
+                    print("No Edit")
+            except AttributeError:
+                pub.state = 1
+                print("No Edit")
+
+        else:
+            plugin.run(pub, c_conf)
 
     return redirect(url_for('index'))

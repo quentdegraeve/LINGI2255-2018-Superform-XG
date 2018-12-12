@@ -215,6 +215,10 @@ def tweet_split(text, separators):
 
     return tweets
 
+
+def can_edit(publishing, channel_config):
+    return False
+
 # Methods from other groups :
 
 def post_pre_validation(post):

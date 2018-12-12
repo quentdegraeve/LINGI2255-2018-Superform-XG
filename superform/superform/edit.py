@@ -60,6 +60,8 @@ def publish_edit_post(post_id):
         else:
             for pub in pubs:
                 chans = db.session.query(Channel).filter(Channel.id == pub.channel_id).all()
+                if pub.state == 1:
+                    setattr(pub, 'state', 4)
                 for chn in chans:
                     if chn.name == name:
                         keys = fields.keys()
