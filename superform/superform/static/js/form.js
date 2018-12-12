@@ -282,6 +282,11 @@ function createChannelFieldset(channel) {
     }
 }
 
+function convertDate(str) {
+    var date = new Date(str);
+    return date.toISOString().split('T')[0];
+}
+
 function fillGeneralFieldset() {
 
     var name = "General";
@@ -290,7 +295,11 @@ function fillGeneralFieldset() {
 
     for (var key in fields) {
         var input = fieldset.find("[name=\"" + key + "\"]");
-        input.val(fields[key]);
+        if (input.attr("type") === "date") {
+            input.val(convertDate(fields[key]));
+        } else {
+            input.val(fields[key]);
+        }
     }
 }
 
@@ -304,7 +313,11 @@ function fillChannelFieldset() {
 
         for (var key in fields) {
             var input = fieldset.find("[name=\"" + key + "\"]");
-            input.val(fields[key]);
+            if (input.attr("type") === "date") {
+                input.val(convertDate(fields[key]));
+            } else {
+                input.val(fields[key]);
+            }
         }
     }
 }
