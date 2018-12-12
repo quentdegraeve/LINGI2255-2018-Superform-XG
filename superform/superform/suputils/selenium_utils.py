@@ -46,6 +46,7 @@ new_post_url = 'http://localhost:5000/new'
 index_url = 'http://localhost:5000'
 configure_url = 'http://localhost:5000/configure'
 edit_url = 'http://localhost:5000/edit'
+delete_url = 'http://localhost:5000/delete'
 moderate_url = 'http://localhost:5000/moderate'
 linkedin_url = 'https://www.linkedin.com'
 resubmit_url = 'http://localhost:5000/publishing/resubmit'
@@ -94,6 +95,7 @@ def create_channel(driver, name, username, password, module):
 
     driver.find_element_by_name("add_chan").click()
 
+
 def create_channel(driver, name, module):
     driver.get(channel_url)
     driver.find_element_by_css_selector('select[name="module"] option[value="' + module + '"]').click()
@@ -101,6 +103,17 @@ def create_channel(driver, name, module):
     input_name.send_keys(name)
 
     driver.find_element_by_name("add_chan").click()
+
+
+def create_simple_channel(driver, name, module):
+    driver.get(channel_url)
+    driver.find_element_by_css_selector('select[name="module"] option[value="' + module + '"]').click()
+    input_name = driver.find_element_by_name("name")
+    input_name.send_keys(name)
+    driver.find_element_by_name("add_chan").click()
+
+
+
 
 
 def modify_config(driver, chan_number, domain_name, channel_name):
@@ -126,9 +139,10 @@ def add_authorization(driver, name, username, permission):
     input_username.send_keys(username)
     if permission == 2:
         select = driver.find_element_by_css_selector('select[name="permission' + name_id + '"]')
-        select.click()
-        select.send_keys(Keys.DOWN)
-        select.send_keys(Keys.ENTER)
+        for option in select.find_elements_by_tag_name('option'):
+            if option.text == 'Permission.MODERATOR':
+                option.click()
+                break
 
     driver.find_element_by_css_selector('a[data-channelid="' + name_id + '"]').click()
     sleep(1)
@@ -153,6 +167,37 @@ def add_new_post(driver, name_array, title, description, date_from, date_to, lin
     for name in name_array:
         driver.find_element_by_css_selector('input[data-namechan = "' + name + '"]').click()
 
+    driver.find_element_by_css_selector('button[id="publish-button"]').click()
+
+
+
+def add_new_post_gcal(driver, name_array, title, description, date_from, date_to, link=''):
+    driver.get(new_post_url)
+
+    input_title = driver.find_element_by_name("titlepost")
+    input_description = driver.find_element_by_name("descriptionpost")
+    input_link = driver.find_element_by_name("linkurlpost")
+    input_date_from = driver.find_element_by_name("datefrompost")
+    input_date_to = driver.find_element_by_name("dateuntilpost")
+
+    input_title.send_keys(title)
+    input_description.send_keys(description)
+    input_link.send_keys(link)
+    input_date_from.send_keys(date_from)
+    input_date_to.send_keys(date_to)
+
+    for name in name_array:
+        driver.find_element_by_css_selector('input[data-namechan = "' + name + '"]').click()
+    driver.find_element_by_css_selector('a[href="#menu2"]').click()
+    input_date_debut = driver.find_element_by_name("test_gcal_datedebut")
+    input_date_fin = driver.find_element_by_name("test_gcal_datefin")
+    input_heure_debut = driver.find_element_by_name("test_gcal_heuredebut")
+    input_heure_fin = driver.find_element_by_name("test_gcal_heurefin")
+
+    input_date_fin.send_keys(date_to)
+    input_date_debut.send_keys(date_from)
+    input_heure_debut.send_keys('1000')
+    input_heure_fin.send_keys('1200')
     driver.find_element_by_css_selector('button[id="publish-button"]').click()
 
 
@@ -257,3 +302,10 @@ def add_new_ictv_publishing(driver, name_array, channel_id, title, description, 
 
 
 
+
+def modify_config_gcal(driver, chan_number, token):
+    driver.get(configure_url + str(chan_number))
+    input_token = driver.find_element_by_name("token")
+    input_token.clear()
+    input_token.send_keys(token)
+    driver.find_element_by_css_selector('button[type="submit"]').click()
