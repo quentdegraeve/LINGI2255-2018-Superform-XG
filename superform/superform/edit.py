@@ -93,6 +93,7 @@ def create_data_json(post_id):
 
     query_post = db.session.query(Post).filter(Post.id == post_id, Post.user_id == current_user_id).first()
     query_pubs = db.session.query(Publishing).filter(Publishing.post_id == post_id).all()
+    list_of_channels = channels_available_for_user(current_user_id)
 
     fields = dict((col, getattr(query_post, col)) for col in query_post.__table__.columns.keys())
     entries_to_delete = ('id', 'user_id', 'date_created')
@@ -107,6 +108,8 @@ def create_data_json(post_id):
         channel = dict()
         p = (db.session.query(Channel).filter((Channel.id == pub.channel_id))).first()
         elem = dict((col, getattr(p, col)) for col in p.__table__.columns.keys())
+        if p in list_of_channels:
+            list_of_channels.remove(p)
         for e in elem:
             if e == "module" or e == "name":
                 channel[e] = elem[e]
@@ -122,5 +125,13 @@ def create_data_json(post_id):
                 pass
         channel["fields"] = fields
         module.append(channel)
+
+    for chan in list_of_channels:
+        channel = dict()
+        channel["name"] = chan.name
+        channel["module"] = chan.module
+        channel["state"] = -1
+        module.append(channel)
+
     json_output["channels"] = module
     return jsonify(json_output)
