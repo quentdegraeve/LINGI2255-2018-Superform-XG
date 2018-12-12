@@ -246,3 +246,21 @@ class SlackTokens:
 def error_config_slack(chan_id):
     chan_name = Channel.query.get(chan_id).name
     return render_template('error_config_slack.html', channel=chan_name)
+
+
+def saveExtraFields(channel, form):
+    return None
+
+# returns the name of an extra form, None if not needed
+def get_template_new():
+    return None
+
+# returns the name of an extra form (pre-fillable), None if not needed
+def get_template_mod():
+    return None
+def deletable():
+    return True
+
+def delete(pub):
+    pass
+

@@ -103,8 +103,7 @@ def new_post():
             fields = clas.POST_FORM_VALIDATIONS
             post_form_validations[m] = fields
 
-        #print(post_form_validations)
-        return render_template('new.html', l_chan=list_of_channels, post_form_validations=post_form_validations,
+        return render_template('new.html', extra_forms=extraForms, l_chan=list_of_channels, post_form_validations=post_form_validations,
                                date=default_date)
     else:
         create_a_post(request.form)

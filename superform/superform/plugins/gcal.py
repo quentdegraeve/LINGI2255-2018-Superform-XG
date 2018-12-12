@@ -10,6 +10,8 @@ import ast
 
 SCOPES = 'https://www.googleapis.com/auth/calendar'
 FIELDS_UNAVAILABLE = []
+POST_FORM_VALIDATIONS = {}
+AUTH_FIELDS = False
 
 CONFIG_FIELDS = ['token']
 

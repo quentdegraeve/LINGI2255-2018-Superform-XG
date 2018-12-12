@@ -35,7 +35,6 @@ def moderate_publishing(id, idc):
             misc = json.loads(pub.misc)  # adding extra fields to context (might be empty)
         else:
             misc = {}
-        print('get moderate_publishing')
         return render_template('moderate_post.html', extra=misc, template=plugin.get_template_mod(), pub=pub, chan=chn)
 
     else:
@@ -67,9 +66,7 @@ def moderate_publishing(id, idc):
 
         url = plugin.authenticate(c.id, (id, idc))
         if url != "AlreadyAuthenticated":
-            print("url", url)
             return plugin.auto_auth(url, pub.channel_id)
-        print('publishing publishings.py', pub)
         plugin.run(pub, c_conf)
 
         return redirect(url_for('index'))

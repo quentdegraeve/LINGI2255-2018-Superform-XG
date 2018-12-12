@@ -3,6 +3,7 @@ venv/
 .idea
 .cache/*
 *.DS_Store
+.DS_Storegit
 superform/superform/__pycache__/
 /superform/superform/config.json
 .cache/*

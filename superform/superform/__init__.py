@@ -2,7 +2,6 @@ from flask import Flask, render_template, session
 import pkgutil
 import importlib
 from flask import request
-
 import superform.plugins
 from superform.publishings import pub_page
 from superform.models import db, User, Post, Publishing, Channel

@@ -267,3 +267,19 @@ def post_pre_validation(post):
 
 def authenticate(channel_name, publishing_id):
     return 'AlreadyAuthenticated'
+
+def saveExtraFields(channel, form):
+    return None
+
+# returns the name of an extra form, None if not needed
+def get_template_new():
+    return None
+
+# returns the name of an extra form (pre-fillable), None if not needed
+def get_template_mod():
+    return None
+def deletable():
+    return True
+
+def delete(pub):
+    pass
