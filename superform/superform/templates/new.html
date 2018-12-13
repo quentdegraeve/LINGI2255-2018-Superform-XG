@@ -21,7 +21,6 @@
         <form method="POST" action="">
             <div class="tab-content">
                 <div class="tab-pane container-fluid active" id="home">
-
                     <div class="row">
                         <div class="col-md-8">
                             <div class="row">
@@ -64,7 +63,6 @@
                                             </div>
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
@@ -76,7 +74,6 @@
                                 {% else %}
                                     {% for chan in l_chan %}
                                         <div class="form-check">
-
                                             <label class="form-check-label">
                                                 <input id="chan_option_{{ chan.id }}"
                                                        module-namechan="{{ chan.module }}"
@@ -88,27 +85,15 @@
                                                      src="static/logos/{{ chan.module.split('.')[2] }}_logo.png"
                                                      alt="logo"/> {{ chan.name }}
                                             </label>
-
                                         </div>
-
                                     {% endfor %}
                                 {% endif %}
                             </div>
-
-                            <div class="card">
-                                <div class="card-header">Status</div>
-                                <div class="card-body">Content</div>
-                            </div>
-
-
                         </div>
-
                     </div>
-
                 </div>
                 {% for chan in l_chan %}
                     <div class="tab-pane container-fluid fade" id="menu{{ chan.id }}">
-
                         <div class="row">
                             <div class="col-md-8">
                                 <div class="row">
@@ -163,134 +148,76 @@
                                                 <div class="form-group">
                                                     <label for="{{ chan.name }}_imagepost">Image</label><br>
                                                     <div class="input-group">
-                                                        <input type="text" name="{{ chan.name }}_linkurlpost"
+                                                        <input type="text" name="{{ chan.name }}_imagepost"
                                                                id="{{ chan.name }}_imagepost" class="form-control">
                                                         <button id="js-open-preview-test" type="button"
-                                                                class="btn btn-secondary" onclick="PreviewFunction()">
+                                                                class="btn btn-secondary" onclick="PreviewFunction('{{ chan.name }}_imagepost')">
                                                             Preview
                                                         </button>
-
-
                                                     </div>
                                                 </div>
                                             {% endif %}
+                                            {% if chan.module == "superform.plugins.ICTV" %}
+                                                <div class="form-group">
+                                                    <label for="{{ chan.name }}_subtitle">Subtitle</label><br>
+                                                    <input type="text" name="{{ chan.name }}_subtitle"
+                                                           id="{{ chan.name }}_subtitle" class="form-control">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="{{ chan.name }}_logo">Logo</label><br>
+                                                    <div class="input-group">
+                                                        <input type="url" name="{{ chan.name }}_logo"
+                                                               id="{{ chan.name }}_logo" class="form-control" >
+                                                        <button id="js-open-preview-logo" type="button"
+                                                                class="btn btn-secondary" onclick="PreviewFunction('{{ chan.name }}_logopost')">
+                                                            Preview
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label for="{{ chan.name }}_duration">Duration(in seconds)</label><br>
+                                                    <input type="number" name="{{ chan.name }}_duration"
+                                                           id="{{ chan.name }}_duration" min="-1" value="5">
+                                                </div>
 
 
-                                            {% if chan.module == "superform.plugins.gcal" %}
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <div class="form-group">
-                                                            <label for="{{ chan.name }}_datedebut">Starting date</label><br>
-                                                            <input id="{{ chan.name }}_datedebut"
-                                                                   name="{{ chan.name }}_datedebut" type="date"
-                                                                   class="form-control">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <div class="form-group">
-                                                            <label for="{{ chan.name }}_heuredebut">Starting
-                                                                time</label><br>
-                                                            <input type="time" name="{{ chan.name }}_heuredebut"
-                                                                   id="{{ chan.name }}_heuredebut" class="form-control">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <div class="form-group">
-                                                            <label for="{{ chan.name }}_datefin">Ending date</label><br>
-                                                            <input type="date" name="{{ chan.name }}_datefin"
-                                                                   id="{{ chan.name }}_datefin" class="form-control">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <div class="form-group">
-                                                            <label for="{{ chan.name }}_heurefin">Ending
-                                                                time</label><br>
-                                                            <input type="time" name="{{ chan.name }}_heurefin"
-                                                                   id="{{ chan.name }}_heurefin" class="form-control">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="{{ chan.name }}_location">Location</label><br>
-                                                    <input type="text" name="{{ chan.name }}_location"
-                                                           id="{{ chan.name }}_location" class="form-control">
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="{{ chan.name }}_color">Color</label><br>
-                                                    <select name="{{ chan.name }}_color" id="{{ chan.name }}_color"
-                                                            class="form-control">
-                                                        <option value="1">Lavender</option>
-                                                        <option value="2">Sage</option>
-                                                        <option value="3">Grape</option>
-                                                        <option value="4">Flamingo</option>
-                                                        <option value="5">Banana</option>
-                                                        <option value="6">Tangerine</option>
-                                                        <option value="7">Peacock</option>
-                                                        <option value="8">Graphite</option>
-                                                        <option value="9">Blueberry</option>
-                                                        <option value="10">Basil</option>
-                                                        <option value="11">Tomato</option>
-                                                    </select>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="{{ chan.name }}_visibility">Visibility</label><br>
-                                                    <select name="{{ chan.name }}_visibility"
-                                                            id="{{ chan.name }}_visibility" class="form-control">
-                                                        <option value="true">Public</option>
-                                                        <option value="false">Private</option>
-                                                    </select>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="{{ chan.name }}_availability">Availability</label><br>
-                                                    <select name="{{ chan.name }}_availability"
-                                                            id="{{ chan.name }}_availability" class="form-control">
-                                                        <option value="true">Free</option>
-                                                        <option value="false">Busy</option>
-                                                    </select>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="{{ chan.name }}_guests">Guests emails (split them with a
-                                                        comma)</label><br>
-                                                    <input type="text" name="{{ chan.name }}_guests"
-                                                           id="{{ chan.name }}_guests" class="form-control">
-                                                </div>
                                             {% endif %}
-                                            {% if chan.module != "superform.plugins.gcal" %}
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <div class="form-group">
-                                                            <label for="{{ chan.name }}_datefrompost">Publication
-                                                                Date</label><br>
-                                                            <input id="{{ chan.name }}_datefrompost"
-                                                                   name="{{ chan.name }}_datefrompost" type="date"
-                                                                   class="form-control" value="{{ date.from }}">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <div class="form-group">
-                                                            <label for="{{ chan.name }}_dateuntilpost">Publication
-                                                                Until</label><br>
-                                                            <input id="{{ chan.name }}_dateuntilpost"
-                                                                   name="{{ chan.name }}_dateuntilpost" type="date"
-                                                                   class="form-control" value="{{ date.until }}">
-                                                        </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="{{ chan.name }}_datefrompost">Publication
+                                                            Date</label><br>
+                                                        <input id="{{ chan.name }}_datefrompost"
+                                                               name="{{ chan.name }}_datefrompost" type="date"
+                                                               class="form-control" value="{{ date.from }}">
                                                     </div>
                                                 </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="{{ chan.name }}_dateuntilpost">Publication
+                                                            Until</label><br>
+                                                        <input id="{{ chan.name }}_dateuntilpost"
+                                                               name="{{ chan.name }}_dateuntilpost" type="date"
+                                                               class="form-control" value="{{ date.until }}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% if extra_forms[chan.name]!=None %}
+                                                {% include extra_forms[chan.name] %} <!-- include extra form if necessary -->
                                             {% endif %}
                                         </div>
-
                                     </div>
-                                    <div class="col-md-4">
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <label for="publishpost">Channels</label>
-                                            </div>
-                                            <div class="card-body">
-                                                <span>{{ chan.name }}</span>
-                                            </div>
-                                        </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <label for="publishpost">Channels</label>
+                                    </div>
+                                    <div class="card-body">
+                                        <span>{{ chan.name }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -331,18 +258,32 @@
 {% endblock %}
 
 {% block scripts %}
-    <script type="text/javascript">
-        var post_form_validations =
-        {{ post_form_validations|tojson }}
-    </script>
     <script>
-
-
-        function PreviewFunction() {
+        function PreviewFunction(post) {
             var protocol = /^http[s]?:\/{2}/i;
             var pattern = /(?:https?:\/{2})?(?:w{3}\.)?(?:\w+\.)+(com|fr|be|io|gov|net|tv|uk|ch|de|nl|lu)(?:\/[^\s]+)?/g;
+            //var pattern = /\.(jpeg|jpg|gif|png|bmp)$/
+            var split = post.split("_");
+            console.log(split)
+            console.log(post)
 
-            var url = $("#imagepost").val();
+            if (split[split.length-1] == "imagepost") {
+                var url = $("#imagepost").val();
+                console.log(url)
+            }
+            else if (split[split.length-1] == "backgroundpost") {
+                var url = $("#backgroundpost").val();
+            }
+            else if(split[split.length-1] == "logopost") {
+                var parent = $("#js-open-preview-logo").parent();
+                var input = parent.find("input");
+                var text = input.val();
+                var url = text;
+            }
+            console.log(url)
+
+
+
             var preview = $("#previewModal");
             var container = preview.find(".modal-body");
 
@@ -438,10 +379,11 @@
                     return;
                 }
 
-                // https://getbootstrap.com/docs/4.1/components/card/#list-groups
-                var tweets = $("<div>");
+                var tweets = $("<ul>");
+                tweets.addClass("list-group list-group-flush");
                 for (var k = 0; k < json["tweetpreview"].length; k++) {
-                    var tweet = $("<div>");
+                    var tweet = $("<li>");
+                    tweet.addClass("list-group-item");
                     tweet.text(json["tweetpreview"][k]);
                     tweets.append(tweet);
                 }
@@ -521,7 +463,6 @@
 
 
         $(".js-counter textarea").on("keyup", function () {
-
             var container = $(this).parent();
             var text = $(this).val();
             var count = text.length;
@@ -537,6 +478,7 @@
                 message.hide();
             }
         });
+
 
 
         // This manage if a channel is selected or not:
@@ -615,9 +557,9 @@
                     return this.id.match(/.*imagepost/);
                 })
                 .val(text);
-
-
         });
+
+
 
         $('#dateuntilpost').on("change", function (event) {
             text = ($(this).val());

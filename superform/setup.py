@@ -12,7 +12,11 @@ setup(
         'tweepy',
         'python3-linkedin',
         'pykeepass',
+        'rfeed',
         'slackclient',
-        'selenium', 'pytest'
+        'selenium',
+        'pytest',
+        'oauth2client',
+        'google-api-python-client'
     ],
 )
