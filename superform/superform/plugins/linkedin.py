@@ -2,6 +2,8 @@ import json
 
 from flask import redirect, url_for, request, Blueprint
 from linkedin import linkedin
+from selenium.common.exceptions import NoSuchElementException
+
 from superform.suputils import selenium_utils
 from datetime import datetime, timedelta
 from superform.suputils import plugin_utils
@@ -120,7 +122,10 @@ def auto_auth(url, channel_id):
     username.send_keys(keepass.KeepassEntry.username)
     password.send_keys(keepass.KeepassEntry.password)
 
-    driver.find_element_by_name("signin").click()
+    try:
+        driver.find_element_by_name("signin").click()
+    except NoSuchElementException:
+        driver.find_element_by_css_selector('button[type="submit"]').click()
 
     if not selenium_utils.wait_redirect(driver, 'linkedin'):
         driver.close()
@@ -187,7 +192,6 @@ class LinkedinTokens:
 def linkedin_verify_authorization():
     code = request.args.get('code')
     conf_publishing = json.loads(request.args.get('state'))
-    channel_name = conf_publishing['channel_name']
     publishing_id = conf_publishing['publishing_id']
     post_id = publishing_id.__getitem__(0)
     channel_id = publishing_id.__getitem__(1)
@@ -202,3 +206,20 @@ def linkedin_verify_authorization():
     print("init publishing", publishing)
     run(publishing, json.dumps(channel_config))
     return redirect(url_for('index'))
+
+
+def saveExtraFields(channel, form):
+    return None
+
+# returns the name of an extra form, None if not needed
+def get_template_new():
+    return None
+
+# returns the name of an extra form (pre-fillable), None if not needed
+def get_template_mod():
+    return None
+def deletable():
+    return True
+
+def delete(pub):
+    pass

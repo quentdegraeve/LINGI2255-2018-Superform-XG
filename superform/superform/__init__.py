@@ -3,9 +3,8 @@ import pkgutil
 import importlib
 from flask import request
 
-import superform.plugins
 from superform.publishings import pub_page
-from superform.models import db, Post, Publishing, Channel, State, Comment
+from superform.models import db, User, Post, Publishing, Channel, State, Comment
 from superform.authentication import authentication_page
 from superform.authorizations import authorizations_page
 from superform.channels import channels_page
@@ -14,7 +13,8 @@ from superform.api import api_page
 from superform.edit import edit_page
 from superform.suputils.keepass import keypass_error_callback_page
 from superform.plugins.slack import slack_error_callback_page, slack_verify_callback_page
-from superform.users import get_moderate_channels_for_user, is_moderator
+from superform.rss import rss_page
+from superform.delete import del_page
 
 from superform.plugins.linkedin import linkedin_verify_callback_page
 
@@ -33,6 +33,8 @@ app.register_blueprint(slack_error_callback_page)
 app.register_blueprint(slack_verify_callback_page)
 app.register_blueprint(api_page)
 app.register_blueprint(edit_page)
+app.register_blueprint(rss_page)
+app.register_blueprint(del_page)
 
 # Init dbsx
 db.init_app(app)
@@ -41,7 +43,7 @@ db.init_app(app)
 app.config["PLUGINS"] = {
     name: importlib.import_module(name)
     for finder, name, ispkg
-    in pkgutil.iter_modules(superform.plugins.__path__, superform.plugins.__name__ + ".")
+    in pkgutil.iter_modules(plugins.__path__, plugins.__name__ + ".")
 }
 SIZE_COMMENT = 40
 
@@ -58,7 +60,7 @@ def index():
     pubs_unvalidated = []
     if user_id != -1:
         # AJOUTER Post.user_id == user_id dans posts DANS QUERY?
-        posts_var = Post.query.order_by(Post.date_created.desc()).paginate(page, 5, error_out=False)
+        posts_var = db.session.query(Post).filter(Post.user_id == user_id).order_by(Post.date_created.desc()).paginate(page, 5, error_out=False)
         for post in posts_var.items:
             publishings_var = db.session.query(Publishing).filter(Publishing.post_id == post.id).all()
             channels_var = set()
@@ -89,7 +91,6 @@ def index():
                 setattr(pub_unvalidated, "comment_short", comm_short)
                 setattr(pub_unvalidated, "comment", comm)
     return render_template("index.html", posts=posts_var, pubs_unvalidated=pubs_unvalidated)
-
 
 @app.errorhandler(403)
 def forbidden(error):

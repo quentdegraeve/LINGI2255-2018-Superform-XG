@@ -3,6 +3,9 @@ import json
 from flask_sqlalchemy import SQLAlchemy
 from enum import Enum
 import datetime
+import json
+from sqlalchemy.orm import sessionmaker
+from lxml.html._diffcommand import description
 
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -88,9 +91,16 @@ class Publishing(db.Model):
     image_url = db.Column(db.Text)
     date_from = db.Column(db.DateTime)
     date_until = db.Column(db.DateTime)
+    misc = db.Column(db.Text)
+
+    # ICTV variables
+    logo = db.Column(db.Text, nullable=True, default=None)
+    subtitle = db.Column(db.Text, nullable=True, default=None)
+    duration = db.Column(db.Text, nullable=True, default=None)
 
     UniqueConstraint(num_version, post_id, channel_id, name='unicity_publishing_numvers')
     __table_args__ = ({"sqlite_autoincrement": True},)
+
 
     def __repr__(self):
         return '<Publishing {} ({} {})>'.format(repr(self.publishing_id), repr(self.post_id), repr(self.channel_id))
@@ -99,17 +109,9 @@ class Publishing(db.Model):
         return db.session.query(Post).get(self.post_id).user_id
 
 
-class PubGCal(Publishing):
-
-    date_start = db.Column(db.DateTime, nullable=True)
-    date_end = db.Column(db.DateTime, nullable=True)
-    location = db.Column(db.Text, nullable=True)
-    color_id = db.Column(db.Text, nullable=True)
-    hour_start = db.Column(db.Text, nullable=True)
-    hour_end = db.Column(db.Text, nullable=True)
-    guests = db.Column(db.Text, nullable=True)
-    visibility = db.Column(db.Text, nullable=True)
-    availability = db.Column(db.Text, nullable=True)
+    def get_chan_module(self):  #Return the name of the plugin used by the publication
+        chn = db.session.query(Channel).get(self.channel_id).module
+        return chn[18:]
 
 
 class Channel(db.Model):
@@ -122,6 +124,7 @@ class Channel(db.Model):
     authorizations = db.relationship("Authorization", cascade="all, delete", backref="channel", lazy=True)
 
     __table_args__ = ({"sqlite_autoincrement": True},)
+
 
     def __repr__(self):
         return '<Channel {}>'.format(repr(self.id))

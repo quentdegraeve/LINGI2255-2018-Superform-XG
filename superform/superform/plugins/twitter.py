@@ -14,6 +14,12 @@ AUTH_FIELDS = False
 POST_FORM_VALIDATIONS = {}
 
 def run(publishing, channel_config):
+    """
+    Create a tweet on the Twitter account referenced by the configuration
+    :param publishing: the publishing to be posted on the ictv server
+    :param channel_config: the channel configuration
+    :return: nothing
+    """
 
     # To do : Error management
 
@@ -74,17 +80,33 @@ def run(publishing, channel_config):
 
 
 def get_api(cfg):
+    """
+    Method used to get the API related to our configuration
+    :param cfg: A twitter configuration
+    :return: the API to access the Twitter account
+    """
     auth = tweepy.OAuthHandler(cfg['consumer_key'], cfg['consumer_secret'])
     auth.set_access_token(cfg['access_token'], cfg['access_token_secret'])
     return tweepy.API(auth)
 
 
 def get_urls(text):
+    """
+    Method that returns all the URL in the input text. URL are found based on a pattern
+    :param text: Input text
+    :return: All the contained URL, placed inside an array
+    """
     pattern = r'((?:http[s]?:/{2})?(?:w{3}\.)?(?:\w+\.)+(?:com|fr|be|io|gov|net|tv|uk|ch|de|nl|lu)(?:/[^\s]+)?)'
     return re.findall(pattern, text)
 
 
 def tweet_split(text, separators):
+    """
+    The method used to split a text into Twitter-sized (280 char) messages
+    :param text: The base text of the publication
+    :param separators: Array containing characters that can be used to as delimiters between tweets
+    :return: Array containing the Twitter-sized messages
+    """
     my_str = text
 
     tweets = []
@@ -114,10 +136,8 @@ def tweet_split(text, separators):
             done = False
             if (len(s) + 1) > limit:
                 if separators == ' ':
-                    print("Split between characters")
                     return [text[i:i+280] for i in range(0, len(text), 280)]
                 else:
-                    print("Split between words")
                     return tweet_split(text, ' ')
             else:
                 if not url_index:  # if no url in text
@@ -202,3 +222,19 @@ def post_pre_validation(post):
 
 def authenticate(channel_name, publishing_id):
     return 'AlreadyAuthenticated'
+
+def saveExtraFields(channel, form):
+    return None
+
+# returns the name of an extra form, None if not needed
+def get_template_new():
+    return None
+
+# returns the name of an extra form (pre-fillable), None if not needed
+def get_template_mod():
+    return None
+def deletable():
+    return True
+
+def delete(pub):
+    pass

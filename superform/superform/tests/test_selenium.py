@@ -39,11 +39,11 @@ def prepare():
     selenium_utils.login(pytest.driver, keepass.KeepassEntry.username, keepass.KeepassEntry.password)
 
     keepass.set_entry_from_keepass('account_linkedin')
-    selenium_utils.create_channel(pytest.driver, 'test_linkedin', keepass.KeepassEntry.username, keepass.KeepassEntry.password, 'linkedin')
+    selenium_utils.create_channel(pytest.driver, 'test_linkedin', 'linkedin', keepass.KeepassEntry.username, keepass.KeepassEntry.password)
     pytest.linkedin_channel_id = 1
 
     keepass.set_entry_from_keepass('account_slack')
-    selenium_utils.create_channel(pytest.driver, 'test_slack', keepass.KeepassEntry.username, keepass.KeepassEntry.password, 'slack')
+    selenium_utils.create_channel(pytest.driver, 'test_slack', 'slack', keepass.KeepassEntry.username, keepass.KeepassEntry.password)
     pytest.slack_channel_id = 2
     selenium_utils.modify_config(pytest.driver, pytest.slack_channel_id, 'testlingi2255team8', 'general')
 

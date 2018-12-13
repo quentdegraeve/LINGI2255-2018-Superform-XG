@@ -5,7 +5,7 @@ from flask import Blueprint, url_for, current_app, request, redirect, session, r
 from superform.users import channels_available_for_user
 from superform.utils import login_required, datetime_converter, str_converter, get_instance_from_module_path, \
     get_modules_names, get_module_full_name, datetime_now, str_converter_with_hour
-from superform.models import db, Post, Publishing, Channel, Comment, PubGCal, State, AlchemyEncoder
+from superform.models import db, Post, Publishing, Channel, Comment, State, AlchemyEncoder
 
 from importlib import import_module
 from datetime import date, timedelta
@@ -48,61 +48,58 @@ def create_a_publishing(post, chn, form):  # called in publish_from_new_post()
     link_post = form.get(chan + '_linkurlpost') if form.get(chan + '_linkurlpost') is not None else post.link_url
     image_post = form.get(chan + '_imagepost') if form.get(chan + '_imagepost') is not None else post.image_url
 
-    if chn.module == 'superform.plugins.gcal':
+    plugin = import_module(chn.module)
+    if "saveExtraFields" in vars(plugin):
+        misc_post = plugin.saveExtraFields(chan, form)  # plugin will handle extra fields here
 
-        date_start = datetime_converter(form.get(chan + '_datedebut')) if datetime_converter(
-            form.get(chan + '_datedebut')) is not None else post.date_from
-        date_end = datetime_converter(form.get(chan + '_datefin')) if datetime_converter(
-            form.get(chan + '_datefin')) is not None else post.date_until
-        hour_start = form.get(chan + '_heuredebut') if form.get(chan + '_heuredebut') is not None else '00:00'
-        hour_end = form.get(chan + '_heurefin') if form.get(chan + '_heurefin') is not None else '00:00'
-        location = form.get(chan + '_location')
-        color_id = form.get(chan + '_color')
-        guests = form.get(chan + '_guests')
-        visibility = form.get(chan + '_visibility')
-        # availability = form.get(chan + '_availability')
-
-        pub = PubGCal(post_id=post.id, channel_id=chn.id, state=State.NOT_VALIDATED.value, title=title_post, description=descr_post,
-                      link_url=link_post, image_url=image_post,
-                      date_from=None, date_until=None, date_start=date_start, date_end=date_end,
-                      location=location, color_id=color_id, hour_start=hour_start, hour_end=hour_end,
-                      guests=guests, visibility=visibility)  # , availability=availability)
+    if form.get(chan + 'datefrompost') is '':
+        date_from = date.today()
     else:
-        if form.get(chan + 'datefrompost') is '':
-            date_from = date.today()
-        else:
-            date_from = datetime_converter(form.get(chan + '_datefrompost')) if datetime_converter(
-                form.get(chan + '_datefrompost')) is not None else post.date_from
-        if form.get(chan + 'dateuntilpost') is '':
-            date_until = date.today() + timedelta(days=7)
-        else:
-            date_until = datetime_converter(form.get(chan + '_dateuntilpost')) if datetime_converter(
-                form.get(chan + '_dateuntilpost')) is not None else post.date_until
-
-    latest_version_publishing = db.session.query(Publishing).filter(Publishing.post_id == post.id, Publishing.channel_id == chn.id).order_by(Publishing.num_version.desc()).first()
-    print( " last publishing + ", latest_version_publishing)
-    if latest_version_publishing is None:
-        pub = Publishing(post_id=post.id, channel_id=chn.id, state=State.NOT_VALIDATED.value, title=title_post, description=descr_post,
-                     link_url=link_post, image_url=image_post,
-                     date_from=date_from, date_until=date_until)
-
-        db.session.add(pub)
-        db.session.commit()
-        
-        user_comment = ""
-        date_user_comment = str_converter_with_hour(datetime_now())
-        comm = Comment(publishing_id=pub.publishing_id, user_comment=user_comment,
-                       date_user_comment=date_user_comment)
-
-        db.session.add(comm)
-        db.session.commit()
+        date_from = datetime_converter(form.get(chan + '_datefrompost')) if datetime_converter(
+            form.get(chan + '_datefrompost')) is not None else post.date_from
+    if form.get(chan + 'dateuntilpost') is '':
+        date_until = date.today() + timedelta(days=7)
     else:
-        pub = Publishing(num_version=latest_version_publishing.num_version+1, post_id=post.id, channel_id=chn.id, state=State.NOT_VALIDATED.value, title=title_post, description=descr_post,
+        date_until = datetime_converter(form.get(chan + '_dateuntilpost')) if datetime_converter(
+            form.get(chan + '_dateuntilpost')) is not None else post.date_until
+    if chn.module == 'superform.plugins.ICTV':
+        logo = form.get(chan + '_logo')
+        subtitle = form.get(chan + '_subtitle')
+        duration = form.get(chan + '_duration')
+
+        pub = Publishing(post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
                          link_url=link_post, image_url=image_post,
-                         date_from=date_from, date_until=date_until)
+                         date_from=date_from, date_until=date_until, logo=logo, subtitle=subtitle, duration=duration)
+    else:
 
-        db.session.add(pub)
-        db.session.commit()
+        latest_version_publishing = db.session.query(Publishing).filter(Publishing.post_id == post.id,
+                                                                        Publishing.channel_id == chn.id).order_by(
+            Publishing.num_version.desc()).first()
+        print(" last publishing + ", latest_version_publishing)
+        if latest_version_publishing is None:
+            pub = Publishing(post_id=post.id, channel_id=chn.id, state=State.NOT_VALIDATED.value, title=title_post,
+                             description=descr_post,
+                             link_url=link_post, image_url=image_post,
+                             date_from=date_from, date_until=date_until, misc=misc_post)
+
+            db.session.add(pub)
+            db.session.commit()
+
+            user_comment = ""
+            date_user_comment = str_converter_with_hour(datetime_now())
+            comm = Comment(publishing_id=pub.publishing_id, user_comment=user_comment,
+                           date_user_comment=date_user_comment)
+
+            db.session.add(comm)
+            db.session.commit()
+        else:
+            pub = Publishing(num_version=latest_version_publishing.num_version + 1, post_id=post.id, channel_id=chn.id,
+                             state=State.NOT_VALIDATED.value, title=title_post, description=descr_post,
+                             link_url=link_post, image_url=image_post,
+                             date_from=date_from, date_until=date_until, misc=misc_post)
+
+            db.session.add(pub)
+            db.session.commit()
     return pub
 
 
@@ -111,8 +108,11 @@ def create_a_publishing(post, chn, form):  # called in publish_from_new_post()
 def new_post():
     user_id = session.get("user_id", "") if session.get("logged_in", False) else -1
     list_of_channels = channels_available_for_user(user_id)
+    extraForms = {}
     for elem in list_of_channels:
         m = elem.module
+        plugin = import_module(m)
+        extraForms[elem.name] = plugin.get_template_new()
         clas = get_instance_from_module_path(m)
         unavailable_fields = ','.join(clas.FIELDS_UNAVAILABLE)
         setattr(elem, "unavailablefields", unavailable_fields)
@@ -124,8 +124,8 @@ def new_post():
 
         post_form_validations = get_post_form_validations()
 
-        print(post_form_validations)
-        return render_template('new.html', l_chan=list_of_channels, post_form_validations=post_form_validations,date=default_date)
+        return render_template('new.html', extra_forms=extraForms, l_chan=list_of_channels, post_form_validations=post_form_validations,
+                               date=default_date)
     else:
         create_a_post(request.form)
         return redirect(url_for('index'))
@@ -138,13 +138,14 @@ def publish_from_new_post():  # when clicking on 'save and publish' button
     p = create_a_post(request.form)
     # then treat the publish part
     if request.method == "POST":
-        error_id  = "";
+        error_id = "";
         state_error = False;
         for elem in request.form:
             if elem.startswith("chan_option_"):
                 def substr(elem):
                     import re
                     return re.sub('^chan\_option\_', '', elem)
+
                 c = Channel.query.get(substr(elem))
                 validate = pre_validate_post(c, p)
                 if validate == 0:

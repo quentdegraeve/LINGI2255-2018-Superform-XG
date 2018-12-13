@@ -44,13 +44,13 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="input-group mr-sm-2">
+        <div class="input-group mr-sm-2" >
             <input name="name" type="text" class="form-control" id="inlineFormInputName" placeholder="New channel name">
             <input name="username" type="text" hidden class="form-control" id="inlineFormInputTextUserName" placeholder="New channel username">
             <input name="password" type="password" hidden class="form-control" id="inlineFormInputTextPassword" placeholder="New channel password">
         </div>
 
-        <button id="add_chan_button" name="add_chan" type="submit" class="btn btn-primary">
+        <button id="add_chan_button" name="add_chan" type="submit" class="btn btn-primary" >
             <i class="fas fa-fw fa-plus"></i>Add a new channel
         </button>
     </form>
@@ -108,12 +108,10 @@
 {% endblock %}
 {% block scripts %}
     <script>
-
-
         function Correction() {
-            var corr_prov = $("#inlineFormInputText").val();
-            corr= corr_prov.replace(/([,:;.?!")'{}(^+=~%$ ])/g, "_");
-            $("#inlineFormInputText").val(corr);
+            var corr_prov = $("#inlineFormInputName").val();
+            var corr= corr_prov.replace(/([,:;.?!")'{}(^+=~%$ ])/g, "_");
+            $("#inlineFormInputName").val(corr);
         }
 
         $('#deleteModal').on('show.bs.modal', function (event) {
