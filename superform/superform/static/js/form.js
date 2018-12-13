@@ -447,9 +447,6 @@ function addImagePreviewFeature(fieldset) {
 
 function showTweetPreview(container, text) {
 
-    console.log(container);
-    console.log(text);
-
     var message = createLoadingMessage();
     var body = container.find(".modal-body");
     body.empty();
@@ -459,7 +456,6 @@ function showTweetPreview(container, text) {
         "descr": text
     }, function(json) {
         var tweets = json.tweetpreview;
-        console.log(tweets);
         if (tweets !== 'undefined') {
             var ul = $("<ul>");
             ul.addClass("list-group");
@@ -592,17 +588,24 @@ function addCopyFeature(fieldset) {
 }
 
 function retrieveFormData() {
-    var data = [];
+    var form_data = [];
     $("fieldset").each(function() {
         var array = $(this).serializeArray();
         var fields = {};
         for (var k = 0; k < array.length; k++) {
             fields[array[k].name] = array[k].value;
         }
-        data.push({
-            "name": $(this).attr("name"),
-            "fields": fields
-        });
+        for (var k = 0; k < data.channels.length; k++) {
+            var name = $(this).attr("name");
+            if (data.channels[k].name === name) {
+                var state = data.channels[k].state;
+                form_data.push({
+                    "name": name,
+                    "fields": fields,
+                    "state": state
+                });
+            }
+        }
     });
     return JSON.stringify(data);
 }
