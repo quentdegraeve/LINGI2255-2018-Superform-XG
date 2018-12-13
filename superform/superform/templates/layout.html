@@ -42,7 +42,8 @@
                             <li class="nav-item {{ 'active' if request.endpoint == 'channels.channel_list' else '' }}">
                                 <a class="nav-link" href="{{ url_for('channels.channel_list') }}">Channels</a>
                             </li>
-                            <li class="nav-item {{ 'active' if request.endpoint == 'publishings.moderate' else '' }}">
+                        {% endif %}
+                        <li class="nav-item {{ 'active' if request.endpoint == 'publishings.moderate' else '' }}">
                                 <a class="nav-link" href="{{ url_for('publishings.moderate') }}">
                                     Moderate
                                     <span class="badge badge-secondary">
@@ -50,7 +51,6 @@
                                     </span>
                                 </a>
                             </li>
-                        {% endif %}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 {{ session.first_name }} {{ session.name }}
