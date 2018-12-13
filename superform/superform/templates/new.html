@@ -150,7 +150,7 @@
                                                     <div class="input-group">
                                                         <input type="text" name="{{ chan.name }}_imagepost"
                                                                id="{{ chan.name }}_imagepost" class="form-control">
-                                                        <button id="js-open-preview-test" type="button"
+                                                        <button id="js-open-preview-image" type="button"
                                                                 class="btn btn-secondary" onclick="PreviewFunction('{{ chan.name }}_imagepost')">
                                                             Preview
                                                         </button>
@@ -347,8 +347,10 @@
             console.log(post)
 
             if (split[split.length-1] == "imagepost") {
-                var url = $("#imagepost").val();
-                console.log(url)
+                var parent = $("#js-open-preview-image").parent();
+                var input = parent.find("input");
+                var text = input.val();
+                var url = text;
             }
             else if (split[split.length-1] == "backgroundpost") {
                 var url = $("#backgroundpost").val();
@@ -431,6 +433,9 @@
             var parent = $("#js-twitter-open-preview").parent().parent().parent();
             var textarea = parent.find("textarea");
             var text = textarea.val();
+            console.log(parent)
+            console.log(textarea)
+            console.log(text)
 
             $.getJSON(address, {
                 "descr": text
