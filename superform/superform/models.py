@@ -1,9 +1,16 @@
+import json
+
 from flask_sqlalchemy import SQLAlchemy
 from enum import Enum
 import datetime
 import json
 from sqlalchemy.orm import sessionmaker
 from lxml.html._diffcommand import description
+
+from sqlalchemy import UniqueConstraint
+from sqlalchemy.ext.declarative import DeclarativeMeta
+
+from superform.utils import str_converter
 
 db = SQLAlchemy()
 
@@ -52,7 +59,29 @@ class Post(db.Model):
             return True
 
 
+class AlchemyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj.__class__, DeclarativeMeta):
+            # an SQLAlchemy class
+            fields = {}
+            for field in [x for x in vars(obj) if not x.startswith('_') and x != 'metadata']:
+                data = obj.__getattribute__(field)
+                try:
+                    if data.__class__ == datetime.datetime:
+                        fields[field] = str_converter(data)
+                    else:
+                        json.dumps(data) # this will fail on non-encodable values, like other classes
+                        fields[field] = data
+                except TypeError:
+                    fields[field] = None
+            # a json-encodable dict
+            return fields
+        return json.JSONEncoder.default(self, obj)
+
+
 class Publishing(db.Model):
+    publishing_id = db.Column(db.Integer, autoincrement=True, primary_key=True, unique=True, nullable=False)
+    num_version = db.Column(db.Integer, nullable=False, default=1)
     post_id = db.Column(db.Integer, db.ForeignKey("post.id"), nullable=False)
     channel_id = db.Column(db.Integer, db.ForeignKey("channel.id"), nullable=False)
     state = db.Column(db.Integer, nullable=False, default=-1)
@@ -69,11 +98,12 @@ class Publishing(db.Model):
     subtitle = db.Column(db.Text, nullable=True, default=None)
     duration = db.Column(db.Text, nullable=True, default=None)
 
-    __table_args__ = (db.PrimaryKeyConstraint('post_id', 'channel_id'),)
+    UniqueConstraint(num_version, post_id, channel_id, name='unicity_publishing_numvers')
+    __table_args__ = ({"sqlite_autoincrement": True},)
 
 
     def __repr__(self):
-        return '<Publishing {} {}>'.format(repr(self.post_id), repr(self.channel_id))
+        return '<Publishing {} ({} {})>'.format(repr(self.publishing_id), repr(self.post_id), repr(self.channel_id))
 
     def get_author(self):
         return db.session.query(Post).get(self.post_id).user_id
@@ -112,11 +142,28 @@ class Authorization(db.Model):
         return '<Authorization {} {}>'.format(repr(self.user_id), repr(self.channel_id))
 
 
+class Comment(db.Model):
+    publishing_id = db.Column(db.Integer, db.ForeignKey("publishing.publishing_id"), primary_key=True, nullable=False)
+    user_comment = db.Column(db.Text, nullable=True)
+    moderator_comment = db.Column(db.Text, nullable=True)
+    date_moderator_comment = db.Column(db.Text, nullable=True)
+    date_user_comment = db.Column(db.Text, nullable=True)
+
+    def __repr__(self):
+        return '<Comment {}>'.format(repr(self.publishing_id))
+
+    __table_args__ = (db.PrimaryKeyConstraint('publishing_id'),)
+
+
 class Permission(Enum):
     AUTHOR = 1
     MODERATOR = 2
 
 
 class State(Enum):
-    WAITING = 1
-    PUBLISHED = 2
+    INCOMPLETE = -1
+    NOT_VALIDATED = 0
+    VALIDATED_SHARED = 1
+    ARCHIVED = 2
+    REFUSED = 3
+    OLD_VERSION = 4

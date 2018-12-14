@@ -34,16 +34,15 @@ def prepare():
 
     keepass.set_entry_from_keepass('account_superform')
     selenium_utils.login(pytest.driver, keepass.KeepassEntry.username, keepass.KeepassEntry.password)
-    connection = sqlite3.connect(TESTDB_PATH)
+    """connection = sqlite3.connect(TESTDB_PATH)
     cursor = connection.cursor()
-    sql_command = """
+    sql_command = 
         UPDATE user
         SET admin = 1
         WHERE id = 'superego';
-        """
     cursor.execute(sql_command)
     connection.commit()
-    connection.close()
+    connection.close()"""
     pytest.driver.close()
     pytest.driver = selenium_utils.get_chrome()
     selenium_utils.login(pytest.driver, keepass.KeepassEntry.username, keepass.KeepassEntry.password)

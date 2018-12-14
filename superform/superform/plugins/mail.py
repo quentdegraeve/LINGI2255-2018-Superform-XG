@@ -6,6 +6,7 @@ from flask import current_app
 import json
 
 from superform import db
+from superform.models import State
 
 FIELDS_UNAVAILABLE = ["Image"]
 
@@ -36,7 +37,7 @@ def run(publishing,channel_config):
     except SMTPException as e:
         # TODO should add log here
         print(e)
-    publishing.state = 1
+    publishing.state = State.VALIDATED_SHARED.value
     db.session.commit()
 
 

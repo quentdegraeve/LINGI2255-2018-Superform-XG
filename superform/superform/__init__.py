@@ -2,9 +2,9 @@ from flask import Flask, render_template, session
 import pkgutil
 import importlib
 from flask import request
-import superform.plugins
+
 from superform.publishings import pub_page
-from superform.models import db, User, Post, Publishing, Channel
+from superform.models import db, User, Post, Publishing, Channel, State, Comment
 from superform.authentication import authentication_page
 from superform.authorizations import authorizations_page
 from superform.channels import channels_page
@@ -13,7 +13,6 @@ from superform.api import api_page
 from superform.edit import edit_page
 from superform.suputils.keepass import keypass_error_callback_page
 from superform.plugins.slack import slack_error_callback_page, slack_verify_callback_page
-from superform.users import get_moderate_channels_for_user, is_moderator
 from superform.rss import rss_page
 from superform.delete import del_page
 
@@ -46,6 +45,8 @@ app.config["PLUGINS"] = {
     for finder, name, ispkg
     in pkgutil.iter_modules(plugins.__path__, plugins.__name__ + ".")
 }
+SIZE_COMMENT = 40
+
 
 @app.route('/', methods=["GET"])
 def index():
@@ -55,16 +56,41 @@ def index():
     else:
         page = int(page)
     user_id = session.get("user_id", "") if session.get("logged_in", False) else -1
-    posts = []
+    posts_var = []
+    pubs_unvalidated = []
     if user_id != -1:
-        posts = db.session.query(Post).filter(Post.user_id == user_id).order_by(Post.date_created.desc()).paginate(page, 5, error_out=False)
-        for post in posts.items:
-            publishings = db.session.query(Publishing).filter(Publishing.post_id == post.id).all()
-            channels = []
-            for publishing in publishings:
-                channels.append(db.session.query(Channel).filter(Channel.id == publishing.channel_id).first())
-            setattr(post, "channels", channels)
-    return render_template("index.html", posts=posts)
+        # AJOUTER Post.user_id == user_id dans posts DANS QUERY?
+        posts_var = db.session.query(Post).filter(Post.user_id == user_id).order_by(Post.date_created.desc()).paginate(page, 5, error_out=False)
+        for post in posts_var.items:
+            publishings_var = db.session.query(Publishing).filter(Publishing.post_id == post.id).all()
+            channels_var = set()
+            for publishing in publishings_var:
+                channels_var.add(db.session.query(Channel).filter(Channel.id == publishing.channel_id).first())
+            setattr(post, "channels", channels_var)
+
+        posts_user = db.session.query(Post).filter(Post.user_id == user_id).all()
+        print("posts_user", posts_user)
+        pubs_unvalidated = db.session.query(Publishing).filter(Publishing.state == State.REFUSED.value).\
+            order_by(Publishing.post_id).order_by(Publishing.channel_id).all()
+        print('pubs_unv', pubs_unvalidated)
+        post_ids = [p.id for p in posts_user]
+        pubs = []
+
+        for pub_unvalidated in pubs_unvalidated:
+            if pub_unvalidated.post_id in post_ids:
+                channels_var = [db.session.query(Channel).filter(Channel.id == publishing.channel_id).first()]
+                setattr(pub_unvalidated, "channels", channels_var)
+                pubs.append(pubs_unvalidated)
+                last_comment = db.session.query(Comment).filter(Comment.publishing_id ==
+                                                                pub_unvalidated.publishing_id).first()
+                comm = comm_short = last_comment.moderator_comment[:SIZE_COMMENT]
+                if len(last_comment.moderator_comment) > SIZE_COMMENT:
+                    comm_short = comm + "..."
+
+                comm = last_comment.moderator_comment
+                setattr(pub_unvalidated, "comment_short", comm_short)
+                setattr(pub_unvalidated, "comment", comm)
+    return render_template("index.html", posts=posts_var, pubs_unvalidated=pubs_unvalidated)
 
 @app.errorhandler(403)
 def forbidden(error):

@@ -4,9 +4,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/error.css') }}" crossorigin="anonymous">
 {% endblock %}
-{% block title %}Moderate{% endblock %}
+{% block title %}Resubmit{% endblock %}
 {% block content %}
-    <h1>Moderate this publication</h1>
+    <h1>resubmit this publication</h1>
     {% if session.logged_in %}
         <form method="POST" action="">
             <div class="row"  module-namechan="{{channel.module }}">
@@ -23,24 +23,61 @@
                         <label for="linkurlpost">Link</label><br>
                         <input type="text" name="linkurlpost" id="linkurlpost" class="form-control" value="{{ pub.link_url }}">
                     </div>
-                    <div class="form-group">
-                        <label for="imagepost">Image</label><br>
-                        <input type="text" name="imagepost" id="imagepost" class="form-control" value="{{ pub.image_url }}">
-                    </div>
-                    {% if channel.module == "superform.plugins.ICTV" %}
-                        <div class="form-group">
-                            <label for="subtitle">Subtitle</label><br>
-                            <input type="text" name="subtitle" id="subtitle" class="form-control" value="{{ pub.subtitle}}">
+                    {% if channel.module == "superform.plugins.gcal" %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                <label for="datedebut">Starting date</label><br>
+                                <input  type="date" name="datedebut" id="datedebut" class="form-control" value="{{ pub.date_start }}">
+                            </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="heuredebut">Starting time</label><br>
+                                    <input type="time" name="heuredebut" id="heuredebut"  class="form-control" value="{{ pub.hour_start }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="datefin">Ending date</label><br>
+                                    <input type="date" name="datefin" id="datefin" class="form-control" value="{{ pub.date_end }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="heurefin">Ending time</label><br>
+                                    <input type="time" name="heurefin" id="heurefin" class="form-control" value="{{ pub.hour_end }}">
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label for="logo">Logo</label><br>
-                            <input type="text" name="logo" id="logo" class="form-control" value="{{ pub.logo}}">
+                            <label for="location">Location</label><br>
+                            <input type="text" name="location" id="location" class="form-control" value="{{ pub.location }}">
                         </div>
                         <div class="form-group">
-                            <label for="duration">Duration</label><br>
-                            <input type="number" name="duration" id="duration" class="form-control" value="{{ pub.duration}}">
+                            <label for="color">Color</label><br>
+                            <input type="text" name="color" id="color" class="form-control" value="{{ pub.color_id }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="visibility">Visibility</label><br>
+                            <input type="text" name="visibility" id="visibility" class="form-control" value="{{ pub.visibility }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="availability">Availability</label><br>
+                            <input type="text" name="availability" id="availability" class="form-control" value="{{ pub.availability }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="guests">Guests emails</label><br>
+                            <input type="text" name="guests" id="guests" class="form-control" value="{{ pub.guests }}">
                         </div>
                     {% endif %}
+                    <div class="form-group">
+                        <label for="imagepost">Image</label><br>
+                        <input type="file" name="imagepost" id="imagepost" class="form-control" value="{{ pub.image_url }}">
+                    </div>
+                    {% if channel.module != "superform.plugins.gcal" %}
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -55,8 +92,6 @@
                             </div>
                         </div>
                     </div>
-                    {% if template!=None %}
-                        {% include template %} <!-- include extra form if necessary -->
                     {% endif %}
                 </div>
                 <div id="old_pub" class="col-md-4">
@@ -161,7 +196,7 @@
                             {% for comment in comments %}
                                 {% if comment != None %}
                                     {% if comment.user_comment != None and comment.user_comment != ''%}
-                                        <div class="talk-bubble left round tri-right btm-left-in">
+                                        <div class="talk-bubble right round tri-right btm-right-in">
                                           <div id="user_{{ loop.index }}" class="talktext">
                                               <h6>{{ comment.date_user_comment }}</h6>
                                               <p>{{ comment.user_comment }}</p>
@@ -169,7 +204,7 @@
                                         </div>
                                     {% endif %}
                                     {% if comment.moderator_comment != None and comment.moderator_comment != '' %}
-                                        <div class="talk-bubble right round tri-right btm-right-in">
+                                        <div class="talk-bubble left round tri-right btm-left-in">
                                           <div id="mod_{{ loop.index }}" class="talktext">
                                               <h6>{{ comment.date_moderator_comment }}</h6>
                                               <p>{{ comment.moderator_comment }}</p>
@@ -181,15 +216,12 @@
                         </div>
                     </div>
                     <div id="mod_comment" class="form-group">
-                        <label for="moderator_comment">Your comment</label><br>
-                        <textarea class="form-control" rows="5" id="moderator_comment" name="moderator_comment"></textarea>
+                        <label for="user_comment">Your comment</label><br>
+                        <textarea class="form-control" rows="5" id="user_comment" name="user_comment"></textarea>
                     </div>
                 </div>
             </div>
-            <button id="publish" class="btn btn-success">Publish</button>
-            <button id="unvalidate" class="btn btn-danger" formaction="{{ url_for('publishings.unvalidate_publishing',id=pub.publishing_id) }}" formmethod="post" type="submit">
-                    Reject
-           </button>
+            <button id="resubmit" class="btn btn-success" type="submit" formaction="{{ url_for('posts.resubmit_publishing', id=pub.publishing_id) }}" formmethod="post">re-submit</button>
         </form>
         <div class="modal fade" id="modalResubmitModerate" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
@@ -218,8 +250,7 @@
     <script type="text/javascript">
     let pubs = JSON.parse({{ pub_versions|tojson }}).reverse();
     let coms = JSON.parse({{ pub_comments|tojson }});
-    console.log(coms);
-    var post_form_validations = {{ post_form_validations|tojson }}
+    var post_form_validations ={{ post_form_validations|tojson }}
     </script>
     <script src="{{ url_for('static', filename='js/post_and_publishing_utils.js') }}" crossorigin="anonymous"></script>
     <script src="{{ url_for('static', filename='js/resubmit_moderate.js') }}" crossorigin="anonymous"></script>

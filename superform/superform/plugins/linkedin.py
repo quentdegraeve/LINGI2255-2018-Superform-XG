@@ -2,11 +2,13 @@ import json
 
 from flask import redirect, url_for, request, Blueprint
 from linkedin import linkedin
+from selenium.common.exceptions import NoSuchElementException
+
 from superform.suputils import selenium_utils
 from datetime import datetime, timedelta
 from superform.suputils import plugin_utils
 
-from superform.models import db, Channel, Publishing
+from superform.models import db, Channel, Publishing, State
 from superform.suputils import keepass
 
 linkedin_verify_callback_page = Blueprint('linkedin', 'channels')
@@ -120,7 +122,10 @@ def auto_auth(url, channel_id):
     username.send_keys(keepass.KeepassEntry.username)
     password.send_keys(keepass.KeepassEntry.password)
 
-    driver.find_element_by_name("signin").click()
+    try:
+        driver.find_element_by_name("signin").click()
+    except NoSuchElementException:
+        driver.find_element_by_css_selector('button[type="submit"]').click()
 
     if not selenium_utils.wait_redirect(driver, 'linkedin'):
         driver.close()
@@ -143,7 +148,7 @@ def run(publishing, channel_config):
     authenticate(publishing.channel_id, (publishing.post_id, publishing.channel_id))
 
     if share_post(publishing.channel_id, publishing.description, publishing.title, publishing.link_url, publishing.image_url, "anyone"):
-        publishing.state = 1
+        publishing.state = State.VALIDATED_SHARED.value
         db.session.commit()
 
 
@@ -187,7 +192,6 @@ class LinkedinTokens:
 def linkedin_verify_authorization():
     code = request.args.get('code')
     conf_publishing = json.loads(request.args.get('state'))
-    channel_name = conf_publishing['channel_name']
     publishing_id = conf_publishing['publishing_id']
     post_id = publishing_id.__getitem__(0)
     channel_id = publishing_id.__getitem__(1)
