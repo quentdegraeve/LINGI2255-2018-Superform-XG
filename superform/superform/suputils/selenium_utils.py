@@ -26,10 +26,13 @@ def get_headless_chrome():
 
 def get_chrome():
     try:
+        print("-----------------------------------")
+        print(sys.path)
+        print("__________________________________")
         if platform.system() == 'Windows':
             return webdriver.Chrome(sys.path[0] + '\superform\selenium_drivers\chromedriver.exe')
         else:
-            return webdriver.Chrome(sys.path[1] + '/superform/selenium_drivers/chromedriver')
+            return webdriver.Chrome(sys.path[0] + '/superform/selenium_drivers/chromedriver')
     except common.exceptions.WebDriverException as e:
         print(e)
         print(
@@ -180,9 +183,9 @@ def edit_post(driver, post_id, title, description, date_from, date_to, link=''):
     driver.get(edit_url + '/' + str(post_id))
     input_title = driver.find_element_by_name("title")
     input_description = driver.find_element_by_name("description")
-    input_link = driver.find_element_by_name("link")
-    input_date_from = driver.find_element_by_name("publication_date")
-    input_date_to = driver.find_element_by_name("publication_until")
+    input_link = driver.find_element_by_name("link_url")
+    input_date_from = driver.find_element_by_name("date_from")
+    input_date_to = driver.find_element_by_name("date_until")
 
     input_title.send_keys(title)
     input_description.send_keys(description)

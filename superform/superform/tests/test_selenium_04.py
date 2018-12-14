@@ -34,11 +34,11 @@ def prepare():
 
     selenium_utils.login(pytest.driver, "superego", "superego")
 
-    selenium_utils.create_channel(pytest.driver, TWITTER_NAME, 'twitter')
-    selenium_utils.create_channel(pytest.driver, ICTV_NAME, 'ICTV')
+    #selenium_utils.create_channel(pytest.driver, TWITTER_NAME, 'twitter')
+    #selenium_utils.create_channel(pytest.driver, ICTV_NAME, 'ICTV')
 
-    selenium_utils.add_authorization(pytest.driver, TWITTER_NAME, "superego", 2)
-    selenium_utils.add_authorization(pytest.driver, ICTV_NAME, "superego", 2)
+    #selenium_utils.add_authorization(pytest.driver, TWITTER_NAME, "superego", 2)
+    #selenium_utils.add_authorization(pytest.driver, ICTV_NAME, "superego", 2)
 
     yield
 
@@ -55,6 +55,8 @@ def test_edit_post(client):
     assert len(posts) > 0
     post = posts[-1]
     sleep(1)
+    title = 'There is no error'
+    description = 'nice description'
     selenium_utils.edit_post(pytest.driver, post.id, title, description, pytest.now, pytest.now)
 
 
