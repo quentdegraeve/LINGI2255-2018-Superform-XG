@@ -4,7 +4,7 @@ from flask import Blueprint, json, jsonify, request, redirect, render_template, 
 from posts import create_a_publishing, pre_validate_post
 from superform.utils import login_required, datetime_converter
 import json
-from superform.models import db, Post, Publishing, Channel, User, PubGCal
+from superform.models import db, Post, Publishing, Channel, User
 from superform.users import channels_available_for_user
 
 from datetime import date, timedelta

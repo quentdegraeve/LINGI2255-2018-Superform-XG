@@ -2,6 +2,7 @@ import os
 import platform
 import sys
 import time
+from os import path
 
 from selenium import webdriver, common
 from time import sleep
@@ -12,11 +13,8 @@ def get_headless_chrome():
     options = webdriver.ChromeOptions()
     options.add_argument('headless')
     try:
-        if platform.system() == 'Windows':
-            return webdriver.Chrome(sys.path[0] + '\superform\selenium_drivers\chromedriver.exe',
-                                    chrome_options=options)
-        else:
-            return webdriver.Chrome(sys.path[1] + '/superform/selenium_drivers/chromedriver', chrome_options=options)
+        driver_path = path.join(path.join(path.join(path.dirname(__file__), '..'), 'selenium_drivers'), 'chromedriver')
+        return webdriver.Chrome(driver_path, chrome_options=options)
     except common.exceptions.WebDriverException:
         print(
             'Can not find a valid selenium_drivers driver. it should be named chromedriver on linux or chromedriver.exe '
@@ -26,10 +24,8 @@ def get_headless_chrome():
 
 def get_chrome():
     try:
-        if platform.system() == 'Windows':
-            return webdriver.Chrome(sys.path[0] + '\superform\selenium_drivers\chromedriver.exe')
-        else:
-            return webdriver.Chrome(sys.path[1] + '/superform/selenium_drivers/chromedriver')
+        driver_path = path.join(path.join(path.join(path.dirname(__file__), '..'), 'selenium_drivers'), 'chromedriver')
+        return webdriver.Chrome(driver_path)
     except common.exceptions.WebDriverException as e:
         print(e)
         print(
@@ -46,6 +42,7 @@ new_post_url = 'http://localhost:5000/new'
 index_url = 'http://localhost:5000'
 configure_url = 'http://localhost:5000/configure'
 edit_url = 'http://localhost:5000/edit'
+delete_url = 'http://localhost:5000/delete'
 moderate_url = 'http://localhost:5000/moderate'
 linkedin_url = 'https://www.linkedin.com'
 resubmit_url = 'http://localhost:5000/publishing/resubmit'
@@ -82,24 +79,25 @@ def login(driver, username, password):
     driver.find_element_by_css_selector('input[type="submit"]').click()
 
 
-def create_channel(driver, name, username, password, module):
+def create_channel(driver, name, module, username=None, password=None, ):
     driver.get(channel_url)
     driver.find_element_by_css_selector('select[name="module"] option[value="' + module + '"]').click()
     input_name = driver.find_element_by_name("name")
-    input_username = driver.find_element_by_name("username")
-    input_password = driver.find_element_by_name("password")
+    if password is not None and username is not None:
+        input_username = driver.find_element_by_name("username")
+        input_password = driver.find_element_by_name("password")
+        input_username.send_keys(username)
+        input_password.send_keys(password)
     input_name.send_keys(name)
-    input_username.send_keys(username)
-    input_password.send_keys(password)
 
     driver.find_element_by_name("add_chan").click()
 
-def create_channel(driver, name, module):
+
+def create_simple_channel(driver, name, module):
     driver.get(channel_url)
     driver.find_element_by_css_selector('select[name="module"] option[value="' + module + '"]').click()
     input_name = driver.find_element_by_name("name")
     input_name.send_keys(name)
-
     driver.find_element_by_name("add_chan").click()
 
 
@@ -126,9 +124,10 @@ def add_authorization(driver, name, username, permission):
     input_username.send_keys(username)
     if permission == 2:
         select = driver.find_element_by_css_selector('select[name="permission' + name_id + '"]')
-        select.click()
-        select.send_keys(Keys.DOWN)
-        select.send_keys(Keys.ENTER)
+        for option in select.find_elements_by_tag_name('option'):
+            if option.text == 'Permission.MODERATOR':
+                option.click()
+                break
 
     driver.find_element_by_css_selector('a[data-channelid="' + name_id + '"]').click()
     sleep(1)
@@ -156,9 +155,54 @@ def add_new_post(driver, name_array, title, description, date_from, date_to, lin
     driver.find_element_by_css_selector('button[id="publish-button"]').click()
 
 
+def add_new_post_gcal(driver, name_array, title, description, date_from, date_to, link=''):
+    driver.get(new_post_url)
+
+    input_title = driver.find_element_by_name("titlepost")
+    input_description = driver.find_element_by_name("descriptionpost")
+    input_link = driver.find_element_by_name("linkurlpost")
+    input_date_from = driver.find_element_by_name("datefrompost")
+    input_date_to = driver.find_element_by_name("dateuntilpost")
+
+    input_title.send_keys(title)
+    input_description.send_keys(description)
+    input_link.send_keys(link)
+    input_date_from.send_keys(date_from)
+    input_date_to.send_keys(date_to)
+
+    for name in name_array:
+        driver.find_element_by_css_selector('input[data-namechan = "' + name + '"]').click()
+    driver.find_element_by_css_selector('a[href="#menu2"]').click()
+    input_date_debut = driver.find_element_by_name("test_gcal_datedebut")
+    input_date_fin = driver.find_element_by_name("test_gcal_datefin")
+    input_heure_debut = driver.find_element_by_name("test_gcal_heuredebut")
+    input_heure_fin = driver.find_element_by_name("test_gcal_heurefin")
+
+    input_date_fin.send_keys(date_to)
+    input_date_debut.send_keys(date_from)
+    input_heure_debut.send_keys('1000')
+    input_heure_fin.send_keys('1200')
+    driver.find_element_by_css_selector('button[id="publish-button"]').click()
+
+
 def moderate_post(driver, chan_number, post_number):
     driver.get(moderate_url + '/' + str(post_number) + '/' + str(chan_number))
     driver.find_element_by_css_selector('button[id="publish"]').click()
+
+
+def moderate_post_with_reject(driver, chan_number, post_number, comment):
+    driver.get(moderate_url + '/' + str(post_number) + '/' + str(chan_number))
+    print('url', moderate_url + '/' + str(post_number) + '/' + str(chan_number))
+    input_comment = driver.find_element_by_css_selector('textarea[id="moderator_comment"]')
+    input_comment.send_keys(comment)
+    driver.find_element_by_css_selector('button[id="unvalidate"]').click()
+
+
+def resubmit_post(driver, publishing_id, comment):
+    driver.get(resubmit_url + '/' + str(publishing_id))
+    input_comment = driver.find_element_by_css_selector('textarea[id="user_comment"]')
+    input_comment.send_keys(comment)
+    driver.find_element_by_css_selector('button[id="resubmit"]').click()
 
 
 def moderate_post_with_reject(driver, chan_number, post_number, comment):
@@ -257,3 +301,10 @@ def add_new_ictv_publishing(driver, name_array, channel_id, title, description, 
 
 
 
+
+def modify_config_gcal(driver, chan_number, token):
+    driver.get(configure_url + '/' + str(chan_number))
+    input_token = driver.find_element_by_name("token")
+    input_token.clear()
+    input_token.send_keys(token)
+    driver.find_element_by_css_selector('button[type="submit"]').click()

@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from flask import flash, Blueprint, redirect, url_for, request, render_template
 from slackclient import SlackClient
 import json
-from superform.models import Channel, Publishing, db
+from superform.models import Channel, Publishing, db, State
 from superform.suputils import keepass, selenium_utils, plugin_utils
 
 FIELDS_UNAVAILABLE = ['Publication Date']
@@ -97,7 +97,7 @@ def auto_auth(url, channel_id):
     if dom == 'None' or dom == '':
         return redirect(url_for('slack_error.error_config_slack', chan_id=channel_id))
 
-    driver = selenium_utils.get_chrome()
+    driver = selenium_utils.get_headless_chrome()
     driver.get(url)
     domain = driver.find_element_by_name("domain")
     domain.send_keys(dom)
@@ -188,7 +188,7 @@ def run(publishing, channel_config):
     authenticate(publishing.channel_id, (publishing.post_id, publishing.channel_id))
     if share_post(publishing.channel_id, slack_channel_name, publishing.title, publishing.description, publishing.link_url,
                   publishing.image_url):
-        publishing.state = 1
+        publishing.state = State.VALIDATED_SHARED.value
         db.session.commit()
 
 
@@ -246,3 +246,21 @@ class SlackTokens:
 def error_config_slack(chan_id):
     chan_name = Channel.query.get(chan_id).name
     return render_template('error_config_slack.html', channel=chan_name)
+
+
+def saveExtraFields(channel, form):
+    return None
+
+# returns the name of an extra form, None if not needed
+def get_template_new():
+    return None
+
+# returns the name of an extra form (pre-fillable), None if not needed
+def get_template_mod():
+    return None
+def deletable():
+    return True
+
+def delete(pub):
+    pass
+
