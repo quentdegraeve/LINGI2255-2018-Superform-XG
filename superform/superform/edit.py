@@ -54,7 +54,6 @@ def publish_edit_post(post_id):
         list_of_channels_name.append(elem.name)
 
     for d in data:  # d is a post/publication
-        print(d)
         name = d.get('name')
         fields = d.get('fields')
 

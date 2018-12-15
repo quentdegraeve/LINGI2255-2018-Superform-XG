@@ -77,7 +77,6 @@ def create_a_publishing(post, chn, form):  # called in publish_from_new_post()
         latest_version_publishing = db.session.query(Publishing).filter(Publishing.post_id == post.id,
                                                                         Publishing.channel_id == chn.id).order_by(
             Publishing.num_version.desc()).first()
-        print(" last publishing + ", latest_version_publishing)
         if latest_version_publishing is None:
             pub = Publishing(post_id=post.id, channel_id=chn.id, state=State.NOT_VALIDATED.value, title=title_post,
                              description=descr_post,
@@ -190,10 +189,8 @@ def resubmit_publishing(id):
         if request.form.get('user_comment'):
             user_comment = request.form.get('user_comment')
         date_user_comment = str_converter_with_hour(datetime_now())
-        print("pub", new_pub.publishing_id)
         comm = Comment(publishing_id=new_pub.publishing_id, user_comment=user_comment,
                        date_user_comment=date_user_comment)
-        print("comm.date_user_comment", comm.date_user_comment)
         db.session.add(comm)
         db.session.commit()
         return redirect(url_for('index'))
