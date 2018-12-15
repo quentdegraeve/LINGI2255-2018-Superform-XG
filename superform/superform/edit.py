@@ -174,49 +174,28 @@ def create_a_publishing_edit(post, chn, data):
     link_post = field.get('link_url') if field.get('link_url') is not None else post.link_url
     image_post = field.get('image_url') if field.get('image_url') is not None else post.image_url
 
-    if chn.module == 'superform.plugins.gcal':
-
-        date_start = datetime_converter(field.get('date_start')) if datetime_converter(
-            field.get('date_start')) is not None else post.date_from
-        date_end = datetime_converter(field.get('date_end')) if datetime_converter(
-            field.get('date_end')) is not None else post.date_until
-        hour_start = field.get('hour_start') if field.get('hour_start') is not None else '00:00'
-        hour_end = field.get('hour_end') if field.get('hour_end') is not None else '00:00'
-        location = field.get('location')
-        color_id = field.get('color_id')
-        guests = field.get('guests')
-        visibility = field.get('visibility')
-        # availability = form.get(chan + '_availability')
-
-        pub = PubGCal(post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
-                      link_url=link_post, image_url=image_post,
-                      date_from=None, date_until=None, date_start=date_start, date_end=date_end,
-                      location=location, color_id=color_id, hour_start=hour_start, hour_end=hour_end,
-                      guests=guests, visibility=visibility)  # , availability=availability)
-
+    if field.get('date_from') is '':
+        date_from = date.today()
     else:
-        if field.get('date_from') is '':
-            date_from = date.today()
-        else:
-            date_from = datetime_converter(field.get('date_from')) if datetime_converter(
-                field.get('date_from')) is not None else post.date_from
-        if field.get('date_until') is '':
-            date_until = date.today() + timedelta(days=7)
-        else:
-            date_until = datetime_converter(field.get('date_until')) if datetime_converter(
-                field.get('date_until')) is not None else post.date_until
-        if chn.module == 'superform.plugins.ICTV':
-            logo = field.get('logo')
-            subtitle = field.get('subtitle')
-            duration = field.get('duration')
+        date_from = datetime_converter(field.get('date_from')) if datetime_converter(
+            field.get('date_from')) is not None else post.date_from
+    if field.get('date_until') is '':
+        date_until = date.today() + timedelta(days=7)
+    else:
+        date_until = datetime_converter(field.get('date_until')) if datetime_converter(
+            field.get('date_until')) is not None else post.date_until
+    if chn.module == 'superform.plugins.ICTV':
+        logo = field.get('logo')
+        subtitle = field.get('subtitle')
+        duration = field.get('duration')
 
-            pub = Publishing(post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
-                             link_url=link_post, image_url=image_post,
-                             date_from=date_from, date_until=date_until, logo=logo, subtitle=subtitle, duration=duration)
-        else:
-            pub = Publishing(post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
-                             link_url=link_post, image_url=image_post,
-                             date_from=date_from, date_until=date_until)
+        pub = Publishing(post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
+                         link_url=link_post, image_url=image_post,
+                         date_from=date_from, date_until=date_until, logo=logo, subtitle=subtitle, duration=duration)
+    else:
+        pub = Publishing(post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
+                         link_url=link_post, image_url=image_post,
+                         date_from=date_from, date_until=date_until)
 
     db.session.add(pub)
     db.session.commit()
