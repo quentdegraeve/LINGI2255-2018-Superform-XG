@@ -88,8 +88,6 @@ def moderate_publishing(id, idc):
         url = plugin.authenticate(c.id, (id, idc))
         if url != "AlreadyAuthenticated":
             return plugin.auto_auth(url, pub.channel_id)
-        plugin.run(pub, c_conf)
-        print('publishing publishings.py', pub)
         if pub.state == 66:
             try:
                 boolean = plugin.can_edit(pub, c_conf)
