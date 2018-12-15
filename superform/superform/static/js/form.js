@@ -282,6 +282,11 @@ function createChannelFieldset(channel) {
     }
 }
 
+function convertDate(str) {
+    var date = new Date(str);
+    return date.toISOString().split('T')[0];
+}
+
 function fillGeneralFieldset() {
 
     var name = "General";
@@ -290,7 +295,11 @@ function fillGeneralFieldset() {
 
     for (var key in fields) {
         var input = fieldset.find("[name=\"" + key + "\"]");
-        input.val(fields[key]);
+        if (input.attr("type") === "date") {
+            input.val(convertDate(fields[key]));
+        } else {
+            input.val(fields[key]);
+        }
     }
 }
 
@@ -304,7 +313,11 @@ function fillChannelFieldset() {
 
         for (var key in fields) {
             var input = fieldset.find("[name=\"" + key + "\"]");
-            input.val(fields[key]);
+            if (input.attr("type") === "date") {
+                input.val(convertDate(fields[key]));
+            } else {
+                input.val(fields[key]);
+            }
         }
     }
 }
@@ -338,6 +351,7 @@ function addTab(tabs, selector, fieldset) {
     tabs.append(tab);
     selector.append(a);
 
+    addCopyFeature(fieldset);
     addImagePreviewFeature(fieldset);
     addTweetPreviewFeature(fieldset);
     addRestoreFeature(fieldset);
@@ -349,11 +363,11 @@ function createList() {
     return container;
 }
 
-function addToList(list, name, onclick) {
+function addToList(list, content, onclick) {
     var a = $("<a>");
     a.addClass("list-group-item");
     a.addClass("list-group-item-action");
-    a.text(name);
+    a.append(content);
     a.on("click", onclick);
     list.append(a);
 }
@@ -433,9 +447,6 @@ function addImagePreviewFeature(fieldset) {
 
 function showTweetPreview(container, text) {
 
-    console.log(container);
-    console.log(text);
-
     var message = createLoadingMessage();
     var body = container.find(".modal-body");
     body.empty();
@@ -445,7 +456,6 @@ function showTweetPreview(container, text) {
         "descr": text
     }, function(json) {
         var tweets = json.tweetpreview;
-        console.log(tweets);
         if (tweets !== 'undefined') {
             var ul = $("<ul>");
             ul.addClass("list-group");
@@ -488,18 +498,114 @@ function addTweetPreviewFeature(fieldset) {
     }
 }
 
+function addCopyFeature(fieldset) {
+    fieldset.find(".form-control").each(function() {
+
+        var input = $(this);
+        var component = input.parents(".field");
+
+        addOptionToComponent(component, "Copy to...", function() {
+
+            var container = $("#copy_to_modal");
+            var body = container.find(".modal-body");
+            var name = input.attr("name");
+            var list = createList();
+
+            $(".form-control[name=\"" + name + "\"]").each(function() {
+                var parent = $(this).parents("fieldset");
+                if (parent.attr("name") !== fieldset.attr("name")) {
+
+                    var field = $(this);
+                    var content = $("<div>");
+
+                    var div;
+                    div = $("<div>");
+                    div.append(parent.attr("name"));
+                    content.append(div);
+
+                    div = $("<div>");
+                    div.addClass("text-muted");
+                    div.append(field.val());
+                    content.append(div);
+
+                    addToList(list, content, function() {
+                        field.val(input.val());
+                        $(this).remove();
+                        if (container.find(".list-group-item").length === 0) {
+                            body.append("(empty)");
+                        }
+                    });
+                }
+            });
+
+            body.empty();
+            body.append(list);
+            if (container.find(".list-group-item").length === 0) {
+                body.append("(empty)");
+            }
+            container.modal();
+        });
+
+        addOptionToComponent(component, "Copy from...", function() {
+
+            var container = $("#copy_from_modal");
+            var body = container.find(".modal-body");
+            var name = input.attr("name");
+            var list = createList();
+
+            $(".form-control[name=\"" + name + "\"]").each(function() {
+                var parent = $(this).parents("fieldset");
+                if (parent.attr("name") !== fieldset.attr("name")) {
+
+                    var field = $(this);
+                    var content = $("<div>");
+
+                    var div;
+                    div = $("<div>");
+                    div.append(parent.attr("name"));
+                    content.append(div);
+
+                    div = $("<div>");
+                    div.addClass("text-muted");
+                    div.append(field.val());
+                    content.append(div);
+
+                    addToList(list, content, function() {
+                        input.val(field.val());
+                        container.modal("toggle");
+                    });
+                }
+            });
+
+            body.empty();
+            body.append(list);
+            if (container.find(".list-group-item").length === 0) {
+                body.append("(empty)");
+            }
+            container.modal();
+        });
+    });
+}
+
 function retrieveFormData() {
-    var data = [];
+    var form_data = [];
     $("fieldset").each(function() {
         var array = $(this).serializeArray();
         var fields = {};
         for (var k = 0; k < array.length; k++) {
             fields[array[k].name] = array[k].value;
         }
-        data.push({
-            "name": $(this).attr("name"),
-            "fields": fields
-        });
+        for (var k = 0; k < data.channels.length; k++) {
+            var name = $(this).attr("name");
+            if (data.channels[k].name === name) {
+                var state = data.channels[k].state;
+                form_data.push({
+                    "name": name,
+                    "fields": fields,
+                    "state": state
+                });
+            }
+        }
     });
     return JSON.stringify(data);
 }
@@ -587,10 +693,7 @@ $("#add").on("click", function() {
 
     var container = $("#channels_modal");
     var list = createList();
-    var content = container.find(".modal-body");
-
-    content.empty();
-    content.append(list);
+    var body = container.find(".modal-body");
 
     for (var i = 0; i < data.channels.length; i++) {
         var channel = data.channels[i];
@@ -608,11 +711,19 @@ $("#add").on("click", function() {
                         }
                     }
                     $(this).remove();
+                    if (container.find(".list-group-item").length === 0) {
+                        body.append("(empty)");
+                    }
                 });
             }
         }
     }
 
+    body.empty();
+    body.append(list);
+    if (container.find(".list-group-item").length === 0) {
+        body.append("(empty)");
+    }
     container.modal();
 });
 
@@ -620,10 +731,7 @@ $("#delete").on("click", function() {
 
     var container = $("#channels_modal");
     var list = createList();
-    var content = container.find(".modal-body");
-
-    content.empty();
-    content.append(list);
+    var body = container.find(".modal-body");
 
     for (var i = 0; i < data.channels.length; i++) {
         var channel = data.channels[i];
@@ -641,11 +749,19 @@ $("#delete").on("click", function() {
                     link.remove();
                     $("#" + id + "_tab").remove();
                     $(this).remove();
+                    if (container.find(".list-group-item").length === 0) {
+                        body.append("(empty)");
+                    }
                 });
             }
         }
     }
 
+    body.empty();
+    body.append(list);
+    if (container.find(".list-group-item").length === 0) {
+        body.append("(empty)");
+    }
     container.modal();
 });
 
@@ -691,9 +807,21 @@ $(document).ready(function() {
             $("#content").show();
 
         }).fail(function() {
-            console.log("Error while loading the data");
+            var content = $("<div>");
+            content.text("Error while loading the data of the post");
+            var message = createErrorMessage(content);
+            var container = $("#content");
+            container.empty();
+            container.append(message);
+            container.show();
         });
     }).fail(function() {
-        console.log("Error while loading the layout");
+        var content = $("<div>");
+        content.text("Error while loading the layout");
+        var message = createErrorMessage(content);
+        var container = $("#content");
+        container.empty();
+        container.append(message);
+        container.show();
     });
 });
