@@ -70,6 +70,8 @@ def create_a_publishing(post, chn, form):  # called in publish_from_new_post()
         pub = Publishing(post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
                          link_url=link_post, image_url=image_post,
                          date_from=date_from, date_until=date_until, logo=logo, subtitle=subtitle, duration=duration)
+        db.session.add(pub)
+        db.session.commit()
     else:
 
         latest_version_publishing = db.session.query(Publishing).filter(Publishing.post_id == post.id,
