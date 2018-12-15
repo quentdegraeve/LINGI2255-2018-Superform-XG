@@ -1,5 +1,7 @@
 import os
 from flask import Blueprint, json, jsonify, request, redirect, render_template, session
+
+from posts import create_a_publishing, pre_validate_post
 from superform.utils import login_required, datetime_converter
 import json
 from superform.models import db, Post, Publishing, Channel, User, PubGCal
@@ -38,12 +40,24 @@ def publish_edit_post(post_id):
 
     post = db.session.query(Post).filter(Post.id == post_id, Post.user_id == current_user_id).first()  # retrieve old post
     pubs = db.session.query(Publishing).filter(Publishing.post_id == post_id).all()  # retrieve old publishings
+    list_of_channels = channels_available_for_user(current_user_id)
+    list_of_channels_name = list()
     if post is None:
         return redirect('/403')
 
+    for pub in pubs:
+        p = (db.session.query(Channel).filter((Channel.id == pub.channel_id))).first()
+        if p in list_of_channels:
+            list_of_channels.remove(p)
+
+    for elem in list_of_channels:
+        list_of_channels_name.append(elem.name)
+
     for d in data:  # d is a post/publication
+        print(d)
         name = d.get('name')
         fields = d.get('fields')
+
         if d.get('name') == 'General':
             keys = fields.keys()
             for k in keys:
@@ -56,12 +70,15 @@ def publish_edit_post(post_id):
                 else:
                     setattr(post, k, fields.get(k))
             db.session.commit()
-
+        elif name in list_of_channels_name:
+            for cha in list_of_channels:
+                if cha.name == name:
+                    create_a_publishing_edit(post, cha, d)
         else:
             for pub in pubs:
                 chans = db.session.query(Channel).filter(Channel.id == pub.channel_id).all()
                 if pub.state == 1:
-                    setattr(pub, 'state', 4)
+                    setattr(pub, 'state', 66)
                 for chn in chans:
                     if chn.name == name:
                         keys = fields.keys()
@@ -109,24 +126,31 @@ def create_data_json(post_id):
     for pub in query_pubs:
         channel = dict()
         p = (db.session.query(Channel).filter((Channel.id == pub.channel_id))).first()
-        elem = dict((col, getattr(p, col)) for col in p.__table__.columns.keys())
         if p in list_of_channels:
             list_of_channels.remove(p)
-        for e in elem:
-            if e == "module" or e == "name":
-                channel[e] = elem[e]
-        fields = dict()
-        for col in pub.__table__.columns.keys():
-            try:
-                val = getattr(pub, col)
-                if col == "state":
-                    channel[col] = val
-                elif not col == "post_id" and not col == "channel_id":
-                    fields[col] = val
-            except AttributeError as error:
-                pass
-        channel["fields"] = fields
-        module.append(channel)
+        try:
+            from importlib import import_module
+            plugin = import_module(p.module)
+            can_edit = plugin.can_edit(pub, p.config)
+        except AttributeError:
+            can_edit = False
+        if not (pub.state == 1 and not can_edit):
+            elem = dict((col, getattr(p, col)) for col in p.__table__.columns.keys())
+            for e in elem:
+                if e == "module" or e == "name":
+                    channel[e] = elem[e]
+            fields = dict()
+            for col in pub.__table__.columns.keys():
+                try:
+                    val = getattr(pub, col)
+                    if col == "state":
+                        channel[col] = val
+                    elif not col == "post_id" and not col == "channel_id":
+                        fields[col] = val
+                except AttributeError as error:
+                    pass
+            channel["fields"] = fields
+            module.append(channel)
 
     for chan in list_of_channels:
         channel = dict()
@@ -137,3 +161,64 @@ def create_data_json(post_id):
 
     json_output["channels"] = module
     return jsonify(json_output)
+
+
+def create_a_publishing_edit(post, chn, data):
+
+    validate = pre_validate_post(chn, post)
+    if validate == -1 or validate == 0:
+        return validate
+
+    field = data.get('fields')
+    title_post = field.get('title') if (field.get('title') is not None) else post.title
+    descr_post = field.get('description') if field.get('description') is not None else post.description
+    link_post = field.get('link_url') if field.get('link_url') is not None else post.link_url
+    image_post = field.get('image_url') if field.get('image_url') is not None else post.image_url
+
+    if chn.module == 'superform.plugins.gcal':
+
+        date_start = datetime_converter(field.get('date_start')) if datetime_converter(
+            field.get('date_start')) is not None else post.date_from
+        date_end = datetime_converter(field.get('date_end')) if datetime_converter(
+            field.get('date_end')) is not None else post.date_until
+        hour_start = field.get('hour_start') if field.get('hour_start') is not None else '00:00'
+        hour_end = field.get('hour_end') if field.get('hour_end') is not None else '00:00'
+        location = field.get('location')
+        color_id = field.get('color_id')
+        guests = field.get('guests')
+        visibility = field.get('visibility')
+        # availability = form.get(chan + '_availability')
+
+        pub = PubGCal(post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
+                      link_url=link_post, image_url=image_post,
+                      date_from=None, date_until=None, date_start=date_start, date_end=date_end,
+                      location=location, color_id=color_id, hour_start=hour_start, hour_end=hour_end,
+                      guests=guests, visibility=visibility)  # , availability=availability)
+
+    else:
+        if field.get('date_from') is '':
+            date_from = date.today()
+        else:
+            date_from = datetime_converter(field.get('date_from')) if datetime_converter(
+                field.get('date_from')) is not None else post.date_from
+        if field.get('date_until') is '':
+            date_until = date.today() + timedelta(days=7)
+        else:
+            date_until = datetime_converter(field.get('date_until')) if datetime_converter(
+                field.get('date_until')) is not None else post.date_until
+        if chn.module == 'superform.plugins.ICTV':
+            logo = field.get('logo')
+            subtitle = field.get('subtitle')
+            duration = field.get('duration')
+
+            pub = Publishing(post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
+                             link_url=link_post, image_url=image_post,
+                             date_from=date_from, date_until=date_until, logo=logo, subtitle=subtitle, duration=duration)
+        else:
+            pub = Publishing(post_id=post.id, channel_id=chn.id, state=0, title=title_post, description=descr_post,
+                             link_url=link_post, image_url=image_post,
+                             date_from=date_from, date_until=date_until)
+
+    db.session.add(pub)
+    db.session.commit()
+    return pub

@@ -588,24 +588,17 @@ function addCopyFeature(fieldset) {
 }
 
 function retrieveFormData() {
-    var form_data = [];
+    var data = [];
     $("fieldset").each(function() {
         var array = $(this).serializeArray();
         var fields = {};
         for (var k = 0; k < array.length; k++) {
             fields[array[k].name] = array[k].value;
         }
-        for (var k = 0; k < data.channels.length; k++) {
-            var name = $(this).attr("name");
-            if (data.channels[k].name === name) {
-                var state = data.channels[k].state;
-                form_data.push({
-                    "name": name,
-                    "fields": fields,
-                    "state": state
-                });
-            }
-        }
+        data.push({
+            "name": $(this).attr("name"),
+            "fields": fields
+        });
     });
     return JSON.stringify(data);
 }

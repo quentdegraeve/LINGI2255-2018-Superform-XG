@@ -81,7 +81,7 @@ def moderate_publishing(id, idc):
             print("url", url)
             return plugin.auto_auth(url, pub.channel_id)
         print('publishing publishings.py', pub)
-        if pub.state == 4:
+        if pub.state == 66:
             try:
                 boolean = plugin.can_edit(pub, c_conf)
                 if boolean:
@@ -89,9 +89,11 @@ def moderate_publishing(id, idc):
                 else:
                     pub.state = 1
                     print("No Edit")
+                    db.session.commit()
             except AttributeError:
                 pub.state = 1
                 print("No Edit")
+                db.session.commit()
 
         else:
             plugin.run(pub, c_conf)
