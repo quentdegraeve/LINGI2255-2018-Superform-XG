@@ -17,7 +17,7 @@ def moderate():
                                                              (Publishing.state == 0)) for c in chans)
         flattened_list_pubs = [y for x in pubs_per_chan for y in x]
         pubs_per_edit = (db.session.query(Publishing).filter((Publishing.channel_id == c.id) &
-                                                             (Publishing.state == 4)) for c in chans)
+                                                             (Publishing.state == 66)) for c in chans)
         flattened_list_edit = [y for x in pubs_per_edit for y in x]
         flattened_list_pubs += flattened_list_edit
     return render_template("moderate.html", publishings=flattened_list_pubs)
