@@ -76,7 +76,13 @@ def publish_edit_post(post_id):
         else:
             for pub in pubs:
                 chans = db.session.query(Channel).filter(Channel.id == pub.channel_id).all()
-                if pub.state == 1:
+                try:
+                    from importlib import import_module
+                    plugin = import_module(p.module)
+                    can_edit = plugin.can_edit(pub, p.config)
+                except AttributeError:
+                    can_edit = False
+                if pub.state == 1 and can_edit:
                     setattr(pub, 'state', 66)
                 for chn in chans:
                     if chn.name == name:
