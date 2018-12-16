@@ -41,10 +41,8 @@ def run(publishing, channel_config):
     link_url = publishing.link_url
     text = publishing.description
 
-    if link_url is not '':
-        text = text + ' '
-        text = text + link_url
     tweets = tweet_split(text, (',', '!', '?', ':', ';', '\n'))
+    tweets.append(link_url)
     image_url = publishing.image_url
     if image_url is '':
         try:
@@ -107,6 +105,7 @@ def tweet_split(text, separators):
     :param separators: Array containing characters that can be used to as delimiters between tweets
     :return: Array containing the Twitter-sized messages
     """
+    text = text.replace("\r\n", "\n")
     my_str = text
 
     tweets = []
