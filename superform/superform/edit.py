@@ -83,6 +83,10 @@ def publish_edit_post(post_id):
                 except AttributeError:
                     can_edit = False
                 if pub.state == 1 and can_edit:
+                    """
+                    We use the state 66 to indicate if a post who is already publish, is edited.
+                    Don't use this state for anything else !!!
+                    """
                     setattr(pub, 'state', 66)
                 for chn in chans:
                     if chn.name == name:
@@ -169,7 +173,14 @@ def create_data_json(post_id):
 
 
 def create_a_publishing_edit(post, chn, data):
-
+    """
+    This method is used in publish_edit_post in order to generate a publication.
+    Since the request used in publish_edit_post is different than the request in create_a_publishing in post.py, this
+    methode had the same behaviour but instead of using a request.form we use a request.get_json
+    :param post : the post linked to the publication, chn : the channel used for the publication, data : data used to
+    make the publishing
+    :return: the publishing
+    """
     validate = pre_validate_post(chn, post)
     if validate == -1 or validate == 0:
         return validate
