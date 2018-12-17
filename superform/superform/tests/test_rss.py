@@ -1,27 +1,26 @@
-from superform.suputils import plugin_utils
 from superform.models import Channel, Post, Publishing
 from superform.plugins import rss
-from superform.models import db
+from superform.posts import pre_validate_post
 
 def test_pre_validate_post_title():
     chan = Channel
     chan.module = "superform.plugins.rss"
-    plugin_utils.test_pre_validate_post_title(chan,40000)
+    pre_validate_post_title(chan,40000)
 
 def test_pre_validate_post_description():
     chan = Channel
     chan.module = "superform.plugins.rss"
-    plugin_utils.test_pre_validate_post_description(chan,40000)
+    pre_validate_post_description(chan,40000)
 
 def test_prevalidate_post_link_url():
     chan = Channel
     chan.module = "superform.plugins.rss"
-    plugin_utils.test_pre_validate_post_Link_url(chan)
+    pre_validate_post_Link_url(chan)
 
 def test_prevalidate_post_img_url():
     chan = Channel
     chan.module = "superform.plugins.rss"
-    plugin_utils.test_pre_validate_post_img_url(chan)
+    pre_validate_post_img_url(chan)
 
 def test_postpre_rss():
     ret_code = rss.post_pre_validation(
@@ -36,16 +35,52 @@ def test_deletable():
     ret_code = rss.deletable()
     assert ret_code == True
 
-# def test_post_db(): #Test on publishing in the DB, create a publication and test it is in then rollback DB
-#     cursor = db.cursor()
-#     sql_command = """
-#             INSERT INTO publishing (state)
-#             VALUES (0);
-#             """
-#     cursor.execute(sql_command)
-#     db.session.commit()
-#
-#     pub = db.session.query(Publishing).filter((Publishing.state == 0))
-#     rss.run(pub, "config")
-#
-#     assert db.session.query(Publishing).filter((Publishing.state == 1))
+def pre_validate_post_title(channel,maxLengthTitle):
+
+    post = Post
+    post.title = "x" * maxLengthTitle
+    post.description = "x"
+    post.link_url = "https://www.test.com"
+    post.image_url ="https://www.test.com"
+    assert pre_validate_post(channel, post) == 1
+    post.title += "x"
+    assert pre_validate_post(channel, post) == 0
+    post.title = ""
+    assert pre_validate_post(channel, post) == 0
+
+
+def pre_validate_post_description(channel, maxLengthDescription):
+    post = Post
+    post.title = "x"
+    post.description = "x" * maxLengthDescription
+    post.link_url = "https://www.test.com"
+    post.image_url = "https://www.test.com"
+    assert pre_validate_post(channel, post) == 1
+    post.description += "x"
+    assert pre_validate_post(channel, post) == 0
+    post.description = ""
+    assert pre_validate_post(channel, post) == 0
+
+def pre_validate_post_Link_url(channel):
+    post = Post
+    post.title = "x"
+    post.description = "x"
+    post.link_url = "https://www.test.com"
+    post.image_url = "https://www.test.com"
+    assert pre_validate_post(channel, post) == 1
+    post.link_url = "test error link"
+    assert pre_validate_post(channel, post) == 0
+    post.link_url = ""
+    assert pre_validate_post(channel, post) == 1
+
+def pre_validate_post_img_url(channel):
+    post = Post
+    post.title = "x"
+    post.description = "x"
+    post.link_url = "https://www.test.com"
+    post.image_url = "https://www.test.com"
+    assert pre_validate_post(channel, post) == 1
+    post.image_url = "test error link"
+    assert pre_validate_post(channel, post) == 0
+    post.image_url = ""
+    assert pre_validate_post(channel, post) == 1

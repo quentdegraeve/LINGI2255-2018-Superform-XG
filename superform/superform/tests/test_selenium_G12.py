@@ -34,15 +34,16 @@ def prepare():
 
     keepass.set_entry_from_keepass('account_superform')
     selenium_utils.login(pytest.driver, keepass.KeepassEntry.username, keepass.KeepassEntry.password)
-    """connection = sqlite3.connect(TESTDB_PATH)
+    connection = sqlite3.connect(TESTDB_PATH)
     cursor = connection.cursor()
-    sql_command = 
+    sql_command = """ 
         UPDATE user
         SET admin = 1
         WHERE id = 'superego';
+        """
     cursor.execute(sql_command)
     connection.commit()
-    connection.close()"""
+    connection.close()
     pytest.driver.close()
     pytest.driver = selenium_utils.get_chrome()
     selenium_utils.login(pytest.driver, keepass.KeepassEntry.username, keepass.KeepassEntry.password)
@@ -63,6 +64,7 @@ def test_add_post_rss_1():
     selenium_utils.add_new_post(pytest.driver, ['test_rss'], title, description, pytest.now, pytest.now, 'https://www.google.be/')
     pytest.driver.get(selenium_utils.index_url)
 
+    pytest.driver.find_element_by_css_selector('a[href="/moderate').click()
     assert pytest.driver.find_elements_by_css_selector('a[href="/moderate/1/1"]')
 
 def test_publish_post_rss_1():
@@ -80,6 +82,7 @@ def test_add_post_rss_2():
     description = 'test_rss description 2'
     selenium_utils.add_new_post(pytest.driver, ['test_rss'], title, description, pytest.now, pytest.now, 'https://www.google.be/')
     pytest.driver.get(selenium_utils.index_url)
+    pytest.driver.find_element_by_css_selector('a[href="/moderate').click()
 
     assert pytest.driver.find_elements_by_css_selector('a[href="/moderate/2/1"]')
 
@@ -89,6 +92,7 @@ def test_publish_post_rss_2():
     assert not pytest.driver.find_elements_by_css_selector('a[href="/moderate/2/1"]')
     assert "Internal Server Error" not in pytest.driver.title
 
+""" The group 4 force a date when there is no date so this won't bring a error now 
 def test_add_post_rss_empty_begining_date():
     title = 'test_rss title'
     description = 'test_rss description'
@@ -103,12 +107,13 @@ def test_add_post_rss_empty_ending_date():
     selenium_utils.add_new_post(pytest.driver, ['test_rss'], title, description, pytest.now, '')
 
     assert "Internal Server Error" in pytest.driver.title
-
+"""
 def test_add_post_gcal_1():
     title = 'test_gcal title 1'
     description = 'test_gcal description 1'
     selenium_utils.add_new_post_gcal(pytest.driver, ['test_gcal'], title, description, pytest.now, pytest.now, 'https://www.google.be/')
     pytest.driver.get(selenium_utils.index_url)
+    pytest.driver.find_element_by_css_selector('a[href="/moderate').click()
 
     assert pytest.driver.find_elements_by_css_selector('a[href="/moderate/3/2"]')
 def test_publish_post_gcal_1():
@@ -126,6 +131,7 @@ def test_add_post_gcal_2():
     description = 'test_gcal description 2'
     selenium_utils.add_new_post_gcal(pytest.driver, ['test_gcal'], title, description, pytest.now, pytest.now, 'https://www.google.be/')
     pytest.driver.get(selenium_utils.index_url)
+    pytest.driver.find_element_by_css_selector('a[href="/moderate').click()
 
     assert pytest.driver.find_elements_by_css_selector('a[href="/moderate/4/2"]')
 
@@ -135,6 +141,7 @@ def test_publish_post_gcal_2():
     assert not pytest.driver.find_elements_by_css_selector('a[href="/moderate/4/2"]')
     assert "Internal Server Error" not in pytest.driver.title
 
+"""  The group 4 force a date when there is no date so this won't bring a error now
 def test_add_post_gcal_empty_begining_date():
     title = 'test_gcal title'
     description = 'test_gcal description'
@@ -149,4 +156,4 @@ def test_add_post_gcal_empty_ending_date():
     selenium_utils.add_new_post(pytest.driver, ['test_gcal'], title, description, pytest.now, '')
 
     assert "Internal Server Error" in pytest.driver.title
-
+"""
