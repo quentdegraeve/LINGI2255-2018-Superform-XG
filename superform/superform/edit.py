@@ -78,8 +78,9 @@ def publish_edit_post(post_id):
                 chans = db.session.query(Channel).filter(Channel.id == pub.channel_id).all()
                 try:
                     from importlib import import_module
-                    plugin = import_module(p.module)
-                    can_edit = plugin.can_edit(pub, p.config)
+                    chan = db.session.query(Channel).filter(Channel.id == pub.channel_id).first()
+                    plugin = import_module(chan.module)
+                    can_edit = plugin.can_edit(pub, chan.config)
                 except AttributeError:
                     can_edit = False
                 if pub.state == 1 and can_edit:

@@ -90,16 +90,16 @@ def moderate_publishing(id, idc):
             return plugin.auto_auth(url, pub.channel_id)
         if pub.state == 66:
             try:
-                boolean = plugin.can_edit(pub, c_conf)
-                if boolean:
+                can_edit = plugin.can_edit(pub, c_conf)
+                if can_edit:
                     plugin.edit(pub, c_conf)
+                    pub.state = 1
                 else:
                     pub.state = 1
-                    print("No Edit")
                     db.session.commit()
             except AttributeError:
                 pub.state = 1
-                print("No Edit")
+                print("Error : module don't implement can_edit or edit method")
                 db.session.commit()
 
         else:
