@@ -271,7 +271,7 @@
             console.log(post)
 
             if (split[split.length-1] == "imagepost") {
-                var parent = $("#js-open-preview-image").parent();
+                var parent = $("#"+post).parent();
                 var input = parent.find("input");
                 var text = input.val();
                 var url = text;
