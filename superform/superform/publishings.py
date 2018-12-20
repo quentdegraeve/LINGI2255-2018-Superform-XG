@@ -94,6 +94,7 @@ def moderate_publishing(id, idc):
                 if can_edit:
                     plugin.edit(pub, c_conf)
                     pub.state = 1
+                    db.session.commit()
                 else:
                     pub.state = 1
                     db.session.commit()
